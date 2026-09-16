@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://4tkknhhw0gue"]
+
+[node name="Main" type="Node2D" unique_id=2049849376]
+
+[node name="Label" type="Label" parent="." unique_id=1258428698]
+offset_left = 500.0
+offset_top = 280.0
+offset_right = 655.0
+offset_bottom = 347.0
+theme_override_font_sizes/font_size = 48
+text = "Piyoko"
