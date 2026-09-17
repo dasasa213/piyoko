@@ -3,6 +3,9 @@ extends Control
 ## ピヨコ図鑑画面を管理する。
 ## 発見済みの姿だけ名前と本来の色で表示し、
 ## 未発見の姿はシルエット＋「？？？」で表示する。
+##
+## 図鑑IDは育成側の登録形式に合わせる。
+## ちび: chibi / 子: child_<type> / 大人: adult_<type>
 
 const TOTAL_COLLECTION_COUNT := 9
 const UNDISCOVERED_NAME := "？？？"
@@ -36,50 +39,50 @@ func _update_collection_cards() -> void:
 	)
 
 	_update_card(
-		"food",
+		"child_food",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildName,
 		"ごはんぴよこ"
 	)
 	_update_card(
-		"play",
+		"child_play",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildName,
 		"やんちゃぴよこ"
 	)
 	_update_card(
-		"pet",
+		"child_pet",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildName,
 		"あまえぴよこ"
 	)
 	_update_card(
-		"balance",
+		"child_balance",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildName,
 		"へいきんぴよこ"
 	)
 
 	_update_card(
-		"sweets",
+		"adult_sweets",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultName,
 		"すいーつぴよこ"
 	)
 	_update_card(
-		"champion",
+		"adult_champion",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultName,
 		"ちゃんぷぴよこ"
 	)
 	_update_card(
-		"challenger",
+		"adult_challenger",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultName,
 		"ふぁいとぴよこ"
 	)
 	_update_card(
-		"love",
+		"adult_love",
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultTexture,
 		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultName,
 		"らぶぴよこ"
