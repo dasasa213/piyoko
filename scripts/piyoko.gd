@@ -9,8 +9,8 @@ extends RefCounted
 # 成長ルール
 # ------------------------------------------------------------
 
-const CHILD_GROWTH_COUNT := 5
-const ADULT_GROWTH_COUNT := 10
+const CHILD_GROWTH_COUNT := 10
+const ADULT_GROWTH_COUNT := 15
 const STATUS_MIN := 0
 const STATUS_MAX := 5
 
@@ -47,6 +47,17 @@ var play_count: int = 0
 var play_success_count: int = 0
 var play_failure_count: int = 0
 
+# 子ぴよこ期だけの進化判定用履歴。
+# ちび期の操作回数と混ざらないよう、子ぴよこへ成長してから記録する。
+var adult_food_count: int = 0
+var adult_shortcake_count: int = 0
+var adult_onigiri_count: int = 0
+var adult_broccoli_count: int = 0
+var adult_pet_count: int = 0
+var adult_play_success_count: int = 0
+var adult_play_failure_count: int = 0
+var oshimotif_sequence_progress: int = 0
+
 # "food" / "pet" / "play"
 var last_care: String = ""
 
@@ -59,21 +70,30 @@ func feed(food_type: String) -> void:
 	_add_growth()
 	food_count += 1
 	last_care = "food"
+	if growth_stage == 1:
+		adult_food_count += 1
+		_record_oshimotif_step("food")
 
 	match food_type:
 		"shortcake":
 			shortcake_count += 1
+			if growth_stage == 1:
+				adult_shortcake_count += 1
 			_add_hunger(2)
 			_add_friendship(1)
 			_add_mood(2)
 
 		"onigiri":
 			onigiri_count += 1
+			if growth_stage == 1:
+				adult_onigiri_count += 1
 			_add_hunger(2)
 			_add_mood(1)
 
 		"broccoli":
 			broccoli_count += 1
+			if growth_stage == 1:
+				adult_broccoli_count += 1
 			_add_hunger(2)
 			_add_friendship(-1)
 			_add_mood(-1)
@@ -83,6 +103,9 @@ func pet() -> void:
 	_add_growth()
 	pet_count += 1
 	last_care = "pet"
+	if growth_stage == 1:
+		adult_pet_count += 1
+		_record_oshimotif_step("pet")
 
 	_add_friendship(1)
 	_add_mood(1)
@@ -98,10 +121,16 @@ func play(success: bool) -> void:
 
 	if success:
 		play_success_count += 1
+		if growth_stage == 1:
+			adult_play_success_count += 1
+			_record_oshimotif_step("play_success")
 		_add_friendship(2)
 		_add_mood(2)
 	else:
 		play_failure_count += 1
+		if growth_stage == 1:
+			adult_play_failure_count += 1
+			_record_oshimotif_step("play_failure")
 		_add_mood(-1)
 
 
@@ -124,6 +153,18 @@ func _add_mood(value: int) -> void:
 func _add_growth() -> void:
 	growth_count += 1
 	total_care_count += 1
+
+
+## 推しモチーフ条件「ごはん→遊ぶ成功→なでる」を連続で3周したか記録する。
+func _record_oshimotif_step(step: String) -> void:
+	var expected_steps := ["food", "play_success", "pet"]
+	var expected_step: String = expected_steps[oshimotif_sequence_progress % expected_steps.size()]
+
+	if step == expected_step:
+		oshimotif_sequence_progress += 1
+	else:
+		# 間違えた後のごはんは、新しい1周目の開始として扱う。
+		oshimotif_sequence_progress = 1 if step == "food" else 0
 
 
 # ------------------------------------------------------------
@@ -160,32 +201,52 @@ func _grow_to_adult() -> void:
 
 
 ## ちび期のお世話回数で子ぴよこの系統を決定する。
-## 同数または突出したお世話がない場合は balance とする。
+## 4・3・3はバランス、最大回数が同数なら最後に行った操作を優先する。
 func _determine_child_type() -> void:
-	if food_count > pet_count and food_count > play_count:
-		child_type = "food"
-	elif play_count > food_count and play_count > pet_count:
-		child_type = "play"
-	elif pet_count > food_count and pet_count > play_count:
-		child_type = "pet"
+	var counts := {
+		"food": food_count,
+		"play": play_count,
+		"pet": pet_count
+	}
+	var sorted_counts := [food_count, play_count, pet_count]
+	sorted_counts.sort()
+
+	if sorted_counts == [3, 3, 4]:
+		child_type = "balance"
+		return
+
+	var maximum: int = max(food_count, play_count, pet_count)
+	var maximum_types: Array[String] = []
+	for care_type in counts:
+		if int(counts[care_type]) == maximum:
+			maximum_types.append(str(care_type))
+
+	if maximum_types.size() == 1:
+		child_type = maximum_types[0]
+	elif last_care in maximum_types:
+		child_type = last_care
 	else:
 		child_type = "balance"
 
 
-## 大人の進化先は子ぴよこの系統だけで決定する。
+## 子ぴよこ期だけの履歴から、各系統につき2種類の大人進化先を決定する。
 func _determine_adult_type() -> void:
 	match child_type:
 		"food":
-			adult_type = "sweets"
+			var shortcake_is_top := (
+				adult_shortcake_count > adult_onigiri_count
+				and adult_shortcake_count > adult_broccoli_count
+			)
+			adult_type = "sweets" if shortcake_is_top else "gourmet"
 		"play":
-			adult_type = "champion"
+			adult_type = "champion" if adult_play_success_count > adult_play_failure_count else "challenger"
 		"pet":
-			adult_type = "love"
+			adult_type = "love" if mood >= 4 else "nap"
 		"balance":
-			adult_type = "challenger"
+			adult_type = "oshimotif" if oshimotif_sequence_progress >= 9 else "rainbow"
 		_:
 			# 想定外の系統でも進行不能にならないための保険。
-			adult_type = "challenger"
+			adult_type = "rainbow"
 
 
 # ------------------------------------------------------------
@@ -232,6 +293,14 @@ func get_adult_type_name() -> String:
 			return "ふぁいとぴよこ"
 		"love":
 			return "らぶぴよこ"
+		"gourmet":
+			return "ぐるめぴよこ"
+		"nap":
+			return "おひるねぴよこ"
+		"rainbow":
+			return "にじいろぴよこ"
+		"oshimotif":
+			return "おしモチーフぴよこ"
 		_:
 			return ""
 
@@ -263,6 +332,13 @@ func print_status() -> void:
 	print("あそぶ回数: ", play_count)
 	print("あそぶ成功: ", play_success_count)
 	print("あそぶ失敗: ", play_failure_count)
+	print("子期ショートケーキ: ", adult_shortcake_count)
+	print("子期おにぎり: ", adult_onigiri_count)
+	print("子期ブロッコリー: ", adult_broccoli_count)
+	print("子期なでる: ", adult_pet_count)
+	print("子期あそぶ成功: ", adult_play_success_count)
+	print("子期あそぶ失敗: ", adult_play_failure_count)
+	print("推しモチーフ順序: ", oshimotif_sequence_progress)
 
 	if growth_stage == 2:
 		print("大人タイプ: ", adult_type)
