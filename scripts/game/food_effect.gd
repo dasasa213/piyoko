@@ -6,10 +6,10 @@ extends Node
 
 signal finished(food_key: String)
 
-const FOOD_TEXTURES := {
-	"shortcake": preload("res://assets/items/food/01_shortcake.png"),
-	"onigiri": preload("res://assets/items/food/02_onigiri.png"),
-	"broccoli": preload("res://assets/items/food/03_broccoli.png"),
+const FOOD_IMAGE_PATHS := {
+	"shortcake": "res://assets/items/food/01_shortcake.png",
+	"onigiri": "res://assets/items/food/02_onigiri.png",
+	"broccoli": "res://assets/items/food/03_broccoli.png",
 }
 
 var _food_image: TextureRect
@@ -50,13 +50,19 @@ func is_active() -> bool:
 func play(food_key: String, _display_name: String, viewport_size: Vector2) -> void:
 	if _active:
 		return
-	if not FOOD_TEXTURES.has(food_key):
+	if not FOOD_IMAGE_PATHS.has(food_key):
 		push_warning("食べ物画像が見つかりません: %s" % food_key)
 		finished.emit(food_key)
 		return
 
+	var texture := _load_food_texture(str(FOOD_IMAGE_PATHS[food_key]))
+	if texture == null:
+		push_warning("食べ物画像を読み込めません: %s" % food_key)
+		finished.emit(food_key)
+		return
+
 	_active = true
-	_food_image.texture = FOOD_TEXTURES[food_key] as Texture2D
+	_food_image.texture = texture
 	_food_image.position = Vector2(
 		viewport_size.x * 0.5 - (_food_image.size.x * 0.5),
 		viewport_size.y * 0.74
@@ -89,6 +95,15 @@ func play(food_key: String, _display_name: String, viewport_size: Vector2) -> vo
 	tween.parallel().tween_property(_reaction_label, "position:y", _reaction_label.position.y - 18.0, 0.30)
 	tween.parallel().tween_property(_reaction_label, "modulate:a", 0.0, 0.30)
 	tween.tween_callback(_finish.bind(food_key))
+
+
+func _load_food_texture(path: String) -> Texture2D:
+	# インポートキャッシュに依存せず、PNG本体から直接テクスチャを作る。
+	var image := Image.new()
+	var error := image.load(path)
+	if error != OK:
+		return null
+	return ImageTexture.create_from_image(image)
 
 
 func _finish(food_key: String) -> void:
