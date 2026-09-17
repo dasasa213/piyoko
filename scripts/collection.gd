@@ -3,9 +3,7 @@ extends Control
 ## ピヨコ図鑑画面を管理する。
 ## 発見済みの姿だけ名前と本来の色で表示し、
 ## 未発見の姿はシルエット＋「？？？」で表示する。
-##
-## 図鑑IDは育成側の登録形式に合わせる。
-## ちび: chibi / 子: child_<type> / 大人: adult_<type>
+## 系統図の段階見出し・配置は collection.tscn 側で管理する。
 
 const TOTAL_COLLECTION_COUNT := 9
 const UNDISCOVERED_NAME := "？？？"
@@ -13,21 +11,20 @@ const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
 
-# frame_card.png は 256x320（4:5）の縦長カード素材。
-# 元画像の比率を維持したまま一回り大きくし、名前の横幅も確保する。
-const CARD_FRAME_SIZE := Vector2(128.0, 160.0)
-const CARD_FRAME_OFFSET := Vector2(0.0, -4.0)
-const CARD_SIZE := Vector2(142.0, 160.0)
-const CARD_TEXTURE_SIZE := Vector2(128.0, 111.0)
-const CARD_NAME_HEIGHT := 42.0
-const CARD_NAME_FONT_SIZE := 13
+# 図鑑では横幅に余裕を持たせたカードとして使用する。
+# NinePatchRect なので枠の角を保ったまま横方向へ拡張できる。
+const CARD_FRAME_SIZE := Vector2(180.0, 142.0)
+const CARD_FRAME_OFFSET := Vector2(0.0, 0.0)
+const CARD_SIZE := Vector2(180.0, 142.0)
+const CARD_TEXTURE_SIZE := Vector2(180.0, 103.0)
+const CARD_NAME_HEIGHT := 35.0
+const CARD_NAME_FONT_SIZE := 14
 
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
 
 func _ready() -> void:
 	_setup_card_frames()
-	_setup_growth_stage_guides()
 	_update_collection_count()
 	_update_collection_cards()
 	_update_back_button_text()
@@ -57,42 +54,12 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	frame.size = CARD_FRAME_SIZE
 	frame.show_behind_parent = true
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	texture_rect.position.y = -2.0
 	name_label.custom_minimum_size = Vector2(0.0, CARD_NAME_HEIGHT)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
-
-func _setup_growth_stage_guides() -> void:
-	var area := $MainMargin/CollectionLayout/CollectionArea
-	_add_stage_label(area, "ちび", 0.5, 0.018)
-	_add_stage_label(area, "こども", 0.5, 0.315)
-	_add_stage_label(area, "おとな", 0.5, 0.655)
-
-func _add_stage_label(area: Control, text_value: String, anchor_x: float, anchor_y: float) -> void:
-	var label := Label.new()
-	label.text = text_value
-	label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	label.anchor_left = anchor_x
-	label.anchor_right = anchor_x
-	label.anchor_top = anchor_y
-	label.anchor_bottom = anchor_y
-	label.offset_left = -45.0
-	label.offset_right = 45.0
-	label.offset_top = 0.0
-	label.offset_bottom = 22.0
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.z_index = 5
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", Color(0.31, 0.20, 0.11, 1.0))
-	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.95))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	area.add_child(label)
 
 func _update_back_button_text() -> void:
 	if get_tree().has_meta(RETURN_SCENE_META):
