@@ -1,240 +1,223 @@
 class_name Piyoko
 extends RefCounted
 
+## ピヨコ1体分の育成状態と、お世話・成長ルールを管理する。
+## 画面表示や演出は持たず、育成データとゲームルールだけを扱う。
 
-# ==============================
-# ピヨコの基本ステータス
-# ==============================
 
-# 現在の成長段階
-# 0 = ちびぴよこ
-# 1 = 子ぴよこ
-# 2 = 大人ぴよこ
+# ------------------------------------------------------------
+# 成長ルール
+# ------------------------------------------------------------
+
+const CHILD_GROWTH_COUNT := 5
+const ADULT_GROWTH_COUNT := 10
+const STATUS_MIN := 0
+const STATUS_MAX := 5
+
+
+# ------------------------------------------------------------
+# 育成状態
+# ------------------------------------------------------------
+
+# -1: たまご / 0: ちび / 1: 子 / 2: 大人
 var growth_stage: int = 0
-# 現在の成長段階でのお世話回数
 var growth_count: int = 0
-# ゲーム開始からのお世話総数
 var total_care_count: int = 0
-#成長タイミング
-const CHILD_GROWTH_COUNT = 5
-const ADULT_GROWTH_COUNT = 10
-#ぴよこタイプ
+
 var child_type: String = ""
 var adult_type: String = ""
-#おなか
+
 var hunger: int = 3
-#なかよし
 var friendship: int = 3
-#きげん
 var mood: int = 3
 
 
-# ==============================
-# お世話回数
-# ==============================
+# ------------------------------------------------------------
+# お世話履歴
+# ------------------------------------------------------------
 
-#食事履歴
 var food_count: int = 0
 var shortcake_count: int = 0
 var onigiri_count: int = 0
 var broccoli_count: int = 0
-#なでる履歴
+
 var pet_count: int = 0
-#あそぶ履歴
+
 var play_count: int = 0
 var play_success_count: int = 0
 var play_failure_count: int = 0
 
-# 最後に行ったお世話
+# "food" / "pet" / "play"
 var last_care: String = ""
 
 
-# ==============================
-# ステータス共通処理
-# ==============================
-
-func add_hunger(value: int) -> void:
-	hunger = clamp(hunger + value, 0, 5)
-
-
-func add_friendship(value: int) -> void:
-	friendship = clamp(friendship + value, 0, 5)
-
-
-func add_mood(value: int) -> void:
-	mood = clamp(mood + value, 0, 5)
-
-
-func add_growth() -> void:
-	growth_count += 1
-	total_care_count += 1
-
-
-# ==============================
+# ------------------------------------------------------------
 # お世話
-# ==============================
+# ------------------------------------------------------------
 
 func feed(food_type: String) -> void:
-	add_growth()
-
+	_add_growth()
 	food_count += 1
 	last_care = "food"
 
 	match food_type:
 		"shortcake":
 			shortcake_count += 1
-			add_hunger(2)
-			add_friendship(1)
-			add_mood(2)
+			_add_hunger(2)
+			_add_friendship(1)
+			_add_mood(2)
 
 		"onigiri":
 			onigiri_count += 1
-			add_hunger(2)
-			add_mood(1)
+			_add_hunger(2)
+			_add_mood(1)
 
 		"broccoli":
 			broccoli_count += 1
-			add_hunger(2)
-			add_friendship(-1)
-			add_mood(-1)
+			_add_hunger(2)
+			_add_friendship(-1)
+			_add_mood(-1)
 
 
 func pet() -> void:
-	add_growth()
-
+	_add_growth()
 	pet_count += 1
 	last_care = "pet"
 
-	add_friendship(1)
-	add_mood(1)
+	_add_friendship(1)
+	_add_mood(1)
 
 
 func play(success: bool) -> void:
-	add_growth()
-
+	_add_growth()
 	play_count += 1
 	last_care = "play"
-	
-	#遊ぶお腹が減る
-	add_hunger(-1)
+
+	# 遊ぶと成功・失敗に関係なくおなかが1減る。
+	_add_hunger(-1)
 
 	if success:
 		play_success_count += 1
-
-		add_friendship(2)
-		add_mood(2)
+		_add_friendship(2)
+		_add_mood(2)
 	else:
 		play_failure_count += 1
+		_add_mood(-1)
 
-		add_mood(-1)
+
+# ------------------------------------------------------------
+# ステータス共通処理
+# ------------------------------------------------------------
+
+func _add_hunger(value: int) -> void:
+	hunger = clamp(hunger + value, STATUS_MIN, STATUS_MAX)
 
 
+func _add_friendship(value: int) -> void:
+	friendship = clamp(friendship + value, STATUS_MIN, STATUS_MAX)
+
+
+func _add_mood(value: int) -> void:
+	mood = clamp(mood + value, STATUS_MIN, STATUS_MAX)
+
+
+func _add_growth() -> void:
+	growth_count += 1
+	total_care_count += 1
+
+
+# ------------------------------------------------------------
+# 成長判定
+# ------------------------------------------------------------
+
+## 現在のお世話回数を確認し、成長した場合だけ true を返す。
 func check_growth() -> bool:
-	# ちびぴよこ → 子ぴよこ
 	if growth_stage == 0 and growth_count >= CHILD_GROWTH_COUNT:
-		determine_child_type()
-		
-		PiyokoCollectionManager.discover(
-			"child_" + child_type
-		)
-
-		growth_stage = 1
-		growth_count = 0
-
+		_grow_to_child()
 		return true
 
-	# 子ぴよこ → 大人ぴよこ
 	if growth_stage == 1 and growth_count >= ADULT_GROWTH_COUNT:
-		determine_adult_type()
-		
-		PiyokoCollectionManager.discover(
-			"adult_" + adult_type
-		)
-
-		growth_stage = 2
-		growth_count = 0
-
+		_grow_to_adult()
 		return true
 
 	return false
 
 
-func get_growth_stage_name() -> String:
-	match growth_stage:
-		-1:
-			return "たまご"
-			
-		0:
-			return "ちびぴよこ"
+func _grow_to_child() -> void:
+	_determine_child_type()
+	PiyokoCollectionManager.discover("child_" + child_type)
 
-		1:
-			var child_name := get_child_type_name()
-
-			if child_name != "":
-				return child_name
-			return "子ぴよこ"
-
-		2:
-			var adult_name := get_adult_type_name()
-
-			if adult_name != "":
-				return adult_name
-
-			return "大人ぴよこ"
-
-		_:
-			return "ちびぴよこ"
+	growth_stage = 1
+	growth_count = 0
 
 
-func determine_child_type() -> void:
-	var feed_count := shortcake_count + onigiri_count + broccoli_count
+func _grow_to_adult() -> void:
+	_determine_adult_type()
+	PiyokoCollectionManager.discover("adult_" + adult_type)
 
-	if feed_count > pet_count and feed_count > play_count:
+	growth_stage = 2
+	growth_count = 0
+
+
+## ちび期のお世話回数で子ぴよこの系統を決定する。
+## 同数または突出したお世話がない場合は balance とする。
+func _determine_child_type() -> void:
+	if food_count > pet_count and food_count > play_count:
 		child_type = "food"
-
-	elif play_count > feed_count and play_count > pet_count:
+	elif play_count > food_count and play_count > pet_count:
 		child_type = "play"
-
-	elif pet_count > feed_count and pet_count > play_count:
+	elif pet_count > food_count and pet_count > play_count:
 		child_type = "pet"
-
 	else:
 		child_type = "balance"
 
 
-func determine_adult_type() -> void:
+## 大人の進化先は子ぴよこの系統だけで決定する。
+func _determine_adult_type() -> void:
 	match child_type:
 		"food":
 			adult_type = "sweets"
-
 		"play":
 			adult_type = "champion"
-
 		"pet":
 			adult_type = "love"
-
 		"balance":
 			adult_type = "challenger"
-
 		_:
-			# 想定外の場合の保険
+			# 想定外の系統でも進行不能にならないための保険。
 			adult_type = "challenger"
+
+
+# ------------------------------------------------------------
+# 表示用情報
+# ------------------------------------------------------------
+
+func get_growth_stage_name() -> String:
+	match growth_stage:
+		-1:
+			return "たまご"
+		0:
+			return "ちびぴよこ"
+		1:
+			var child_name := get_child_type_name()
+			return child_name if child_name != "" else "子ぴよこ"
+		2:
+			var adult_name := get_adult_type_name()
+			return adult_name if adult_name != "" else "大人ぴよこ"
+		_:
+			return "ちびぴよこ"
 
 
 func get_child_type_name() -> String:
 	match child_type:
 		"food":
 			return "ごはんぴよこ"
-
 		"play":
 			return "やんちゃぴよこ"
-
 		"pet":
 			return "あまえぴよこ"
-
 		"balance":
 			return "へいきんぴよこ"
-
 		_:
 			return ""
 
@@ -243,16 +226,12 @@ func get_adult_type_name() -> String:
 	match adult_type:
 		"sweets":
 			return "すいーつぴよこ"
-
 		"champion":
 			return "ちゃんぷぴよこ"
-
 		"challenger":
 			return "ふぁいとぴよこ"
-
 		"love":
 			return "らぶぴよこ"
-
 		_:
 			return ""
 
@@ -261,18 +240,17 @@ func get_required_growth_count() -> int:
 	match growth_stage:
 		0:
 			return CHILD_GROWTH_COUNT
-
 		1:
 			return ADULT_GROWTH_COUNT
-
 		_:
 			return 0
 
 
-# ==============================
-# 現在の状態を確認
-# ==============================
+# ------------------------------------------------------------
+# デバッグ
+# ------------------------------------------------------------
 
+## 開発中に現在の育成状態をGodotの出力へ表示する。
 func print_status() -> void:
 	print("--------------------")
 	print("成長段階: ", get_growth_stage_name())
@@ -285,6 +263,8 @@ func print_status() -> void:
 	print("あそぶ回数: ", play_count)
 	print("あそぶ成功: ", play_success_count)
 	print("あそぶ失敗: ", play_failure_count)
+
 	if growth_stage == 2:
 		print("大人タイプ: ", adult_type)
+
 	print("--------------------")
