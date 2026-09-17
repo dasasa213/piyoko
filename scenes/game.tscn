@@ -466,6 +466,10 @@ layout_mode = 2
 layout_mode = 2
 text = "図鑑"
 
+[node name="ResetButton" type="Button" parent="GameMenuPanel/GameMenu" unique_id=903147308]
+layout_mode = 2
+text = "最初から"
+
 [node name="BackToTitleButton" type="Button" parent="GameMenuPanel/GameMenu" unique_id=1730399478]
 layout_mode = 2
 text = "タイトルへ戻る"
@@ -477,3 +481,17 @@ text = "ゲーム終了"
 [node name="CloseMenuButton" type="Button" parent="GameMenuPanel/GameMenu" unique_id=327086181]
 layout_mode = 2
 text = "閉じる"
+
+[node name="ResetConfirmDialog" type="ConfirmationDialog" parent="." unique_id=754545064]
+oversampling_override = 1.0
+title = "最初から育て直す"
+position = Vector2i(0, 36)
+size = Vector2i(287, 184)
+visible = true
+ok_button_text = "はい"
+dialog_text = "現在育てているピヨコとお別れして、
+新しいたまごから育て直します。
+
+図鑑の記録は残ります。
+本当に育て直しますか？"
+cancel_button_text = "いいえ"

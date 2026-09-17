@@ -203,34 +203,37 @@ func determine_child_type() -> void:
 
 
 func determine_adult_type() -> void:
-	var feed_count := shortcake_count + onigiri_count + broccoli_count
+	match child_type:
+		"food":
+			adult_type = "sweets"
 
-	if feed_count >= pet_count and feed_count >= play_count:
-		adult_type = "sweets"
-
-	elif pet_count >= feed_count and pet_count >= play_count:
-		adult_type = "love"
-
-	else:
-		if play_success_count > play_failure_count:
+		"play":
 			adult_type = "champion"
-		else:
+
+		"pet":
+			adult_type = "love"
+
+		"balance":
+			adult_type = "challenger"
+
+		_:
+			# 想定外の場合の保険
 			adult_type = "challenger"
 
 
 func get_child_type_name() -> String:
 	match child_type:
 		"food":
-			return "ごはんピヨコ"
+			return "ごはんぴよこ"
 
 		"play":
-			return "あそびピヨコ"
+			return "やんちゃぴよこ"
 
 		"pet":
-			return "なでなでピヨコ"
+			return "あまえぴよこ"
 
 		"balance":
-			return "バランスピヨコ"
+			return "へいきんぴよこ"
 
 		_:
 			return ""
@@ -239,16 +242,16 @@ func get_child_type_name() -> String:
 func get_adult_type_name() -> String:
 	match adult_type:
 		"sweets":
-			return "スウィートタイプ"
-
-		"love":
-			return "ラブタイプ"
+			return "すいーつぴよこ"
 
 		"champion":
-			return "チャンピオンピヨコ"
+			return "ちゃんぷぴよこ"
 
 		"challenger":
-			return "チャレンジャーピヨコ"
+			return "ふぁいとぴよこ"
+
+		"love":
+			return "らぶぴよこ"
 
 		_:
 			return ""

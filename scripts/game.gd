@@ -85,6 +85,14 @@ func _ready() -> void:
 		_on_collection_button_pressed
 	)
 	
+	$GameMenuPanel/GameMenu/ResetButton.pressed.connect(
+		_on_reset_button_pressed
+	)
+
+	$ResetConfirmDialog.confirmed.connect(
+		_on_reset_confirmed
+	)
+	
 	#③ローした状態画面へ反映
 	_update_status_display()
 	_update_piyoko_texture()
@@ -417,3 +425,8 @@ func _on_quit_button_pressed() -> void:
 
 func _on_collection_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/collection.tscn")
+
+
+func _on_reset_button_pressed() -> void:
+	$GameMenuPanel.hide()
+	$ResetConfirmDialog.popup_centered()
