@@ -415,6 +415,8 @@ func _create_finish_care_ui() -> void:
 
 func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
 	dialog.min_size = minimum_size
+	dialog.borderless = true
+	dialog.unresizable = true
 	# 標準タイトルバーを使わず、見出しを本文カード内へ収める。
 	var heading := dialog.title
 	if not heading.is_empty():
@@ -445,8 +447,11 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 
 	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
 	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
-		button.custom_minimum_size = Vector2(190, 52)
-		button.add_theme_font_size_override("font_size", 18)
+		button.custom_minimum_size = Vector2(220, 56)
+		button.add_theme_font_size_override("font_size", 16)
+		button.clip_text = false
+		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
 		button.add_theme_color_override("font_pressed_color", Color("492d16"))
