@@ -430,3 +430,13 @@ func _on_collection_button_pressed() -> void:
 func _on_reset_button_pressed() -> void:
 	$GameMenuPanel.hide()
 	$ResetConfirmDialog.popup_centered()
+
+
+func _on_reset_confirmed() -> void:
+	var success := PiyokoSaveManager.delete_save()
+
+	if not success:
+		push_error("育成データのリセットに失敗しました")
+		return
+
+	get_tree().reload_current_scene()
