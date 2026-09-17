@@ -233,7 +233,7 @@ title = "確認"
 size = Vector2i(222, 106)
 ok_button_text = "はじめから"
 dialog_text = "今の育成データが消えます。
-図鑑の発見記録は残ります。
+図鑑とおもいでの記録は残ります。
 はじめから遊びますか？"
 cancel_button_text = "キャンセル"
 
