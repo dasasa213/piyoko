@@ -12,28 +12,28 @@ const RETURN_SCENE_META := "collection_return_scene"
 
 const FRAME_TEXTURE := preload("res://assets/ui/panels/frame_card.png")
 
-const CARD_SIZE := Vector2(126.0, 96.0)
-const CARD_TEXTURE_POSITION := Vector2(6.0, 3.0)
-const CARD_TEXTURE_SIZE := Vector2(114.0, 66.0)
-const CARD_NAME_POSITION := Vector2(4.0, 69.0)
-const CARD_NAME_SIZE := Vector2(118.0, 24.0)
-const CARD_NAME_FONT_SIZE := 12
+const CARD_SIZE := Vector2(150.0, 118.0)
+const CARD_TEXTURE_POSITION := Vector2(7.0, 5.0)
+const CARD_TEXTURE_SIZE := Vector2(136.0, 80.0)
+const CARD_NAME_POSITION := Vector2(4.0, 86.0)
+const CARD_NAME_SIZE := Vector2(142.0, 27.0)
+const CARD_NAME_FONT_SIZE := 13
 
 # 1280x720の画面内で14形態を確認できるサイズ。
-const DIAGRAM_SIZE := Vector2(1140.0, 442.0)
-const CENTER_CARD_X := 507.0
+const DIAGRAM_SIZE := Vector2(1450.0, 650.0)
+const CENTER_CARD_X := 650.0
 const EGG_Y := 0.0
-const CHIBI_Y := 110.0
-const CHILD_Y := 220.0
-const ADULT_Y := 330.0
-const CHILD_X := [164.0, 420.0, 676.0, 932.0]
-const ADULT_X := [100.0, 228.0, 356.0, 484.0, 612.0, 740.0, 868.0, 996.0]
+const CHIBI_Y := 170.0
+const CHILD_Y := 340.0
+const ADULT_Y := 510.0
+const CHILD_X := [198.5, 532.5, 866.5, 1200.5]
+const ADULT_X := [115.0, 282.0, 449.0, 616.0, 783.0, 950.0, 1117.0, 1284.0]
 const STAGE_LABEL_X := 2.0
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
-const LINE_WIDTH := 3.0
-const ARROW_SIZE := 7.0
-const LINE_GAP := 5.0
+const LINE_WIDTH := 4.0
+const ARROW_SIZE := 8.0
+const LINE_GAP := 9.0
 
 const FORM_DATA := [
 	{"id": "egg", "name": "たまご", "texture": PiyokoTextureManager.EGG_TEXTURE},
@@ -138,6 +138,8 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	name_label.size = CARD_NAME_SIZE
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.clip_text = true
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
