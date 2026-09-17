@@ -1,8 +1,8 @@
 extends Control
 
 ## ピヨコ図鑑画面。
-## 系統図は1枚の DiagramCanvas 上でカード・カテゴリ・進化線を同じ座標系で管理する。
-## 現在の9種類ではスクロールを出さず、将来キャンバスが表示領域を超えた時だけスクロールへ切り替える。
+## カード・進化線・段ラベルを1枚のDiagramCanvas上で同じ座標系に固定する。
+## 現在9種類は1画面表示。将来キャンバスを広げた場合のみスクロールする。
 
 const TOTAL_COLLECTION_COUNT := 9
 const UNDISCOVERED_NAME := "？？？"
@@ -10,22 +10,24 @@ const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
 
-const CARD_SIZE := Vector2(180.0, 126.0)
-const CARD_TEXTURE_SIZE := Vector2(180.0, 91.0)
+const CARD_SIZE := Vector2(190.0, 126.0)
+const CARD_TEXTURE_SIZE := Vector2(190.0, 91.0)
 const CARD_NAME_HEIGHT := 31.0
 const CARD_NAME_FONT_SIZE := 14
 
-# 現在9種類を1280x648内へ収めるサイズ。
-# 将来列や段を追加するときはこのサイズを広げればスクロールへ移行できる。
+# 承認済みイメージに合わせた系統図座標。
+# 左側に段ラベル用の余白を確保し、4列を均等配置する。
 const DIAGRAM_SIZE := Vector2(1080.0, 438.0)
-const CHIBI_POS := Vector2(450.0, 4.0)
-const CHILD_Y := 154.0
-const ADULT_Y := 304.0
-const COLUMN_X := [70.0, 320.0, 570.0, 820.0]
+const CHIBI_POS := Vector2(475.0, 2.0)
+const CHILD_Y := 158.0
+const ADULT_Y := 312.0
+const COLUMN_X := [105.0, 345.0, 585.0, 825.0]
+const STAGE_LABEL_X := 2.0
 
-const LINE_COLOR := Color(0.28, 0.17, 0.09, 0.92)
+const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
 const LINE_WIDTH := 4.0
-const ARROW_SIZE := 7.0
+const ARROW_SIZE := 8.0
+const LINE_GAP := 8.0
 
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
@@ -50,10 +52,8 @@ func _ready() -> void:
 	_update_collection_cards()
 	_update_back_button_text()
 	back_button.pressed.connect(_on_back_button_pressed)
-	call_deferred("_update_scroll_mode")
+	call_deferred("_finish_layout")
 
-## 系統図専用キャンバスを作り、既存カードをそこへ移す。
-## カードと線を同じ座標系に固定することでContainer再配置によるズレを防ぐ。
 func _build_diagram_canvas() -> void:
 	diagram_canvas = Control.new()
 	diagram_canvas.name = "DiagramCanvas"
@@ -69,6 +69,7 @@ func _build_diagram_canvas() -> void:
 		child_row.get_node("PetChildCard") as Control,
 		child_row.get_node("BalanceChildCard") as Control
 	]
+	# 進化先と同じ列順に固定する。
 	adult_cards = [
 		adult_row.get_node("SweetsAdultCard") as Control,
 		adult_row.get_node("ChampionAdultCard") as Control,
@@ -82,7 +83,7 @@ func _build_diagram_canvas() -> void:
 	for i in adult_cards.size():
 		_reparent_card(adult_cards[i], Vector2(COLUMN_X[i], ADULT_Y))
 
-	# 元のContainer行は完全にレイアウト計算から外す。
+	# 元のContainer行は系統図レイアウトから完全に外す。
 	for row in [chibi_row, child_row, adult_row]:
 		row.hide()
 		row.custom_minimum_size = Vector2.ZERO
@@ -93,7 +94,6 @@ func _build_diagram_canvas() -> void:
 		future_space.hide()
 		future_space.custom_minimum_size = Vector2.ZERO
 
-	# tscnに残る旧サイズ指定を実行時に解除する。
 	evolution_tree.custom_minimum_size = Vector2.ZERO
 	evolution_tree.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	evolution_tree.add_theme_constant_override("separation", 0)
@@ -104,6 +104,7 @@ func _reparent_card(card: Control, target_position: Vector2) -> void:
 	card.position = target_position
 	card.size = CARD_SIZE
 	card.custom_minimum_size = CARD_SIZE
+	card.z_index = 2
 
 func _setup_card_frames() -> void:
 	_setup_card(chibi_card, chibi_card.get_node("Frame"), chibi_card.get_node("ChibiTexture"), chibi_card.get_node("ChibiName"))
@@ -135,56 +136,70 @@ func _setup_card(card: Control, frame: NinePatchRect, texture_rect: TextureRect,
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
-## カテゴリは系統図の左余白内へ配置し、画面端に貼り付かないようにする。
+## 段ラベルは線上に置かず、左側の専用領域に表示する。
 func _setup_stage_labels() -> void:
-	_add_stage_label("🌱 ちび", Vector2(4.0, CHIBI_POS.y + 48.0))
-	_add_stage_label("🌸 こども", Vector2(4.0, CHILD_Y + 48.0))
-	_add_stage_label("♛ おとな", Vector2(4.0, ADULT_Y + 48.0))
+	_add_stage_label("🌱 ちび", Vector2(STAGE_LABEL_X, 47.0), Color(0.98, 0.82, 0.49, 0.96))
+	_add_stage_label("🌸 こども", Vector2(STAGE_LABEL_X, CHILD_Y + 47.0), Color(1.0, 0.76, 0.80, 0.96))
+	_add_stage_label("♛ おとな", Vector2(STAGE_LABEL_X, ADULT_Y + 47.0), Color(0.67, 0.88, 1.0, 0.96))
 
-func _add_stage_label(text_value: String, target_position: Vector2) -> void:
+func _add_stage_label(text_value: String, target_position: Vector2, background_color: Color) -> void:
+	var panel := PanelContainer.new()
+	panel.position = target_position
+	panel.size = Vector2(96.0, 34.0)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.z_index = 3
+	var style := StyleBoxFlat.new()
+	style.bg_color = background_color
+	style.border_color = Color(0.48, 0.31, 0.18, 0.55)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(17)
+	panel.add_theme_stylebox_override("panel", style)
 	var label := Label.new()
 	label.text = text_value
-	label.position = target_position
-	label.size = Vector2(64.0, 28.0)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label.custom_minimum_size = Vector2(88.0, 30.0)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("font_size", 14)
-	label.add_theme_color_override("font_color", Color(0.31, 0.20, 0.11, 1.0))
-	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.95))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	diagram_canvas.add_child(label)
+	label.add_theme_color_override("font_color", Color(0.24, 0.14, 0.08, 1.0))
+	panel.add_child(label)
+	diagram_canvas.add_child(panel)
 
-## 重要: 以前 z_index=-1 にして背景へ潜り、線が消えたため負のz_indexは使わない。
-## 同じz_indexの最初の子として線レイヤーを置き、カードより先に描画して「背景より前・カードより後ろ」を実現する。
+## 進化線は専用レイヤーへ描画。
+## 負のz_indexは使わず、線=1 / カード=2 / ラベル=3 と明示して過去の「線が背景へ消える」問題を防ぐ。
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
 	evolution_lines.position = Vector2.ZERO
 	evolution_lines.size = DIAGRAM_SIZE
 	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	evolution_lines.z_index = 0
+	evolution_lines.z_index = 1
 	evolution_lines.draw.connect(_draw_evolution_lines)
 	diagram_canvas.add_child(evolution_lines)
-	diagram_canvas.move_child(evolution_lines, 0)
-	evolution_lines.queue_redraw()
+
+func _finish_layout() -> void:
+	_update_scroll_mode()
+	if evolution_lines != null:
+		evolution_lines.queue_redraw()
 
 func _draw_evolution_lines() -> void:
-	# ちび → こども4種。カード間の空白で分岐し、カード内部へ線を入れない。
+	# ちび → こども4種。
+	# ちびカード下端から中央幹を伸ばし、空白中央で横分岐して各カード上端へ接続する。
 	var start := _bottom_center(chibi_card)
 	var child_tops: Array[Vector2] = []
 	for card in child_cards:
 		child_tops.append(_top_center(card))
-	var branch_y := (start.y + child_tops[0].y) * 0.5
-	_draw_line(start, Vector2(start.x, branch_y))
+	var branch_y := start.y + ((child_tops[0].y - start.y) * 0.48)
+	_draw_line(start + Vector2(0.0, LINE_GAP), Vector2(start.x, branch_y))
 	_draw_line(Vector2(child_tops[0].x, branch_y), Vector2(child_tops[3].x, branch_y))
 	for target in child_tops:
-		_draw_arrow(Vector2(target.x, branch_y), target)
+		_draw_arrow(Vector2(target.x, branch_y), target - Vector2(0.0, LINE_GAP))
 
-	# こども → おとな。表示順を進化対応順にそろえているので交差しない。
+	# こども → おとな。各進化先を同じ列に置き、完全な縦線にする。
 	for i in child_cards.size():
-		_draw_arrow(_bottom_center(child_cards[i]), _top_center(adult_cards[i]))
+		var from := _bottom_center(child_cards[i]) + Vector2(0.0, LINE_GAP)
+		var target := _top_center(adult_cards[i]) - Vector2(0.0, LINE_GAP)
+		_draw_arrow(from, target)
 
 func _top_center(card: Control) -> Vector2:
 	return card.position + Vector2(card.size.x * 0.5, 0.0)
@@ -197,22 +212,23 @@ func _draw_line(from: Vector2, to: Vector2) -> void:
 
 func _draw_arrow(from: Vector2, to: Vector2) -> void:
 	_draw_line(from, to)
-	var tip := to - Vector2(0.0, 3.0)
+	var direction := (to - from).normalized()
+	var side := Vector2(-direction.y, direction.x)
+	var tip := to
+	var base := tip - direction * ARROW_SIZE
 	var points := PackedVector2Array([
 		tip,
-		tip + Vector2(-ARROW_SIZE, -ARROW_SIZE),
-		tip + Vector2(ARROW_SIZE, -ARROW_SIZE)
+		base + side * (ARROW_SIZE * 0.65),
+		base - side * (ARROW_SIZE * 0.65)
 	])
 	evolution_lines.draw_colored_polygon(points, LINE_COLOR)
 
-## 現在のキャンバスが表示領域に収まる場合はスクロールバーを完全に隠す。
-## 将来DIAGRAM_SIZEを広げた場合だけAUTOへ切り替える。
+## 9種類が収まる間はバーを出さない。
+## 将来DIAGRAM_SIZEが表示領域を超えた場合だけAUTOへ切り替える。
 func _update_scroll_mode() -> void:
 	var viewport_size := collection_area.size
-	var needs_horizontal := DIAGRAM_SIZE.x > viewport_size.x
-	var needs_vertical := DIAGRAM_SIZE.y > viewport_size.y
-	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if needs_horizontal else ScrollContainer.SCROLL_MODE_DISABLED
-	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if needs_vertical else ScrollContainer.SCROLL_MODE_DISABLED
+	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if DIAGRAM_SIZE.x > viewport_size.x else ScrollContainer.SCROLL_MODE_DISABLED
+	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if DIAGRAM_SIZE.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
 
 func _update_back_button_text() -> void:
 	if get_tree().has_meta(RETURN_SCENE_META):
