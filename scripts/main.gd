@@ -1,15 +1,18 @@
 extends Control
 
 const COLLECTION_RETURN_SCENE_META := "collection_return_scene"
+const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
 const TITLE_SCENE := "res://scenes/main.tscn"
 
 var collection_button: Button
+var memories_button: Button
 var dialog_dim: ColorRect
 
 
 func _ready() -> void:
 	_setup_dialog_dim()
 	_setup_collection_button()
+	_setup_memories_button()
 	_update_start_buttons()
 	$OptionsPanel.hide()
 
@@ -156,6 +159,30 @@ func _setup_collection_button() -> void:
 	title_menu.move_child(collection_button, $TitleCenter/TitleMenu/OptionsButton.get_index())
 
 
+func _setup_memories_button() -> void:
+	memories_button = Button.new()
+	memories_button.name = "MemoriesButton"
+	memories_button.text = "育成記録"
+	memories_button.custom_minimum_size = Vector2(292, 48)
+	memories_button.add_theme_font_size_override("font_size", 22)
+	memories_button.add_theme_color_override("font_color", Color("492d16"))
+
+	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
+	for style_name in [&"normal", &"hover", &"pressed"]:
+		memories_button.add_theme_stylebox_override(
+			style_name,
+			style_source.get_theme_stylebox(style_name).duplicate()
+		)
+
+	memories_button.pressed.connect(_on_memories_button_pressed)
+
+	var title_menu := $TitleCenter/TitleMenu
+	title_menu.add_child(memories_button)
+	title_menu.move_child(memories_button, $TitleCenter/TitleMenu/OptionsButton.get_index())
+	title_menu.position.y = 292.0
+	title_menu.add_theme_constant_override("separation", 8)
+
+
 func _update_start_buttons() -> void:
 	var has_save := PiyokoSaveManager.has_save()
 	$TitleCenter/TitleMenu/StartButton.visible = not has_save
@@ -186,6 +213,11 @@ func _on_new_game_confirmed() -> void:
 func _on_collection_button_pressed() -> void:
 	get_tree().set_meta(COLLECTION_RETURN_SCENE_META, TITLE_SCENE)
 	get_tree().change_scene_to_file("res://scenes/collection.tscn")
+
+
+func _on_memories_button_pressed() -> void:
+	get_tree().set_meta(MEMORIES_RETURN_SCENE_META, TITLE_SCENE)
+	get_tree().change_scene_to_file("res://scenes/memories.tscn")
 
 
 func _on_options_button_pressed() -> void:
