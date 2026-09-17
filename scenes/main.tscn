@@ -56,7 +56,11 @@ text = "はじめから"
 
 [node name="OptionsButton" type="Button" parent="TitleCenter/TitleMenu"]
 layout_mode = 2
-text = "オプション"
+text = "おぷしょん"
+
+[node name="QuitButton" type="Button" parent="TitleCenter/TitleMenu"]
+layout_mode = 2
+text = "ゲームをおわる"
 
 [node name="OptionsPanel" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -74,7 +78,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.41960785, 0.30980393, 0.22745098, 1)
 theme_override_font_sizes/font_size = 32
-text = "オプション"
+text = "おぷしょん"
 horizontal_alignment = 1
 
 [node name="DataTitle" type="Label" parent="OptionsPanel/OptionsMenu"]
