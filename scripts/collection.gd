@@ -89,7 +89,6 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
-## カテゴリ名は系統図の正式な行として配置する。
 func _setup_stage_labels() -> void:
 	_add_stage_label("🌱 ちび", chibi_row)
 	_add_stage_label("🌸 こども", child_row)
@@ -112,7 +111,7 @@ func _add_stage_label(text_value: String, before_row: Control) -> void:
 	evolution_tree.move_child(label, before_row.get_index())
 
 ## 系統線はカードの実座標から毎回描画する。
-## 将来カード数やスクロール領域が増えても、固定座標に依存しない。
+## ControlにはNode2D.to_local()がないため、グローバル座標の差分でローカル座標へ変換する。
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
@@ -145,7 +144,6 @@ func _draw_evolution_lines() -> void:
 		adult_row.get_node("ChallengerAdultCard")
 	]
 
-	# ちび → こども4種。中央から幹を伸ばし、横線から4本へ分岐する。
 	var start := _bottom_center(chibi_card)
 	var child_tops: Array[Vector2] = []
 	for card in child_cards:
@@ -156,17 +154,19 @@ func _draw_evolution_lines() -> void:
 	for target in child_tops:
 		_draw_arrow_path(Vector2(target.x, branch_y), target)
 
-	# こども → 対応するおとな。現在は1対1なので縦線で結ぶ。
 	for i in child_cards.size():
 		_draw_arrow_path(_bottom_center(child_cards[i]), _top_center(adult_cards[i]))
 
 func _top_center(card: Control) -> Vector2:
 	var global_point := card.global_position + Vector2(card.size.x * 0.5, 0.0)
-	return evolution_lines.to_local(global_point)
+	return _global_to_line_local(global_point)
 
 func _bottom_center(card: Control) -> Vector2:
 	var global_point := card.global_position + Vector2(card.size.x * 0.5, card.size.y)
-	return evolution_lines.to_local(global_point)
+	return _global_to_line_local(global_point)
+
+func _global_to_line_local(global_point: Vector2) -> Vector2:
+	return global_point - evolution_lines.global_position
 
 func _draw_line_local(from: Vector2, to: Vector2) -> void:
 	evolution_lines.draw_line(from, to, LINE_COLOR, LINE_WIDTH, true)
