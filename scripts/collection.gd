@@ -37,7 +37,22 @@ const ARROW_SIZE := 9.0
 const ARROW_LINE_GAP := 5.0
 const LINE_GAP := 14.0
 
-const FORM_DATA := PiyokoCollectionCatalog.FORMS
+const FORM_DATA := [
+	{"id": "egg", "name": "たまご", "texture": PiyokoTextureManager.EGG_TEXTURE},
+	{"id": "chibi", "name": "ちびぴよこ", "texture": PiyokoTextureManager.CHIBI_TEXTURE},
+	{"id": "child_food", "name": "ごはんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["food"]},
+	{"id": "child_play", "name": "やんちゃぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["play"]},
+	{"id": "child_pet", "name": "あまえぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["pet"]},
+	{"id": "child_balance", "name": "へいきんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["balance"]},
+	{"id": "adult_sweets", "name": "すいーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["sweets"]},
+	{"id": "adult_gourmet", "name": "ぐるめぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["gourmet"]},
+	{"id": "adult_champion", "name": "ちゃんぷぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["champion"]},
+	{"id": "adult_challenger", "name": "ふぁいとぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["challenger"]},
+	{"id": "adult_love", "name": "らぶぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["love"]},
+	{"id": "adult_nap", "name": "おひるねぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"]},
+	{"id": "adult_rainbow", "name": "にじいろぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"]},
+	{"id": "adult_oshimotif", "name": "おしモチーフぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
+]
 
 @onready var title_label: Label = $MainMargin/CollectionLayout/TitleLabel
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
