@@ -219,7 +219,7 @@ text = "セーブデータを完全初期化"
 [node name="ResetGuide" type="Label" parent="OptionsPanel/OptionsBackground/OptionsMenu" unique_id=1526144718]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.541176, 0.454902, 0.388235, 1)
-text = "育成データと図鑑の発見記録をすべて削除します"
+text = "育成データ・図鑑・おもいでをすべて削除します"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="OptionsPanel/OptionsBackground/OptionsMenu" unique_id=1099272910]
