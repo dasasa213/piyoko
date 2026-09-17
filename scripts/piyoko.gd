@@ -24,6 +24,11 @@ var growth_stage: int = 0
 var growth_count: int = 0
 var total_care_count: int = 0
 
+# 1回の育成を識別し、おもいでの重複登録を防ぐための情報。
+# 進化判定やお世話回数には使用しない。
+var session_id: String = "%d-%d" % [int(Time.get_unix_time_from_system()), Time.get_ticks_usec()]
+var started_at: String = Time.get_datetime_string_from_system(false, true)
+
 var child_type: String = ""
 var adult_type: String = ""
 
