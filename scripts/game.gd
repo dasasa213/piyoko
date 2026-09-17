@@ -8,6 +8,7 @@ const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
 const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
+const BIRTH_BACKGROUND := preload("res://assets/backgrounds/05_birth_nursery.png")
 const PIYOKO_RUG_OFFSET_Y := 120.0
 
 var piyoko: Piyoko
@@ -17,6 +18,8 @@ var is_hatching := false
 var finish_care_button: Button
 var finish_care_confirm: ConfirmationDialog
 var dialog_dim: ColorRect
+var room_background: TextureRect
+var birth_message_panel: PanelContainer
 
 var food_effect: Node
 var pet_effect: Node
@@ -29,6 +32,7 @@ var play_minigame: Node
 
 func _ready() -> void:
 	_setup_background()
+	_setup_birth_ui()
 	_setup_dialog_dim()
 	_load_piyoko()
 	_connect_scene_signals()
@@ -44,15 +48,72 @@ func _ready() -> void:
 func _setup_background() -> void:
 	$Background.hide()
 
-	var background := TextureRect.new()
-	background.name = "RoomBackground"
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	background.texture = GAME_BACKGROUND
-	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	add_child(background)
-	move_child(background, 0)
+	room_background = TextureRect.new()
+	room_background.name = "RoomBackground"
+	room_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	room_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	room_background.texture = GAME_BACKGROUND
+	room_background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	room_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	add_child(room_background)
+	move_child(room_background, 0)
+
+
+# はじめから選んだ時だけ表示する、誕生画面専用の案内カード。
+func _setup_birth_ui() -> void:
+	birth_message_panel = PanelContainer.new()
+	birth_message_panel.name = "BirthMessagePanel"
+	birth_message_panel.anchor_left = 0.5
+	birth_message_panel.anchor_top = 0.0
+	birth_message_panel.anchor_right = 0.5
+	birth_message_panel.anchor_bottom = 0.0
+	birth_message_panel.offset_left = -350.0
+	birth_message_panel.offset_top = 28.0
+	birth_message_panel.offset_right = 350.0
+	birth_message_panel.offset_bottom = 126.0
+	birth_message_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(1.0, 0.97, 0.82, 0.94)
+	panel_style.border_color = Color("6b9140")
+	panel_style.set_border_width_all(3)
+	panel_style.set_corner_radius_all(22)
+	panel_style.content_margin_left = 26.0
+	panel_style.content_margin_top = 14.0
+	panel_style.content_margin_right = 26.0
+	panel_style.content_margin_bottom = 14.0
+	panel_style.shadow_color = Color(0.12, 0.25, 0.10, 0.28)
+	panel_style.shadow_size = 8
+	birth_message_panel.add_theme_stylebox_override("panel", panel_style)
+
+	var message_box := VBoxContainer.new()
+	message_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	message_box.add_theme_constant_override("separation", 4)
+
+	var main_message := Label.new()
+	main_message.text = "たまごから、新しい毎日がはじまります。"
+	main_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	main_message.add_theme_font_size_override("font_size", 24)
+	main_message.add_theme_color_override("font_color", Color("492d16"))
+	message_box.add_child(main_message)
+
+	var sub_message := Label.new()
+	sub_message.text = "たまごをやさしくタッチしてね"
+	sub_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub_message.add_theme_font_size_override("font_size", 17)
+	sub_message.add_theme_color_override("font_color", Color("58743b"))
+	message_box.add_child(sub_message)
+
+	birth_message_panel.add_child(message_box)
+	birth_message_panel.hide()
+	add_child(birth_message_panel)
+
+	var hatch_guide: Label = $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel
+	hatch_guide.text = "たまごをタッチ"
+	hatch_guide.add_theme_font_size_override("font_size", 21)
+	hatch_guide.add_theme_color_override("font_color", Color("492d16"))
+	hatch_guide.add_theme_color_override("font_outline_color", Color("fff7d5"))
+	hatch_guide.add_theme_constant_override("outline_size", 7)
 
 
 func _setup_dialog_dim() -> void:
@@ -172,7 +233,7 @@ func _setup_initial_view() -> void:
 	if piyoko.growth_stage == -1:
 		_start_egg_sequence()
 	else:
-		$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
+		_show_care_room()
 		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
 		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
 		_set_action_buttons_disabled(false)
@@ -300,7 +361,7 @@ func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Control
 	sprite.scale = Vector2.ONE
 
 	if is_hatching:
-		$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
+		_show_care_room()
 		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
 		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
 		$GrowthMessageLabel.text = "ピヨコが生まれた！"
@@ -342,12 +403,23 @@ func _check_growth() -> bool:
 
 func _start_egg_sequence() -> void:
 	_set_action_buttons_disabled(true)
-	$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.hide()
+	room_background.texture = BIRTH_BACKGROUND
+	birth_message_panel.show()
+	$MainMargin/GameLayout/Header.hide()
+	$MainMargin/GameLayout/ActionMenu.hide()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.show()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.show()
 	_update_piyoko_texture()
 	_update_finish_care_button()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("egg_idle")
+
+
+func _show_care_room() -> void:
+	room_background.texture = GAME_BACKGROUND
+	birth_message_panel.hide()
+	$MainMargin/GameLayout/Header.show()
+	$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
+	$MainMargin/GameLayout/ActionMenu.show()
 
 
 func _on_hatch_button_pressed() -> void:
