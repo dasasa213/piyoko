@@ -15,6 +15,8 @@ var _target: TextureButton
 var _count_label: Label
 var _time_label: Label
 var _result_label: Label
+var _result_effect: TextureRect
+var _result_tween: Tween
 var _cancel_button: Button
 var _game_timer: Timer
 var _result_timer: Timer
@@ -36,6 +38,7 @@ func start(texture: Texture2D, viewport_size: Vector2) -> void:
 	_active = true
 	_hits = 0
 	_result_label.hide()
+	_result_effect.hide()
 	_count_label.show()
 	_time_label.show()
 	_target.show()
@@ -113,6 +116,22 @@ func _create_panel(host: Control) -> void:
 	_time_label.offset_top = 108.0
 	_time_label.offset_bottom = 142.0
 	_panel.add_child(_time_label)
+
+	_result_effect = TextureRect.new()
+	_result_effect.visible = false
+	_result_effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_result_effect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_result_effect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_result_effect.anchor_left = 0.5
+	_result_effect.anchor_top = 0.5
+	_result_effect.anchor_right = 0.5
+	_result_effect.anchor_bottom = 0.5
+	_result_effect.offset_left = -220.0
+	_result_effect.offset_top = -220.0
+	_result_effect.offset_right = 220.0
+	_result_effect.offset_bottom = 220.0
+	_result_effect.pivot_offset = Vector2(220, 220)
+	_panel.add_child(_result_effect)
 
 	_result_label = Label.new()
 	_result_label.visible = false
@@ -237,15 +256,36 @@ func _show_result(success: bool) -> void:
 	if success:
 		_result_label.text = "せいこう！\nやったね！"
 		_result_label.add_theme_color_override("font_color", Color(0.90, 0.36, 0.12, 1.0))
+		_result_effect.texture = _load_effect_texture("res://assets/effects/03_play_success.png")
 	else:
 		_result_label.text = "しっぱい…\nざんねん！"
 		_result_label.add_theme_color_override("font_color", Color(0.28, 0.36, 0.58, 1.0))
+		_result_effect.texture = _load_effect_texture("res://assets/effects/04_play_fail.png")
+
+	if _result_effect.texture != null:
+		_result_effect.show()
+		_result_effect.modulate = Color(1, 1, 1, 0)
+		_result_effect.scale = Vector2(0.68, 0.68)
+		if is_instance_valid(_result_tween):
+			_result_tween.kill()
+		_result_tween = create_tween().set_parallel(true)
+		_result_tween.tween_property(_result_effect, "modulate:a", 1.0, 0.22)
+		_result_tween.tween_property(_result_effect, "scale", Vector2.ONE, 0.34).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	_result_timer.start()
 
 
+func _load_effect_texture(path: String) -> Texture2D:
+	var image := Image.new()
+	if image.load(path) != OK:
+		push_warning("リアクション画像を読み込めませんでした: %s" % path)
+		return null
+	return ImageTexture.create_from_image(image)
+
+
 func _on_result_timeout() -> void:
 	_result_label.hide()
+	_result_effect.hide()
 	_panel.hide()
 	completed.emit(_pending_success)
 

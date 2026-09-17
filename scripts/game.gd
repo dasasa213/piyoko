@@ -7,6 +7,7 @@ extends Control
 const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
+const ReactionEffectScript = preload("res://scripts/game/reaction_effect.gd")
 const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
 const BIRTH_BACKGROUND := preload("res://assets/backgrounds/05_birth_nursery.png")
 const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
@@ -26,6 +27,7 @@ var memories_button: Button
 var food_effect: Node
 var pet_effect: Node
 var play_minigame: Node
+var reaction_effect: Node
 
 
 # ------------------------------------------------------------
@@ -187,6 +189,10 @@ func _setup_components() -> void:
 	add_child(play_minigame)
 	play_minigame.setup(self)
 	play_minigame.completed.connect(_on_play_minigame_finished)
+
+	reaction_effect = ReactionEffectScript.new()
+	add_child(reaction_effect)
+	reaction_effect.setup(self)
 
 
 func _apply_nature_ui_styles() -> void:
@@ -374,6 +380,7 @@ func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Control
 		$GrowthMessageLabel.text = "%sになった！" % piyoko.get_growth_stage_name()
 
 	$GrowthMessageLabel.show()
+	reaction_effect.play_growth(get_viewport_rect().size)
 	$GrowthMessageTimer.start()
 	is_growing = false
 	_set_action_buttons_disabled(false)
@@ -455,6 +462,8 @@ func _update_status_display() -> void:
 	status_container.get_node("HungerLabel").text = "おなか：%d/5" % piyoko.hunger
 	status_container.get_node("FriendshipLabel").text = "なかよし：%d/5" % piyoko.friendship
 	status_container.get_node("MoodLabel").text = "きげん：%d/5" % piyoko.mood
+	if is_instance_valid(reaction_effect):
+		reaction_effect.update_mood(piyoko.mood, piyoko.growth_stage, get_viewport_rect().size)
 
 
 func _update_piyoko_texture() -> void:
