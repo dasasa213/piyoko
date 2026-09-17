@@ -2,16 +2,12 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cg2m2raxyf7d1"
-path="res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"
-metadata={
-"vram_texture": false
-}
+uid="uid://d01xh5bru0by2"
+valid=false
 
 [deps]
 
-source_file="res://assets/characters/piyoko/forms/00_egg.png"
-dest_files=["res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"]
+source_file="res://assets/characters/piyoko/reactions/09_growth.png"
 
 [params]
 

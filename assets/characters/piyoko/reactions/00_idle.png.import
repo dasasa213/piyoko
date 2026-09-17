@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cg2m2raxyf7d1"
-path="res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"
+uid="uid://c7stavi0v5jwn"
+path="res://.godot/imported/00_idle.png-278d3800702f8d84912ec43704c01137.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/forms/00_egg.png"
-dest_files=["res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"]
+source_file="res://assets/characters/piyoko/reactions/00_idle.png"
+dest_files=["res://.godot/imported/00_idle.png-278d3800702f8d84912ec43704c01137.ctex"]
 
 [params]
 

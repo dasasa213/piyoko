@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1ykbhlm3r5ib"
-path="res://.godot/imported/11_adult_nap.png-da9269efc32ea02fe4b396d8b113242a.ctex"
+path="res://.godot/imported/11_adult_nap.png-e714d760dacc0abb5231efa9387e84c8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/11_adult_nap.png"
-dest_files=["res://.godot/imported/11_adult_nap.png-da9269efc32ea02fe4b396d8b113242a.ctex"]
+source_file="res://assets/characters/piyoko/forms/11_adult_nap.png"
+dest_files=["res://.godot/imported/11_adult_nap.png-e714d760dacc0abb5231efa9387e84c8.ctex"]
 
 [params]
 

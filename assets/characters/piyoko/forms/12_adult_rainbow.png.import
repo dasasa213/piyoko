@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctv8ns2vbs6hj"
-path="res://.godot/imported/12_adult_rainbow.png-e259baac0be1241a73e9f6822ede623b.ctex"
+path="res://.godot/imported/12_adult_rainbow.png-0c438b4f1de1b5dbb93ffdddcbb3c9ac.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/12_adult_rainbow.png"
-dest_files=["res://.godot/imported/12_adult_rainbow.png-e259baac0be1241a73e9f6822ede623b.ctex"]
+source_file="res://assets/characters/piyoko/forms/12_adult_rainbow.png"
+dest_files=["res://.godot/imported/12_adult_rainbow.png-0c438b4f1de1b5dbb93ffdddcbb3c9ac.ctex"]
 
 [params]
 

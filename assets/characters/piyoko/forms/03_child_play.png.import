@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dq32ofm6ucygp"
-path="res://.godot/imported/03_child_play.png-0a9d37a573152ffda2f95a70932f8bed.ctex"
+path="res://.godot/imported/03_child_play.png-57283eee0dbbfa8db21322e8fddfc36a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/03_child_play.png"
-dest_files=["res://.godot/imported/03_child_play.png-0a9d37a573152ffda2f95a70932f8bed.ctex"]
+source_file="res://assets/characters/piyoko/forms/03_child_play.png"
+dest_files=["res://.godot/imported/03_child_play.png-57283eee0dbbfa8db21322e8fddfc36a.ctex"]
 
 [params]
 

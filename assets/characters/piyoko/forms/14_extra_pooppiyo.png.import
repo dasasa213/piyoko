@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ciwhi8rcoka1y"
-path="res://.godot/imported/14_extra_pooppiyo.png-a1d5e043451696cb0a998844c4bf7387.ctex"
+path="res://.godot/imported/14_extra_pooppiyo.png-344c1b3de5374a0afad85428228a7936.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/14_extra_pooppiyo.png"
-dest_files=["res://.godot/imported/14_extra_pooppiyo.png-a1d5e043451696cb0a998844c4bf7387.ctex"]
+source_file="res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"
+dest_files=["res://.godot/imported/14_extra_pooppiyo.png-344c1b3de5374a0afad85428228a7936.ctex"]
 
 [params]
 

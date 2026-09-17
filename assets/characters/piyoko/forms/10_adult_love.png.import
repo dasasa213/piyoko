@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ca3uu8doe41eb"
-path="res://.godot/imported/10_adult_love.png-d73c8d5502f21daaaccf91c7810bb914.ctex"
+path="res://.godot/imported/10_adult_love.png-ee10b8cd0ade8f895f53fa2bfd94f65a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/10_adult_love.png"
-dest_files=["res://.godot/imported/10_adult_love.png-d73c8d5502f21daaaccf91c7810bb914.ctex"]
+source_file="res://assets/characters/piyoko/forms/10_adult_love.png"
+dest_files=["res://.godot/imported/10_adult_love.png-ee10b8cd0ade8f895f53fa2bfd94f65a.ctex"]
 
 [params]
 

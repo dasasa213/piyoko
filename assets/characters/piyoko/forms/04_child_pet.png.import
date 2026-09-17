@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://vvso8i5mw6oy"
-path="res://.godot/imported/04_child_pet.png-692826713134c3fe43df468cedb7e2a2.ctex"
+path="res://.godot/imported/04_child_pet.png-3feba35054ac0ae716a6919cf093170a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/04_child_pet.png"
-dest_files=["res://.godot/imported/04_child_pet.png-692826713134c3fe43df468cedb7e2a2.ctex"]
+source_file="res://assets/characters/piyoko/forms/04_child_pet.png"
+dest_files=["res://.godot/imported/04_child_pet.png-3feba35054ac0ae716a6919cf093170a.ctex"]
 
 [params]
 

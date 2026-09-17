@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ppv887oxrnvh"
-path="res://.godot/imported/05_child_balance.png-b30b48e27714ad9cf96902ff7892b46d.ctex"
+path="res://.godot/imported/05_child_balance.png-c17048431a65a3c94cbf518970d7d8fe.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/05_child_balance.png"
-dest_files=["res://.godot/imported/05_child_balance.png-b30b48e27714ad9cf96902ff7892b46d.ctex"]
+source_file="res://assets/characters/piyoko/forms/05_child_balance.png"
+dest_files=["res://.godot/imported/05_child_balance.png-c17048431a65a3c94cbf518970d7d8fe.ctex"]
 
 [params]
 

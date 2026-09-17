@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cg2m2raxyf7d1"
-path="res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"
+uid="uid://bx1022cf6v80u"
+path="res://.godot/imported/02_pet.png-ea9a88120cdb6e4b79702b0f2477959f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/forms/00_egg.png"
-dest_files=["res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"]
+source_file="res://assets/characters/piyoko/reactions/02_pet.png"
+dest_files=["res://.godot/imported/02_pet.png-ea9a88120cdb6e4b79702b0f2477959f.ctex"]
 
 [params]
 

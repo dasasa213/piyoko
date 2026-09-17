@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cg2m2raxyf7d1"
-path="res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"
+uid="uid://bhy8lds7o4xe4"
+path="res://.godot/imported/07_raincloud.png-53f06e6d355c7113b280ad40776cacdd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/forms/00_egg.png"
-dest_files=["res://.godot/imported/00_egg.png-ed4dfefda7ed14709f3eaff992519c27.ctex"]
+source_file="res://assets/characters/piyoko/reactions/07_raincloud.png"
+dest_files=["res://.godot/imported/07_raincloud.png-53f06e6d355c7113b280ad40776cacdd.ctex"]
 
 [params]
 

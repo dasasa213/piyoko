@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdbtjrnfxjenl"
-path="res://.godot/imported/09_adult_challenger.png-0e3c4e9f32851e02fa96aaeb1d73b059.ctex"
+path="res://.godot/imported/09_adult_challenger.png-343cc502a1b9900ab4eb4645a08cd276.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/piyoko/09_adult_challenger.png"
-dest_files=["res://.godot/imported/09_adult_challenger.png-0e3c4e9f32851e02fa96aaeb1d73b059.ctex"]
+source_file="res://assets/characters/piyoko/forms/09_adult_challenger.png"
+dest_files=["res://.godot/imported/09_adult_challenger.png-343cc502a1b9900ab4eb4645a08cd276.ctex"]
 
 [params]
 
