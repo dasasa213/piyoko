@@ -11,14 +11,76 @@ const TOTAL_COLLECTION_COUNT := 9
 const UNDISCOVERED_NAME := "？？？"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 
+# frame_card.png は 256x320（4:5）の縦長カード素材。
+# シーン上ではカードのVBoxContainerに直接置くとContainerのレイアウト対象になり、
+# 横長に潰れてしまうため、実行時に各TextureRectの背面へ移して表示する。
+const CARD_FRAME_SIZE := Vector2(128.0, 160.0)
+const CARD_FRAME_OFFSET := Vector2(0.0, -14.0)
+
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
 
 
 func _ready() -> void:
+	_setup_card_frames()
 	_update_collection_count()
 	_update_collection_cards()
 	back_button.pressed.connect(_on_back_button_pressed)
+
+
+# ------------------------------------------------------------
+# カード枠
+# ------------------------------------------------------------
+
+func _setup_card_frames() -> void:
+	# frame_card.png の縦横比を保ったまま、ピヨコ画像と名前の背面に配置する。
+	# FrameをVBoxContainerの直下に置いたままだと、ContainerがFrame自体を
+	# 1行として並べてしまうため、TextureRectの子へ移動してレイアウトから外す。
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultTexture
+	)
+	_setup_card_frame(
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/Frame,
+		$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultTexture
+	)
+
+
+func _setup_card_frame(frame: NinePatchRect, texture_rect: TextureRect) -> void:
+	frame.reparent(texture_rect)
+	frame.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	frame.position = CARD_FRAME_OFFSET
+	frame.size = CARD_FRAME_SIZE
+	frame.show_behind_parent = true
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 # ------------------------------------------------------------
