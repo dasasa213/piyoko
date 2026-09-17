@@ -123,10 +123,10 @@ vertical_alignment = 1
 
 [node name="TitleMenu" type="VBoxContainer" parent="TitleCenter" unique_id=1280156614]
 layout_mode = 0
-offset_left = 810.0
-offset_top = 314.0
-offset_right = 1102.0
-offset_bottom = 612.0
+offset_left = 554.0
+offset_top = 310.0
+offset_right = 846.0
+offset_bottom = 608.0
 theme_override_constants/separation = 11
 
 [node name="StartButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=2123074756]
