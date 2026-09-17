@@ -103,7 +103,7 @@ func _connect_scene_signals() -> void:
 	$GameMenuPanel/GameMenu/ResetButton.pressed.connect(_on_reset_button_pressed)
 	$ResetConfirmDialog.confirmed.connect(_on_reset_confirmed)
 	$ResetConfirmDialog.visibility_changed.connect(_refresh_dialog_dim)
-	_apply_dialog_style($ResetConfirmDialog, Vector2i(560, 310))
+	_apply_dialog_style($ResetConfirmDialog, Vector2i(680, 340))
 
 
 func _setup_components() -> void:
@@ -429,7 +429,7 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	finish_care_confirm.visibility_changed.connect(_refresh_dialog_dim)
 	add_child(finish_care_confirm)
-	_apply_dialog_style(finish_care_confirm, Vector2i(560, 280))
+	_apply_dialog_style(finish_care_confirm, Vector2i(640, 310))
 
 
 func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
@@ -466,8 +466,8 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 
 	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
 	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
-		button.custom_minimum_size = Vector2(220, 56)
-		button.add_theme_font_size_override("font_size", 14)
+		button.custom_minimum_size = Vector2(260, 60)
+		button.add_theme_font_size_override("font_size", 16)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
