@@ -85,6 +85,7 @@ func _connect_scene_signals() -> void:
 	$GameMenuPanel/GameMenu/CollectionButton.pressed.connect(_on_collection_button_pressed)
 	$GameMenuPanel/GameMenu/ResetButton.pressed.connect(_on_reset_button_pressed)
 	$ResetConfirmDialog.confirmed.connect(_on_reset_confirmed)
+	_apply_dialog_style($ResetConfirmDialog, Vector2i(500, 270))
 
 
 func _setup_components() -> void:
@@ -406,6 +407,32 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.cancel_button_text = "まだ一緒にいる"
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	add_child(finish_care_confirm)
+	_apply_dialog_style(finish_care_confirm, Vector2i(500, 240))
+
+
+func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
+	dialog.min_size = minimum_size
+	dialog.add_theme_font_size_override("title_font_size", 22)
+	dialog.add_theme_color_override("title_color", Color("6b4f3a"))
+
+	var message_label := dialog.get_label()
+	message_label.add_theme_font_size_override("font_size", 18)
+	message_label.add_theme_color_override("font_color", Color("492d16"))
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
+	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
+		button.custom_minimum_size = Vector2(170, 46)
+		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_color_override("font_color", Color("492d16"))
+		button.add_theme_color_override("font_hover_color", Color("384514"))
+		for style_name in [&"normal", &"hover", &"pressed"]:
+			button.add_theme_stylebox_override(
+				style_name,
+				style_source.get_theme_stylebox(style_name).duplicate()
+			)
 
 
 func _update_finish_care_button() -> void:

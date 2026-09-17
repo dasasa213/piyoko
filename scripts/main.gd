@@ -20,6 +20,42 @@ func _ready() -> void:
 	$OptionsPanel/OptionsBackground/OptionsMenu/BackButton.pressed.connect(_on_options_back_button_pressed)
 	$NewGameConfirm.confirmed.connect(_on_new_game_confirmed)
 	$FullResetConfirm.confirmed.connect(_on_full_reset_confirmed)
+	_style_title_dialogs()
+
+
+func _style_title_dialogs() -> void:
+	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
+	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(440, 210))
+	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(480, 250))
+	_apply_dialog_style($FullResetComplete, style_source, Vector2i(400, 180))
+
+
+func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_size: Vector2i) -> void:
+	dialog.min_size = minimum_size
+	dialog.add_theme_font_size_override("title_font_size", 22)
+	dialog.add_theme_color_override("title_color", Color("6b4f3a"))
+
+	var message_label := dialog.get_label()
+	message_label.add_theme_font_size_override("font_size", 18)
+	message_label.add_theme_color_override("font_color", Color("492d16"))
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var dialog_buttons: Array[Button] = [dialog.get_ok_button()]
+	if dialog is ConfirmationDialog:
+		dialog_buttons.append((dialog as ConfirmationDialog).get_cancel_button())
+
+	for button in dialog_buttons:
+		button.custom_minimum_size = Vector2(150, 46)
+		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_color_override("font_color", Color("492d16"))
+		button.add_theme_color_override("font_hover_color", Color("384514"))
+		for style_name in [&"normal", &"hover", &"pressed"]:
+			button.add_theme_stylebox_override(
+				style_name,
+				style_source.get_theme_stylebox(style_name).duplicate()
+			)
 
 
 ## タイトルからいつでも図鑑を確認できるよう、メニュー内に図鑑ボタンを追加する。
