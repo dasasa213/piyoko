@@ -17,6 +17,10 @@ const CARD_TEXTURE_SIZE := Vector2(180.0, 103.0)
 const CARD_NAME_HEIGHT := 35.0
 const CARD_NAME_FONT_SIZE := 14
 
+const LINE_COLOR := Color(0.28, 0.17, 0.09, 0.92)
+const LINE_WIDTH := 4.0
+const ARROW_SIZE := 8.0
+
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
 @onready var collection_area: ScrollContainer = $MainMargin/CollectionLayout/CollectionArea
@@ -25,18 +29,19 @@ const CARD_NAME_FONT_SIZE := 14
 @onready var child_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow
 @onready var adult_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow
 
+var evolution_lines: Control
+
 func _ready() -> void:
 	_setup_tree_layout()
 	_setup_card_frames()
 	_setup_stage_labels()
+	_setup_evolution_lines()
 	_update_collection_count()
 	_update_collection_cards()
 	_update_back_button_text()
 	back_button.pressed.connect(_on_back_button_pressed)
 
 func _setup_tree_layout() -> void:
-	# 現在の9種類では余計な空白やスクロールを作らない。
-	# 将来カードや段が増えて実サイズが表示領域を超えた場合は自動でスクロール可能になる。
 	evolution_tree.custom_minimum_size = Vector2.ZERO
 	evolution_tree.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	evolution_tree.alignment = BoxContainer.ALIGNMENT_BEGIN
@@ -85,7 +90,6 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
 ## カテゴリ名は系統図の正式な行として配置する。
-## 絶対座標でScrollContainer上に重ねないため、左上へ飛んだりスクロールとずれたりしない。
 func _setup_stage_labels() -> void:
 	_add_stage_label("🌱 ちび", chibi_row)
 	_add_stage_label("🌸 こども", child_row)
@@ -106,6 +110,76 @@ func _add_stage_label(text_value: String, before_row: Control) -> void:
 	label.add_theme_constant_override("shadow_offset_y", 1)
 	evolution_tree.add_child(label)
 	evolution_tree.move_child(label, before_row.get_index())
+
+## 系統線はカードの実座標から毎回描画する。
+## 将来カード数やスクロール領域が増えても、固定座標に依存しない。
+func _setup_evolution_lines() -> void:
+	evolution_lines = Control.new()
+	evolution_lines.name = "EvolutionLines"
+	evolution_lines.set_anchors_preset(Control.PRESET_FULL_RECT)
+	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	evolution_lines.z_index = -1
+	evolution_lines.draw.connect(_draw_evolution_lines)
+	evolution_tree.add_child(evolution_lines)
+	call_deferred("_refresh_evolution_lines")
+
+func _refresh_evolution_lines() -> void:
+	if evolution_lines != null:
+		evolution_lines.size = evolution_tree.size
+		evolution_lines.queue_redraw()
+
+func _draw_evolution_lines() -> void:
+	if evolution_lines == null:
+		return
+	var chibi_card := chibi_row.get_node("ChibiCard") as Control
+	var child_cards: Array[Control] = [
+		child_row.get_node("FoodChildCard"),
+		child_row.get_node("PlayChildCard"),
+		child_row.get_node("PetChildCard"),
+		child_row.get_node("BalanceChildCard")
+	]
+	var adult_cards: Array[Control] = [
+		adult_row.get_node("SweetsAdultCard"),
+		adult_row.get_node("ChampionAdultCard"),
+		adult_row.get_node("LoveAdultCard"),
+		adult_row.get_node("ChallengerAdultCard")
+	]
+
+	# ちび → こども4種。中央から幹を伸ばし、横線から4本へ分岐する。
+	var start := _bottom_center(chibi_card)
+	var child_tops: Array[Vector2] = []
+	for card in child_cards:
+		child_tops.append(_top_center(card))
+	var branch_y := (start.y + child_tops[0].y) * 0.5
+	_draw_line_local(start, Vector2(start.x, branch_y))
+	_draw_line_local(Vector2(child_tops[0].x, branch_y), Vector2(child_tops[child_tops.size() - 1].x, branch_y))
+	for target in child_tops:
+		_draw_arrow_path(Vector2(target.x, branch_y), target)
+
+	# こども → 対応するおとな。現在は1対1なので縦線で結ぶ。
+	for i in child_cards.size():
+		_draw_arrow_path(_bottom_center(child_cards[i]), _top_center(adult_cards[i]))
+
+func _top_center(card: Control) -> Vector2:
+	var global_point := card.global_position + Vector2(card.size.x * 0.5, 0.0)
+	return evolution_lines.to_local(global_point)
+
+func _bottom_center(card: Control) -> Vector2:
+	var global_point := card.global_position + Vector2(card.size.x * 0.5, card.size.y)
+	return evolution_lines.to_local(global_point)
+
+func _draw_line_local(from: Vector2, to: Vector2) -> void:
+	evolution_lines.draw_line(from, to, LINE_COLOR, LINE_WIDTH, true)
+
+func _draw_arrow_path(from: Vector2, to: Vector2) -> void:
+	_draw_line_local(from, to)
+	var tip := to - Vector2(0.0, 3.0)
+	var points := PackedVector2Array([
+		tip,
+		tip + Vector2(-ARROW_SIZE, -ARROW_SIZE),
+		tip + Vector2(ARROW_SIZE, -ARROW_SIZE)
+	])
+	evolution_lines.draw_colored_polygon(points, LINE_COLOR)
 
 func _update_back_button_text() -> void:
 	if get_tree().has_meta(RETURN_SCENE_META):
