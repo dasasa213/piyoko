@@ -12,7 +12,9 @@ func _ready() -> void:
 	piyoko = Piyoko.new()
 
 	if PiyokoSaveManager.has_save():
-		PiyokoSaveManager.load_save(piyoko)
+		var loaded := PiyokoSaveManager.load_save(piyoko)
+		if not loaded:
+			piyoko.growth_stage = -1
 	else:
 		piyoko.growth_stage = -1
 
@@ -36,6 +38,9 @@ func _ready() -> void:
 	$GameMenuPanel/GameMenu/CollectionButton.pressed.connect(_on_collection_button_pressed)
 	$GameMenuPanel/GameMenu/ResetButton.pressed.connect(_on_reset_button_pressed)
 	$ResetConfirmDialog.confirmed.connect(_on_reset_confirmed)
+
+	# 成長メッセージがピヨコと重ならないように少し上へ表示
+	$GrowthMessageLabel.position.y -= 110.0
 
 	_create_finish_care_ui()
 	_update_status_display()
