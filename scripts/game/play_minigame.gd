@@ -61,6 +61,7 @@ func _create_panel(host: Control) -> void:
 	_panel = Control.new()
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_panel.visible = false
+	_panel.z_index = 50
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	host.add_child(_panel)
 
