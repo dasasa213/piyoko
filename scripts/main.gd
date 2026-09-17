@@ -26,12 +26,13 @@ func _ready() -> void:
 
 func _style_title_dialogs() -> void:
 	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
-	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(440, 210))
-	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(480, 250))
-	_apply_dialog_style($FullResetComplete, style_source, Vector2i(400, 180))
+	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(520, 250))
+	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(560, 310))
+	_apply_dialog_style($FullResetComplete, style_source, Vector2i(460, 210))
 
 
 func _style_options_panel() -> void:
+	$OptionsPanel/OptionsBackground.custom_minimum_size = Vector2(540, 390)
 	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
 	var option_buttons: Array[Button] = [
 		$OptionsPanel/OptionsBackground/OptionsMenu/FullResetButton,
@@ -67,7 +68,16 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 	panel_style.content_margin_bottom = 20.0
 	panel_style.shadow_color = Color(0.12, 0.25, 0.10, 0.4)
 	panel_style.shadow_size = 10
-	dialog.add_theme_stylebox_override("panel", panel_style)
+	# 外枠は1枚だけにし、本文側は同色のフラットな背景にする。
+	# panel と embedded_border の両方へ枠線を付けると二重枠になる。
+	var content_style := StyleBoxFlat.new()
+	content_style.bg_color = Color("fff7d5")
+	content_style.set_corner_radius_all(16)
+	content_style.content_margin_left = 18.0
+	content_style.content_margin_top = 14.0
+	content_style.content_margin_right = 18.0
+	content_style.content_margin_bottom = 14.0
+	dialog.add_theme_stylebox_override("panel", content_style)
 	dialog.add_theme_stylebox_override("embedded_border", panel_style)
 
 	var message_label := dialog.get_label()
@@ -82,7 +92,7 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 		dialog_buttons.append((dialog as ConfirmationDialog).get_cancel_button())
 
 	for button in dialog_buttons:
-		button.custom_minimum_size = Vector2(150, 46)
+		button.custom_minimum_size = Vector2(190, 52)
 		button.add_theme_font_size_override("font_size", 18)
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
