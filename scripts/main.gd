@@ -94,7 +94,10 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 
 	for button in dialog_buttons:
 		button.custom_minimum_size = Vector2(220, 56)
-		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_font_size_override("font_size", 16)
+		button.clip_text = false
+		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
 		button.add_theme_color_override("font_pressed_color", Color("492d16"))
