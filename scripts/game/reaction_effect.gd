@@ -18,37 +18,39 @@ func setup(host: Control) -> void:
 	_rain.modulate = Color(1, 1, 1, 0.82)
 	_rain.hide()
 
-	_growth = _create_effect_rect(host, Vector2(440, 440))
+	_growth = _create_effect_rect(host, Vector2(320, 320))
 	_growth.texture = _load_texture(GROWTH_TEXTURE_PATH)
 	_growth.hide()
 
 
-func update_mood(mood: int, growth_stage: int, viewport_size: Vector2) -> void:
+func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 	if not is_instance_valid(_rain):
 		return
 
-	_position_centered(_rain, viewport_size, Vector2(0, 55))
+	# ピヨコの実座標へ追従し、雲が頭上・雨粒が周囲に来る位置へ合わせる。
+	_position_on_piyoko(_rain, piyoko_center, Vector2(0, -72))
 	_rain.visible = growth_stage >= 0 and mood <= LOW_MOOD_THRESHOLD
 
 
-func play_growth(viewport_size: Vector2) -> void:
+func play_growth(piyoko_center: Vector2) -> void:
 	if not is_instance_valid(_growth) or _growth.texture == null:
 		return
 
-	_position_centered(_growth, viewport_size, Vector2(0, 55))
+	_position_on_piyoko(_growth, piyoko_center, Vector2.ZERO)
 	_growth.show()
 	_growth.modulate = Color(1, 1, 1, 0)
-	_growth.scale = Vector2(0.62, 0.62)
+	_growth.scale = Vector2(0.92, 0.92)
 
 	if is_instance_valid(_growth_tween):
 		_growth_tween.kill()
 
 	_growth_tween = create_tween()
 	_growth_tween.set_parallel(true)
-	_growth_tween.tween_property(_growth, "modulate:a", 1.0, 0.24)
-	_growth_tween.tween_property(_growth, "scale", Vector2.ONE, 0.48).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_growth_tween.chain().tween_interval(0.42)
-	_growth_tween.chain().tween_property(_growth, "modulate:a", 0.0, 0.34)
+	# 小さな光が静かに浮かぶ程度に抑える。
+	_growth_tween.tween_property(_growth, "modulate:a", 0.55, 0.38)
+	_growth_tween.tween_property(_growth, "scale", Vector2.ONE, 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_growth_tween.chain().tween_interval(0.36)
+	_growth_tween.chain().tween_property(_growth, "modulate:a", 0.0, 0.48)
 	_growth_tween.chain().tween_callback(_growth.hide)
 
 
@@ -63,8 +65,8 @@ func _create_effect_rect(host: Control, effect_size: Vector2) -> TextureRect:
 	return effect
 
 
-func _position_centered(effect: TextureRect, viewport_size: Vector2, offset: Vector2) -> void:
-	effect.position = (viewport_size - effect.size) * 0.5 + offset
+func _position_on_piyoko(effect: TextureRect, piyoko_center: Vector2, offset: Vector2) -> void:
+	effect.position = piyoko_center - effect.size * 0.5 + offset
 
 
 func _load_texture(path: String) -> Texture2D:
