@@ -9,6 +9,7 @@ const UNDISCOVERED_NAME := "？？？"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
+const SELECTED_ID_META := "collection_selected_id"
 
 const FRAME_TEXTURE := preload("res://assets/ui/panels/frame_card.png")
 
@@ -36,22 +37,7 @@ const ARROW_SIZE := 9.0
 const ARROW_LINE_GAP := 5.0
 const LINE_GAP := 14.0
 
-const FORM_DATA := [
-	{"id": "egg", "name": "たまご", "texture": PiyokoTextureManager.EGG_TEXTURE},
-	{"id": "chibi", "name": "ちびぴよこ", "texture": PiyokoTextureManager.CHIBI_TEXTURE},
-	{"id": "child_food", "name": "ごはんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["food"]},
-	{"id": "child_play", "name": "やんちゃぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["play"]},
-	{"id": "child_pet", "name": "あまえぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["pet"]},
-	{"id": "child_balance", "name": "へいきんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["balance"]},
-	{"id": "adult_sweets", "name": "すいーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["sweets"]},
-	{"id": "adult_gourmet", "name": "ぐるめぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["gourmet"]},
-	{"id": "adult_champion", "name": "ちゃんぷぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["champion"]},
-	{"id": "adult_challenger", "name": "ふぁいとぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["challenger"]},
-	{"id": "adult_love", "name": "らぶぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["love"]},
-	{"id": "adult_nap", "name": "おひるねぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"]},
-	{"id": "adult_rainbow", "name": "にじいろぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"]},
-	{"id": "adult_oshimotif", "name": "おしモチーフぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
-]
+const FORM_DATA := PiyokoCollectionCatalog.FORMS
 
 @onready var title_label: Label = $MainMargin/CollectionLayout/TitleLabel
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
@@ -191,6 +177,17 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(name_label)
+
+	# 見た目を変えず、カード全体を詳細画面へのボタンとして扱う。
+	var open_button := Button.new()
+	open_button.name = "OpenDetailButton"
+	open_button.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	open_button.flat = true
+	open_button.text = ""
+	open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	open_button.tooltip_text = "詳細を見る"
+	open_button.pressed.connect(_on_card_pressed.bind(str(form["id"])))
+	card.add_child(open_button)
 
 	diagram_canvas.add_child(card)
 	cards[str(form["id"])] = card
@@ -340,6 +337,11 @@ func _update_collection_cards() -> void:
 		else:
 			texture_rect.self_modulate = SILHOUETTE_COLOR
 			name_label.text = UNDISCOVERED_NAME
+
+
+func _on_card_pressed(piyoko_id: String) -> void:
+	get_tree().set_meta(SELECTED_ID_META, piyoko_id)
+	get_tree().change_scene_to_file("res://scenes/collection_detail.tscn")
 
 
 func _on_back_button_pressed() -> void:
