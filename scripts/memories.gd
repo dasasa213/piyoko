@@ -289,7 +289,7 @@ func _style_button(button: Button) -> void:
 	normal.shadow_size = 5
 	button.add_theme_stylebox_override("normal", normal)
 
-	var hover := normal.duplicate()
+	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color("ffd360")
 	hover.border_color = Color("639133")
 	button.add_theme_stylebox_override("hover", hover)
