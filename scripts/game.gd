@@ -32,6 +32,7 @@ func _ready() -> void:
 	_connect_scene_signals()
 	_setup_components()
 	_setup_initial_view()
+	_apply_nature_ui_styles()
 
 	print("ゲーム画面：ピヨコを作成しました")
 	piyoko.print_status()
@@ -103,6 +104,34 @@ func _setup_components() -> void:
 	add_child(play_minigame)
 	play_minigame.setup(self)
 	play_minigame.completed.connect(_on_play_minigame_finished)
+
+
+func _apply_nature_ui_styles() -> void:
+	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
+	var submenu_buttons: Array[Button] = [
+		$FoodPanel/FoodMenu/ShortcakeButton,
+		$FoodPanel/FoodMenu/OnigiriButton,
+		$FoodPanel/FoodMenu/BroccoliButton,
+		$PlayPanel/PlayMenu/SuccessButton,
+		$PlayPanel/PlayMenu/FailureButton,
+		$PlayPanel/PlayMenu/CancelButton,
+		$GameMenuPanel/GameMenu/CollectionButton,
+		$GameMenuPanel/GameMenu/ResetButton,
+		$GameMenuPanel/GameMenu/BackToTitleButton,
+		$GameMenuPanel/GameMenu/QuitButton,
+		$GameMenuPanel/GameMenu/CloseMenuButton,
+	]
+
+	for button in submenu_buttons:
+		button.custom_minimum_size.y = 46.0
+		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_color_override("font_color", Color("492d16"))
+		button.add_theme_color_override("font_hover_color", Color("384514"))
+		for style_name in [&"normal", &"hover", &"pressed", &"disabled"]:
+			button.add_theme_stylebox_override(
+				style_name,
+				style_source.get_theme_stylebox(style_name).duplicate()
+			)
 
 
 func _setup_initial_view() -> void:
