@@ -63,9 +63,27 @@ func _create_panel(host: Control) -> void:
 
 	var background := ColorRect.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.color = Color(0.91764706, 0.95686275, 0.8745098, 1.0)
+	background.color = Color("fff8df")
 	background.mouse_filter = Control.MOUSE_FILTER_STOP
 	_panel.add_child(background)
+
+	var header_card := Panel.new()
+	header_card.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	header_card.offset_left = 180.0
+	header_card.offset_top = 18.0
+	header_card.offset_right = -180.0
+	header_card.offset_bottom = 150.0
+	header_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var header_style := StyleBoxFlat.new()
+	header_style.bg_color = Color(1.0, 0.98, 0.88, 0.96)
+	header_style.border_color = Color("6b9140")
+	header_style.set_border_width_all(3)
+	header_style.set_corner_radius_all(24)
+	header_style.shadow_color = Color(0.18, 0.25, 0.10, 0.24)
+	header_style.shadow_size = 7
+	header_style.shadow_offset = Vector2(0, 4)
+	header_card.add_theme_stylebox_override("panel", header_style)
+	_panel.add_child(header_card)
 
 	var title := Label.new()
 	title.text = "ピヨコを3回タッチ！"
@@ -117,14 +135,39 @@ func _create_panel(host: Control) -> void:
 	_panel.add_child(_target)
 
 	_cancel_button = Button.new()
-	_cancel_button.text = "やめる"
-	_cancel_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_cancel_button.offset_left = 24.0
-	_cancel_button.offset_right = -24.0
-	_cancel_button.offset_top = -70.0
-	_cancel_button.offset_bottom = -18.0
+	_cancel_button.text = "あそびをやめる"
+	_cancel_button.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_cancel_button.offset_left = -150.0
+	_cancel_button.offset_right = 150.0
+	_cancel_button.offset_top = -78.0
+	_cancel_button.offset_bottom = -22.0
+	_cancel_button.add_theme_font_size_override("font_size", 19)
+	_cancel_button.add_theme_color_override("font_color", Color("492d16"))
+	_cancel_button.add_theme_color_override("font_hover_color", Color("384514"))
+	_cancel_button.add_theme_color_override("font_pressed_color", Color("492d16"))
+	_cancel_button.add_theme_color_override("font_focus_color", Color("492d16"))
+	_cancel_button.add_theme_stylebox_override("normal", _make_play_button_style(Color("fff7d5"), Color("76502c"), 2))
+	_cancel_button.add_theme_stylebox_override("hover", _make_play_button_style(Color("ffe38a"), Color("6b9140"), 3))
+	_cancel_button.add_theme_stylebox_override("pressed", _make_play_button_style(Color("f5ce63"), Color("567a31"), 3))
+	_cancel_button.add_theme_stylebox_override("focus", _make_play_button_style(Color("fff7d5"), Color("6b9140"), 3))
 	_cancel_button.pressed.connect(_on_cancel_pressed)
 	_panel.add_child(_cancel_button)
+
+
+func _make_play_button_style(fill: Color, border: Color, border_width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(18)
+	style.content_margin_left = 24.0
+	style.content_margin_top = 10.0
+	style.content_margin_right = 24.0
+	style.content_margin_bottom = 10.0
+	style.shadow_color = Color(0.18, 0.12, 0.05, 0.28)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 3)
+	return style
 
 
 func _create_timers() -> void:
