@@ -110,10 +110,9 @@ func _setup_initial_view() -> void:
 	$PlayPanel.hide()
 	$GrowthMessageLabel.position.y -= 110.0
 
-	# PiyokoHolder は CenterContainer の子なので、_ready() 中に position を変えても
-	# Container のレイアウト処理で元の位置へ戻される。
-	# レイアウト確定後にピヨコ一式を絨毯側へ移動する。
-	call_deferred("_position_piyoko_on_rug")
+	# PiyokoHolder 自体は CenterContainer が位置を管理するため動かさない。
+	# Holder 内の表示要素は通常の Control なので、こちらを直接ずらす。
+	_position_piyoko_on_rug()
 
 	_update_status_display()
 	_update_piyoko_texture()
@@ -132,7 +131,9 @@ func _setup_initial_view() -> void:
 
 func _position_piyoko_on_rug() -> void:
 	var holder := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder
-	holder.position.y += PIYOKO_RUG_OFFSET_Y
+	holder.get_node("PiyokoSprite").position.y += PIYOKO_RUG_OFFSET_Y
+	holder.get_node("HatchButton").position.y += PIYOKO_RUG_OFFSET_Y
+	holder.get_node("HatchGuideLabel").position.y += PIYOKO_RUG_OFFSET_Y
 
 
 # ------------------------------------------------------------
