@@ -14,13 +14,13 @@ const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
 
 # frame_card.png は 256x320（4:5）の縦長カード素材。
-# 枠の比率は崩さず、名前をカード下部の白い領域へ収める。
-const CARD_FRAME_SIZE := Vector2(116.0, 145.0)
+# 元画像の比率を維持したまま一回り大きくし、名前の横幅も確保する。
+const CARD_FRAME_SIZE := Vector2(128.0, 160.0)
 const CARD_FRAME_OFFSET := Vector2(0.0, -4.0)
-const CARD_SIZE := Vector2(128.0, 145.0)
-const CARD_TEXTURE_SIZE := Vector2(116.0, 100.0)
-const CARD_NAME_HEIGHT := 38.0
-const CARD_NAME_FONT_SIZE := 12
+const CARD_SIZE := Vector2(142.0, 160.0)
+const CARD_TEXTURE_SIZE := Vector2(128.0, 111.0)
+const CARD_NAME_HEIGHT := 42.0
+const CARD_NAME_FONT_SIZE := 13
 
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
@@ -84,12 +84,10 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 # ------------------------------------------------------------
 
 func _setup_growth_stage_guides() -> void:
-	# 各段の上中央へ小さく表示する。カードのHBoxContainerには入れず、
-	# CollectionAreaへ重ねることでカードの自動整列へ影響させない。
 	var area := $MainMargin/CollectionLayout/CollectionArea
-	_add_stage_label(area, "ちび", 0.5, 0.025)
-	_add_stage_label(area, "こども", 0.5, 0.305)
-	_add_stage_label(area, "おとな", 0.5, 0.625)
+	_add_stage_label(area, "ちび", 0.5, 0.018)
+	_add_stage_label(area, "こども", 0.5, 0.315)
+	_add_stage_label(area, "おとな", 0.5, 0.655)
 
 
 func _add_stage_label(area: Control, text_value: String, anchor_x: float, anchor_y: float) -> void:
@@ -136,7 +134,7 @@ func _update_collection_cards() -> void:
 	_update_card("chibi", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiName, "ちびぴよこ")
 	_update_card("child_food", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildName, "ごはんぴよこ")
 	_update_card("child_play", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildName, "やんちゃぴよこ")
-	_update_card("child_pet", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildName, "あまえぴよこ")
+	_update_card("child_pet", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildName, "あまえぴよこ")
 	_update_card("child_balance", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildName, "へいきんぴよこ")
 	_update_card("adult_sweets", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultName, "すいーつぴよこ")
 	_update_card("adult_champion", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultName, "ちゃんぷぴよこ")
