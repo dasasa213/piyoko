@@ -555,9 +555,15 @@ offset_right = 20.0
 offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.101960786, 0, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.411765, 0.223529, 0.0862745, 1)
+theme_override_colors/font_outline_color = Color(1, 0.956863, 0.780392, 1)
+theme_override_colors/font_shadow_color = Color(0.176471, 0.329412, 0.152941, 0.45)
+theme_override_constants/outline_size = 8
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_font_sizes/font_size = 32
 text = "子ぴよこになった！"
+vertical_alignment = 1
 horizontal_alignment = 1
 
 [node name="GrowthMessageTimer" type="Timer" parent="." unique_id=962115276]

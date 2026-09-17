@@ -35,6 +35,20 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 	dialog.add_theme_font_size_override("title_font_size", 22)
 	dialog.add_theme_color_override("title_color", Color("6b4f3a"))
 
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color("fff7d5")
+	panel_style.border_color = Color("6b9140")
+	panel_style.set_border_width_all(4)
+	panel_style.set_corner_radius_all(22)
+	panel_style.content_margin_left = 24.0
+	panel_style.content_margin_top = 22.0
+	panel_style.content_margin_right = 24.0
+	panel_style.content_margin_bottom = 20.0
+	panel_style.shadow_color = Color(0.12, 0.25, 0.10, 0.4)
+	panel_style.shadow_size = 10
+	dialog.add_theme_stylebox_override("panel", panel_style)
+	dialog.add_theme_stylebox_override("embedded_border", panel_style)
+
 	var message_label := dialog.get_label()
 	message_label.add_theme_font_size_override("font_size", 18)
 	message_label.add_theme_color_override("font_color", Color("492d16"))
