@@ -111,21 +111,25 @@ func _add_stage_label(text_value: String, before_row: Control) -> void:
 	evolution_tree.move_child(label, before_row.get_index())
 
 ## 系統線はカードの実座標から毎回描画する。
-## ControlにはNode2D.to_local()がないため、グローバル座標の差分でローカル座標へ変換する。
+## EvolutionLines はカードより手前に置くが、線の端点をカード境界にしているためカード内部には入らない。
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
-	evolution_lines.set_anchors_preset(Control.PRESET_FULL_RECT)
 	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	evolution_lines.z_index = -1
+	# z_index = -1 だと親の描画より後ろに回り、背景に隠れて線が見えない。
+	# カード枠より前に描画して、確実に系統線を表示する。
+	evolution_lines.z_index = 10
 	evolution_lines.draw.connect(_draw_evolution_lines)
 	evolution_tree.add_child(evolution_lines)
 	call_deferred("_refresh_evolution_lines")
 
 func _refresh_evolution_lines() -> void:
-	if evolution_lines != null:
-		evolution_lines.size = evolution_tree.size
-		evolution_lines.queue_redraw()
+	if evolution_lines == null:
+		return
+	# VBoxContainer のレイアウト対象にしないため、系統図と同じグローバル矩形へ手動で重ねる。
+	evolution_lines.global_position = evolution_tree.global_position
+	evolution_lines.size = evolution_tree.size
+	evolution_lines.queue_redraw()
 
 func _draw_evolution_lines() -> void:
 	if evolution_lines == null:
