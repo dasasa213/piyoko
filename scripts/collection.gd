@@ -21,42 +21,48 @@ const CARD_NAME_FONT_SIZE := 14
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
 @onready var collection_area: ScrollContainer = $MainMargin/CollectionLayout/CollectionArea
 @onready var evolution_tree: VBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree
+@onready var chibi_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow
+@onready var child_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow
+@onready var adult_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow
 
 func _ready() -> void:
 	_setup_tree_layout()
 	_setup_card_frames()
-	_setup_stage_tabs()
+	_setup_stage_labels()
 	_update_collection_count()
 	_update_collection_cards()
 	_update_back_button_text()
 	back_button.pressed.connect(_on_back_button_pressed)
 
 func _setup_tree_layout() -> void:
-	# 9種類の現在は余計なスクロールを発生させない。
-	# 将来カードや段が増えて表示領域を超えた場合は ScrollContainer が自動でスクロール可能になる。
-	evolution_tree.custom_minimum_size = Vector2(1040.0, 500.0)
-	evolution_tree.add_theme_constant_override("separation", 8)
-	$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow.custom_minimum_size = Vector2(0.0, 150.0)
-	$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow.custom_minimum_size = Vector2(0.0, 150.0)
-	$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow.custom_minimum_size = Vector2(0.0, 150.0)
-	$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow.add_theme_constant_override("separation", 34)
-	$MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow.add_theme_constant_override("separation", 34)
-	var future_space := $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/FutureSpace
-	future_space.custom_minimum_size = Vector2.ZERO
-	future_space.hide()
+	# 現在の9種類では余計な空白やスクロールを作らない。
+	# 将来カードや段が増えて実サイズが表示領域を超えた場合は自動でスクロール可能になる。
+	evolution_tree.custom_minimum_size = Vector2.ZERO
+	evolution_tree.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	evolution_tree.alignment = BoxContainer.ALIGNMENT_BEGIN
+	evolution_tree.add_theme_constant_override("separation", 3)
+	chibi_row.custom_minimum_size = Vector2(0.0, 142.0)
+	child_row.custom_minimum_size = Vector2(0.0, 142.0)
+	adult_row.custom_minimum_size = Vector2(0.0, 142.0)
+	child_row.add_theme_constant_override("separation", 34)
+	adult_row.add_theme_constant_override("separation", 34)
+	var future_space := evolution_tree.get_node_or_null("FutureSpace") as Control
+	if future_space != null:
+		future_space.custom_minimum_size = Vector2.ZERO
+		future_space.hide()
 	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 
 func _setup_card_frames() -> void:
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultName)
-	_setup_card($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/Frame, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultName)
+	_setup_card(chibi_row.get_node("ChibiCard"), chibi_row.get_node("ChibiCard/Frame"), chibi_row.get_node("ChibiCard/ChibiTexture"), chibi_row.get_node("ChibiCard/ChibiName"))
+	_setup_card(child_row.get_node("FoodChildCard"), child_row.get_node("FoodChildCard/Frame"), child_row.get_node("FoodChildCard/FoodChildTexture"), child_row.get_node("FoodChildCard/FoodChildName"))
+	_setup_card(child_row.get_node("PlayChildCard"), child_row.get_node("PlayChildCard/Frame"), child_row.get_node("PlayChildCard/PlayChildTexture"), child_row.get_node("PlayChildCard/PlayChildName"))
+	_setup_card(child_row.get_node("PetChildCard"), child_row.get_node("PetChildCard/Frame"), child_row.get_node("PetChildCard/PetChildTexture"), child_row.get_node("PetChildCard/PetChildName"))
+	_setup_card(child_row.get_node("BalanceChildCard"), child_row.get_node("BalanceChildCard/Frame"), child_row.get_node("BalanceChildCard/BalanceChildTexture"), child_row.get_node("BalanceChildCard/BalanceChildName"))
+	_setup_card(adult_row.get_node("SweetsAdultCard"), adult_row.get_node("SweetsAdultCard/Frame"), adult_row.get_node("SweetsAdultCard/SweetsAdultTexture"), adult_row.get_node("SweetsAdultCard/SweetsAdultName"))
+	_setup_card(adult_row.get_node("ChampionAdultCard"), adult_row.get_node("ChampionAdultCard/Frame"), adult_row.get_node("ChampionAdultCard/ChampionAdultTexture"), adult_row.get_node("ChampionAdultCard/ChampionAdultName"))
+	_setup_card(adult_row.get_node("ChallengerAdultCard"), adult_row.get_node("ChallengerAdultCard/Frame"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultTexture"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultName"))
+	_setup_card(adult_row.get_node("LoveAdultCard"), adult_row.get_node("LoveAdultCard/Frame"), adult_row.get_node("LoveAdultCard/LoveAdultTexture"), adult_row.get_node("LoveAdultCard/LoveAdultName"))
 
 func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: TextureRect, name_label: Label) -> void:
 	card.custom_minimum_size = CARD_SIZE
@@ -78,33 +84,28 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
-func _setup_stage_tabs() -> void:
-	# イメージ画像のように、カテゴリは系統図の左側へ縦に揃えて表示する。
-	# ScrollContainer 自体には入れず、カードのレイアウトを押し広げない。
-	_add_stage_tab("🌱 ちび", 42.0, Color(1.0, 0.91, 0.62, 0.96))
-	_add_stage_tab("🌸 こども", 202.0, Color(1.0, 0.76, 0.73, 0.96))
-	_add_stage_tab("♛ おとな", 362.0, Color(0.66, 0.87, 1.0, 0.96))
+## カテゴリ名は系統図の正式な行として配置する。
+## 絶対座標でScrollContainer上に重ねないため、左上へ飛んだりスクロールとずれたりしない。
+func _setup_stage_labels() -> void:
+	_add_stage_label("🌱 ちび", chibi_row)
+	_add_stage_label("🌸 こども", child_row)
+	_add_stage_label("♛ おとな", adult_row)
 
-func _add_stage_tab(text_value: String, y: float, background_color: Color) -> void:
-	var panel := PanelContainer.new()
-	panel.position = Vector2(8.0, y)
-	panel.size = Vector2(150.0, 48.0)
-	panel.z_index = 20
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = background_color
-	style.border_color = Color(1.0, 0.97, 0.86, 1.0)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(22)
-	panel.add_theme_stylebox_override("panel", style)
+func _add_stage_label(text_value: String, before_row: Control) -> void:
 	var label := Label.new()
 	label.text = text_value
+	label.custom_minimum_size = Vector2(0.0, 24.0)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 18)
-	label.add_theme_color_override("font_color", Color(0.24, 0.13, 0.06, 1.0))
-	panel.add_child(label)
-	collection_area.add_child(panel)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color(0.31, 0.20, 0.11, 1.0))
+	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.95))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	evolution_tree.add_child(label)
+	evolution_tree.move_child(label, before_row.get_index())
 
 func _update_back_button_text() -> void:
 	if get_tree().has_meta(RETURN_SCENE_META):
@@ -117,15 +118,15 @@ func _update_collection_count() -> void:
 	count_label.text = "発見数：%d / %d" % [discovered_count, TOTAL_COLLECTION_COUNT]
 
 func _update_collection_cards() -> void:
-	_update_card("chibi", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard/ChibiName, "ちびぴよこ")
-	_update_card("child_food", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard/FoodChildName, "ごはんぴよこ")
-	_update_card("child_play", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard/PlayChildName, "やんちゃぴよこ")
-	_update_card("child_pet", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard/PetChildName, "あまえぴよこ")
-	_update_card("child_balance", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard/BalanceChildName, "へいきんぴよこ")
-	_update_card("adult_sweets", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard/SweetsAdultName, "すいーつぴよこ")
-	_update_card("adult_champion", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard/ChampionAdultName, "ちゃんぷぴよこ")
-	_update_card("adult_challenger", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard/ChallengerAdultName, "ふぁいとぴよこ")
-	_update_card("adult_love", $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultTexture, $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard/LoveAdultName, "らぶぴよこ")
+	_update_card("chibi", chibi_row.get_node("ChibiCard/ChibiTexture"), chibi_row.get_node("ChibiCard/ChibiName"), "ちびぴよこ")
+	_update_card("child_food", child_row.get_node("FoodChildCard/FoodChildTexture"), child_row.get_node("FoodChildCard/FoodChildName"), "ごはんぴよこ")
+	_update_card("child_play", child_row.get_node("PlayChildCard/PlayChildTexture"), child_row.get_node("PlayChildCard/PlayChildName"), "やんちゃぴよこ")
+	_update_card("child_pet", child_row.get_node("PetChildCard/PetChildTexture"), child_row.get_node("PetChildCard/PetChildName"), "あまえぴよこ")
+	_update_card("child_balance", child_row.get_node("BalanceChildCard/BalanceChildTexture"), child_row.get_node("BalanceChildCard/BalanceChildName"), "へいきんぴよこ")
+	_update_card("adult_sweets", adult_row.get_node("SweetsAdultCard/SweetsAdultTexture"), adult_row.get_node("SweetsAdultCard/SweetsAdultName"), "すいーつぴよこ")
+	_update_card("adult_champion", adult_row.get_node("ChampionAdultCard/ChampionAdultTexture"), adult_row.get_node("ChampionAdultCard/ChampionAdultName"), "ちゃんぷぴよこ")
+	_update_card("adult_challenger", adult_row.get_node("ChallengerAdultCard/ChallengerAdultTexture"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultName"), "ふぁいとぴよこ")
+	_update_card("adult_love", adult_row.get_node("LoveAdultCard/LoveAdultTexture"), adult_row.get_node("LoveAdultCard/LoveAdultName"), "らぶぴよこ")
 
 func _update_card(piyoko_id: String, texture_rect: TextureRect, name_label: Label, discovered_name: String) -> void:
 	var discovered := PiyokoCollectionManager.is_discovered(piyoko_id)
