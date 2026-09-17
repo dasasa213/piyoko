@@ -380,7 +380,7 @@ func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Control
 		$GrowthMessageLabel.text = "%sになった！" % piyoko.get_growth_stage_name()
 
 	$GrowthMessageLabel.show()
-	reaction_effect.play_growth(get_viewport_rect().size)
+	reaction_effect.play_growth(_get_piyoko_center())
 	$GrowthMessageTimer.start()
 	is_growing = false
 	_set_action_buttons_disabled(false)
@@ -463,7 +463,12 @@ func _update_status_display() -> void:
 	status_container.get_node("FriendshipLabel").text = "なかよし：%d/5" % piyoko.friendship
 	status_container.get_node("MoodLabel").text = "きげん：%d/5" % piyoko.mood
 	if is_instance_valid(reaction_effect):
-		reaction_effect.update_mood(piyoko.mood, piyoko.growth_stage, get_viewport_rect().size)
+		reaction_effect.update_mood(piyoko.mood, piyoko.growth_stage, _get_piyoko_center())
+
+
+func _get_piyoko_center() -> Vector2:
+	var sprite: Control = $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	return sprite.get_global_rect().get_center()
 
 
 func _update_piyoko_texture() -> void:
