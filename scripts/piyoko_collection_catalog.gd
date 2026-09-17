@@ -45,7 +45,7 @@ const FORMS := [
 		"description": "さまざまなお世話を受けて、色とりどりの個性が花開いた。",
 		"previous": "へいきんぴよこ", "next": "なし"},
 	{"id": "adult_oshimotif", "name": "みこぴよこ", "stage": "大人ぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"],
-		"description": "特別なお世話のリズムから生まれた、推しモチーフのピヨコ。",
+		"description": "特別なお世話のリズムから生まれた、特別なピヨコ。",
 		"previous": "へいきんぴよこ", "next": "なし"},
 ]
 
