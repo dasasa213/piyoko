@@ -103,7 +103,7 @@ static func _read_save_data() -> Dictionary:
 static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 	piyoko.total_care_count = int(data.get("total_care_count", piyoko.total_care_count))
 	piyoko.session_id = str(data.get("session_id", piyoko.session_id))
-	piyoko.started_at = str(data.get("started_at", piyoko.started_at))
+	piyoko.started_at = str(data.get("started_at", ""))
 	piyoko.growth_stage = int(data.get("growth_stage", piyoko.growth_stage))
 	piyoko.growth_count = int(data.get("growth_count", piyoko.growth_count))
 
