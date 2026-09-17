@@ -402,6 +402,7 @@ func _check_growth() -> bool:
 
 
 func _start_egg_sequence() -> void:
+	PiyokoCollectionManager.discover("egg")
 	_set_action_buttons_disabled(true)
 	room_background.texture = BIRTH_BACKGROUND
 	birth_message_panel.show()
