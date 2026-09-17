@@ -299,7 +299,7 @@ func _setup_collection_button() -> void:
 func _setup_memories_button() -> void:
 	memories_button = Button.new()
 	memories_button.name = "MemoriesButton"
-	memories_button.text = "育成記録"
+	memories_button.text = "おもいで"
 	memories_button.custom_minimum_size = Vector2(292, 48)
 	memories_button.add_theme_font_size_override("font_size", 22)
 	memories_button.add_theme_color_override("font_color", Color("492d16"))
