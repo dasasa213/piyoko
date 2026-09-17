@@ -378,8 +378,9 @@ func _on_full_reset_button_pressed() -> void:
 func _on_full_reset_confirmed() -> void:
 	var save_deleted := PiyokoSaveManager.delete_save()
 	var collection_deleted := PiyokoCollectionManager.delete_collection()
+	var memories_deleted := PiyokoMemoryManager.delete_all()
 
-	if not save_deleted or not collection_deleted:
+	if not save_deleted or not collection_deleted or not memories_deleted:
 		push_error("完全初期化に失敗しました")
 		return
 
