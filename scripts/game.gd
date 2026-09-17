@@ -142,7 +142,12 @@ func _create_play_minigame_ui() -> void:
 	play_minigame_result_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
 	play_minigame_result_label.add_theme_constant_override("shadow_offset_x", 3)
 	play_minigame_result_label.add_theme_constant_override("shadow_offset_y", 3)
-	play_minigame_result_label.set_anchors_preset(Control.PRESET_CENTER_WIDE)
+	play_minigame_result_label.anchor_left = 0.0
+	play_minigame_result_label.anchor_top = 0.5
+	play_minigame_result_label.anchor_right = 1.0
+	play_minigame_result_label.anchor_bottom = 0.5
+	play_minigame_result_label.offset_left = 0.0
+	play_minigame_result_label.offset_right = 0.0
 	play_minigame_result_label.offset_top = -55.0
 	play_minigame_result_label.offset_bottom = 55.0
 	play_minigame_panel.add_child(play_minigame_result_label)
