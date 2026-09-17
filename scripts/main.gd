@@ -4,9 +4,11 @@ const COLLECTION_RETURN_SCENE_META := "collection_return_scene"
 const TITLE_SCENE := "res://scenes/main.tscn"
 
 var collection_button: Button
+var dialog_dim: ColorRect
 
 
 func _ready() -> void:
+	_setup_dialog_dim()
 	_setup_collection_button()
 	_update_start_buttons()
 	$OptionsPanel.hide()
@@ -22,6 +24,27 @@ func _ready() -> void:
 	$FullResetConfirm.confirmed.connect(_on_full_reset_confirmed)
 	_style_title_dialogs()
 	_style_options_panel()
+	$NewGameConfirm.visibility_changed.connect(_refresh_dialog_dim)
+	$FullResetConfirm.visibility_changed.connect(_refresh_dialog_dim)
+	$FullResetComplete.visibility_changed.connect(_refresh_dialog_dim)
+
+
+func _setup_dialog_dim() -> void:
+	dialog_dim = ColorRect.new()
+	dialog_dim.name = "DialogDim"
+	dialog_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dialog_dim.color = Color(0.08, 0.12, 0.06, 0.38)
+	dialog_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dialog_dim.hide()
+	add_child(dialog_dim)
+
+
+func _refresh_dialog_dim() -> void:
+	dialog_dim.visible = (
+		$NewGameConfirm.visible
+		or $FullResetConfirm.visible
+		or $FullResetComplete.visible
+	)
 
 
 func _style_title_dialogs() -> void:
@@ -40,7 +63,7 @@ func _style_options_panel() -> void:
 	]
 
 	for button in option_buttons:
-		button.add_theme_font_size_override("font_size", 16)
+		button.add_theme_font_size_override("font_size", 14)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -94,7 +117,7 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 
 	for button in dialog_buttons:
 		button.custom_minimum_size = Vector2(220, 56)
-		button.add_theme_font_size_override("font_size", 16)
+		button.add_theme_font_size_override("font_size", 14)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
