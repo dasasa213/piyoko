@@ -128,7 +128,10 @@ func _apply_nature_ui_styles() -> void:
 		button.add_theme_font_size_override("font_size", 18)
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
-		for style_name in [&"normal", &"hover", &"pressed", &"disabled"]:
+		button.add_theme_color_override("font_pressed_color", Color("492d16"))
+		button.add_theme_color_override("font_focus_color", Color("492d16"))
+		button.add_theme_color_override("font_disabled_color", Color("75654e"))
+		for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
 			button.add_theme_stylebox_override(
 				style_name,
 				style_source.get_theme_stylebox(style_name).duplicate()
@@ -442,7 +445,10 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 		button.add_theme_font_size_override("font_size", 18)
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
-		for style_name in [&"normal", &"hover", &"pressed"]:
+		button.add_theme_color_override("font_pressed_color", Color("492d16"))
+		button.add_theme_color_override("font_focus_color", Color("492d16"))
+		button.add_theme_color_override("font_disabled_color", Color("75654e"))
+		for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
 			button.add_theme_stylebox_override(
 				style_name,
 				style_source.get_theme_stylebox(style_name).duplicate()
