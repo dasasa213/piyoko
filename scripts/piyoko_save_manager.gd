@@ -5,7 +5,7 @@ extends RefCounted
 ## 図鑑データは PiyokoCollectionManager が別ファイルで管理する。
 
 const SAVE_PATH := "user://piyoko_save.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 
 
 # ------------------------------------------------------------
@@ -30,6 +30,8 @@ static func _create_save_data(piyoko: Piyoko) -> Dictionary:
 	return {
 		"save_version": SAVE_VERSION,
 		"total_care_count": piyoko.total_care_count,
+		"session_id": piyoko.session_id,
+		"started_at": piyoko.started_at,
 		"growth_stage": piyoko.growth_stage,
 		"growth_count": piyoko.growth_count,
 		"child_type": piyoko.child_type,
@@ -100,6 +102,8 @@ static func _read_save_data() -> Dictionary:
 
 static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 	piyoko.total_care_count = int(data.get("total_care_count", piyoko.total_care_count))
+	piyoko.session_id = str(data.get("session_id", piyoko.session_id))
+	piyoko.started_at = str(data.get("started_at", piyoko.started_at))
 	piyoko.growth_stage = int(data.get("growth_stage", piyoko.growth_stage))
 	piyoko.growth_count = int(data.get("growth_count", piyoko.growth_count))
 
