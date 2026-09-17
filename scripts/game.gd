@@ -8,7 +8,7 @@ const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
 const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
-const PIYOKO_RUG_OFFSET_Y := 105.0
+const PIYOKO_RUG_OFFSET_Y := 205.0
 
 var piyoko: Piyoko
 var is_growing := false
@@ -110,7 +110,7 @@ func _setup_initial_view() -> void:
 	$PlayPanel.hide()
 	$GrowthMessageLabel.position.y -= 110.0
 
-	# 背景の絨毯中央に見えるよう、ピヨコ一式を少し下へ配置する。
+	# 背景の絨毯中央に見えるよう、ピヨコ一式を下へ配置する。
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder.position.y += PIYOKO_RUG_OFFSET_Y
 
 	_update_status_display()
