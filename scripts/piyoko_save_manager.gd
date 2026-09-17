@@ -5,7 +5,7 @@ extends RefCounted
 ## 図鑑データは PiyokoCollectionManager が別ファイルで管理する。
 
 const SAVE_PATH := "user://piyoko_save.json"
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 
 
 # ------------------------------------------------------------
@@ -45,6 +45,14 @@ static func _create_save_data(piyoko: Piyoko) -> Dictionary:
 		"play_count": piyoko.play_count,
 		"play_success_count": piyoko.play_success_count,
 		"play_failure_count": piyoko.play_failure_count,
+		"adult_food_count": piyoko.adult_food_count,
+		"adult_shortcake_count": piyoko.adult_shortcake_count,
+		"adult_onigiri_count": piyoko.adult_onigiri_count,
+		"adult_broccoli_count": piyoko.adult_broccoli_count,
+		"adult_pet_count": piyoko.adult_pet_count,
+		"adult_play_success_count": piyoko.adult_play_success_count,
+		"adult_play_failure_count": piyoko.adult_play_failure_count,
+		"oshimotif_sequence_progress": piyoko.oshimotif_sequence_progress,
 		"last_care": piyoko.last_care
 	}
 
@@ -111,6 +119,16 @@ static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 	piyoko.play_count = int(data.get("play_count", piyoko.play_count))
 	piyoko.play_success_count = int(data.get("play_success_count", piyoko.play_success_count))
 	piyoko.play_failure_count = int(data.get("play_failure_count", piyoko.play_failure_count))
+
+	# バージョン1のセーブには子ぴよこ期専用履歴がないため、0から安全に再開する。
+	piyoko.adult_food_count = int(data.get("adult_food_count", piyoko.adult_food_count))
+	piyoko.adult_shortcake_count = int(data.get("adult_shortcake_count", piyoko.adult_shortcake_count))
+	piyoko.adult_onigiri_count = int(data.get("adult_onigiri_count", piyoko.adult_onigiri_count))
+	piyoko.adult_broccoli_count = int(data.get("adult_broccoli_count", piyoko.adult_broccoli_count))
+	piyoko.adult_pet_count = int(data.get("adult_pet_count", piyoko.adult_pet_count))
+	piyoko.adult_play_success_count = int(data.get("adult_play_success_count", piyoko.adult_play_success_count))
+	piyoko.adult_play_failure_count = int(data.get("adult_play_failure_count", piyoko.adult_play_failure_count))
+	piyoko.oshimotif_sequence_progress = int(data.get("oshimotif_sequence_progress", piyoko.oshimotif_sequence_progress))
 
 	piyoko.last_care = str(data.get("last_care", piyoko.last_care))
 
