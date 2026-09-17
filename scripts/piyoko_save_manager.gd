@@ -21,6 +21,7 @@ static func save(piyoko: Piyoko) -> bool:
 		"friendship": piyoko.friendship,
 		"mood": piyoko.mood,
 
+		"food_count": piyoko.food_count,
 		"shortcake_count": piyoko.shortcake_count,
 		"onigiri_count": piyoko.onigiri_count,
 		"broccoli_count": piyoko.broccoli_count,
@@ -125,6 +126,13 @@ static func _apply_save_data(
 
 	piyoko.mood = int(
 		data.get("mood", piyoko.mood)
+	)
+
+	piyoko.food_count = int(
+		data.get(
+			"food_count",
+			int(data.get("shortcake_count", 0)) + int(data.get("onigiri_count", 0)) + int(data.get("broccoli_count", 0))
+		)
 	)
 
 	piyoko.shortcake_count = int(
