@@ -32,7 +32,8 @@ const STAGE_LABEL_X := 2.0
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
 const LINE_WIDTH := 4.0
-const ARROW_SIZE := 10.0
+const ARROW_SIZE := 9.0
+const ARROW_LINE_GAP := 5.0
 const LINE_GAP := 14.0
 
 const FORM_DATA := [
@@ -246,10 +247,11 @@ func _draw_line(from: Vector2, to: Vector2) -> void:
 
 
 func _draw_arrow(from: Vector2, to: Vector2) -> void:
-	_draw_line(from, to)
 	var direction := (to - from).normalized()
 	var side := Vector2(-direction.y, direction.x)
 	var base := to - direction * ARROW_SIZE
+	# 線を三角形の手前で止め、▼が線に埋もれないようにする。
+	_draw_line(from, base - direction * ARROW_LINE_GAP)
 	var points := PackedVector2Array([
 		to,
 		base + side * (ARROW_SIZE * 0.65),
