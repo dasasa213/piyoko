@@ -10,6 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://l5t1pcj30u3i" path="res://assets/characters/piyoko/forms/08_adult_champion.png" id="7_04f8q"]
 [ext_resource type="Texture2D" uid="uid://bdbtjrnfxjenl" path="res://assets/characters/piyoko/forms/09_adult_challenger.png" id="8_sgbrj"]
 [ext_resource type="Texture2D" uid="uid://ca3uu8doe41eb" path="res://assets/characters/piyoko/forms/10_adult_love.png" id="9_y58qt"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/03_encyclopedia_room.png" id="10_bg"]
+[ext_resource type="Texture2D" path="res://assets/ui/panels/frame_card.png" id="11_card"]
 
 [node name="Collection" type="Control" unique_id=261224874]
 layout_mode = 3
@@ -20,36 +22,63 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_04f8q")
 
-[node name="Background" type="ColorRect" parent="." unique_id=1803927872]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(1, 0.972549, 0.9098039, 1)
-metadata/_edit_use_anchors_ = true
+mouse_filter = 2
+texture = ExtResource("10_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.08, 0.04, 0.18)
 
 [node name="MainMargin" type="MarginContainer" parent="." unique_id=1125766954]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 24.0
+offset_right = -40.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CollectionLayout" type="VBoxContainer" parent="MainMargin" unique_id=380331549]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="TitleLabel" type="Label" parent="MainMargin/CollectionLayout" unique_id=1912716842]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0.965, 0.82, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.08, 0.03, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 34
 text = "ピヨコ図鑑"
+horizontal_alignment = 1
 
 [node name="Countlabel" type="Label" parent="MainMargin/CollectionLayout" unique_id=1554473974]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0.94, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0.15, 0.08, 0.03, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 18
 text = "発見数：0 / 9"
+horizontal_alignment = 1
 
 [node name="CollectionArea" type="Control" parent="MainMargin/CollectionLayout" unique_id=257706830]
 layout_mode = 2
@@ -62,6 +91,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="ChibiRow" type="HBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree" unique_id=1913891083]
@@ -69,10 +99,25 @@ layout_mode = 2
 alignment = 1
 
 [node name="ChibiCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow" unique_id=903118324]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
 
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
+
 [node name="ChibiTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard" unique_id=1984833074]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("1_mldy4")
 expand_mode = 1
@@ -80,146 +125,256 @@ stretch_mode = 5
 
 [node name="ChibiName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow/ChibiCard" unique_id=807547504]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "ちびぴよこ"
 horizontal_alignment = 1
 
 [node name="ChildRow" type="HBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree" unique_id=218482302]
 layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="FoodChildCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow" unique_id=1876897800]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="FoodChildTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard" unique_id=1815372467]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("2_akiqc")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="FoodChildName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/FoodChildCard" unique_id=948827986]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "ごはんぴよこ"
 horizontal_alignment = 1
 
 [node name="PlayChildCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow" unique_id=606773576]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="PlayChildTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard" unique_id=1468441995]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("3_tdt8g")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="PlayChildName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PlayChildCard" unique_id=1578141873]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "やんちゃぴよこ"
 horizontal_alignment = 1
 
 [node name="PetChildCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow" unique_id=1378664637]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="PetChildTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard" unique_id=821008021]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("4_5vqia")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="PetChildName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/PetChildCard" unique_id=317091851]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "あまえぴよこ"
 horizontal_alignment = 1
 
 [node name="BalanceChildCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow" unique_id=1525446721]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="BalanceChildTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard" unique_id=1494951794]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("5_tdt8g")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="BalanceChildName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow/BalanceChildCard" unique_id=558541266]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "へいきんぴよこ"
 horizontal_alignment = 1
 
 [node name="AdultRow" type="HBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree" unique_id=1353796170]
 layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="SweetsAdultCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow" unique_id=337057466]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="SweetsAdultTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard" unique_id=1307193570]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("6_p8q5u")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="SweetsAdultName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/SweetsAdultCard" unique_id=403138618]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "すいーつぴよこ"
 horizontal_alignment = 1
 
 [node name="ChampionAdultCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow" unique_id=289521338]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="ChampionAdultTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard" unique_id=505977665]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("7_04f8q")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="ChampionAdultName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChampionAdultCard" unique_id=1832933788]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "ちゃんぷぴよこ"
 horizontal_alignment = 1
 
 [node name="ChallengerAdultCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow" unique_id=378740858]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="ChallengerAdultTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard" unique_id=1126695744]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("8_sgbrj")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="ChallengerAdultName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/ChallengerAdultCard" unique_id=1555872462]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "ふぁいとぴよこ"
 horizontal_alignment = 1
 
 [node name="LoveAdultCard" type="VBoxContainer" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow" unique_id=32752560]
+custom_minimum_size = Vector2(150, 146)
 layout_mode = 2
-
+[node name="Frame" type="NinePatchRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("11_card")
+patch_margin_left = 24
+patch_margin_top = 24
+patch_margin_right = 24
+patch_margin_bottom = 24
 [node name="LoveAdultTexture" type="TextureRect" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard" unique_id=1018571338]
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(128, 112)
 layout_mode = 2
 texture = ExtResource("9_y58qt")
 expand_mode = 1
 stretch_mode = 5
-
 [node name="LoveAdultName" type="Label" parent="MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow/LoveAdultCard" unique_id=1885134054]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.22, 0.14, 0.08, 1)
+theme_override_font_sizes/font_size = 16
 text = "らぶぴよこ"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="MainMargin/CollectionLayout" unique_id=1559489986]
+custom_minimum_size = Vector2(260, 44)
 layout_mode = 2
-text = "戻る"
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "育成画面にもどる"
