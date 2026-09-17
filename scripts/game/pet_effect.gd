@@ -2,48 +2,26 @@ class_name PetEffect
 extends Node
 
 ## 「なでる」のリアクション演出を担当するコンポーネント。
-## 操作はボタンを押すだけで、ピヨコへの直接ドラッグ操作は行わない。
-## PiyokoSprite は TextureRect のため、演出対象は Control として受け取る。
+## 手の画像をピヨコの頭上で往復させ、やさしく撫でる動きを表現する。
 
 signal finished
 
-var _card: PanelContainer
-var _label: Label
+const HAND_IMAGE_PATH := "res://assets/effects/pet_hand.png"
+
+var _hand: TextureRect
 var _active := false
 
 
 func setup(host: Control) -> void:
-	_card = PanelContainer.new()
-	_card.visible = false
-	_card.z_index = 20
-	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_card.size = Vector2(300, 72)
-	_card.pivot_offset = _card.size * 0.5
-
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.91, 0.92, 0.97)
-	style.border_color = Color("d9788f")
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(22)
-	style.content_margin_left = 22.0
-	style.content_margin_top = 10.0
-	style.content_margin_right = 22.0
-	style.content_margin_bottom = 10.0
-	style.shadow_color = Color(0.35, 0.16, 0.18, 0.28)
-	style.shadow_size = 7
-	style.shadow_offset = Vector2(0, 4)
-	_card.add_theme_stylebox_override("panel", style)
-
-	_label = Label.new()
-	_label.text = "♡  なでなで  ♡"
-	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 25)
-	_label.add_theme_color_override("font_color", Color("a94761"))
-	_label.add_theme_color_override("font_outline_color", Color("fff7f0"))
-	_label.add_theme_constant_override("outline_size", 3)
-	_card.add_child(_label)
-	host.add_child(_card)
+	_hand = TextureRect.new()
+	_hand.visible = false
+	_hand.z_index = 20
+	_hand.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hand.size = Vector2(190, 119)
+	_hand.pivot_offset = _hand.size * 0.5
+	_hand.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_hand.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	host.add_child(_hand)
 
 
 func is_active() -> bool:
@@ -54,34 +32,70 @@ func play(sprite: Control, viewport_size: Vector2) -> void:
 	if _active:
 		return
 
-	_active = true
-	_card.position = Vector2(
-		viewport_size.x * 0.5 - (_card.size.x * 0.5),
-		viewport_size.y * 0.39
-	)
-	_card.modulate = Color(1, 1, 1, 0)
-	_card.scale = Vector2(0.82, 0.82)
-	_card.show()
+	var hand_texture := _load_hand_texture()
+	if hand_texture == null:
+		push_warning("なでる用の手画像を読み込めません")
+		_play_sprite_only(sprite)
+		return
 
-	# TextureRect(Control) の回転を軽く揺らして、なでられている反応を表現する。
+	_active = true
+	_hand.texture = hand_texture
+	_hand.position = Vector2(
+		viewport_size.x * 0.5 - 35.0,
+		viewport_size.y * 0.38
+	)
+	_hand.modulate = Color(1, 1, 1, 0)
+	_hand.rotation = -0.10
+	_hand.scale = Vector2(0.9, 0.9)
+	_hand.show()
+
 	var original_rotation: float = sprite.rotation
-	var start_y := _card.position.y
+	var start_position := _hand.position
+	var left_position := start_position + Vector2(-72.0, 10.0)
 
 	var tween := create_tween()
-	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_card, "modulate:a", 1.0, 0.16)
-	tween.parallel().tween_property(_card, "scale", Vector2.ONE, 0.24)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_hand, "modulate:a", 1.0, 0.12)
+	tween.parallel().tween_property(_hand, "scale", Vector2.ONE, 0.18)
+
+	# 頭の右側から左側へ、ゆっくり3回なでる。
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(sprite, "rotation", original_rotation - 0.08, 0.12)
-	tween.tween_property(sprite, "rotation", original_rotation + 0.08, 0.18)
-	tween.tween_property(sprite, "rotation", original_rotation - 0.05, 0.18)
+	for i in 3:
+		tween.tween_property(_hand, "position", left_position, 0.22)
+		tween.parallel().tween_property(_hand, "rotation", 0.06, 0.22)
+		tween.parallel().tween_property(sprite, "rotation", original_rotation - 0.055, 0.22)
+		tween.tween_property(_hand, "position", start_position, 0.22)
+		tween.parallel().tween_property(_hand, "rotation", -0.10, 0.22)
+		tween.parallel().tween_property(sprite, "rotation", original_rotation + 0.035, 0.22)
+
 	tween.tween_property(sprite, "rotation", original_rotation, 0.12)
-	tween.parallel().tween_property(_card, "position:y", start_y - 28.0, 0.35)
-	tween.parallel().tween_property(_card, "modulate:a", 0.0, 0.35)
+	tween.parallel().tween_property(_hand, "position:y", start_position.y - 24.0, 0.24)
+	tween.parallel().tween_property(_hand, "modulate:a", 0.0, 0.24)
+	tween.tween_callback(_finish)
+
+
+func _load_hand_texture() -> Texture2D:
+	# Godotのインポートキャッシュに依存せず、PNG本体を直接読み込む。
+	var image := Image.new()
+	var error := image.load(HAND_IMAGE_PATH)
+	if error != OK:
+		return null
+	return ImageTexture.create_from_image(image)
+
+
+func _play_sprite_only(sprite: Control) -> void:
+	# 万一画像が読めなくても、操作を止めず最低限のリアクションを完了させる。
+	_active = true
+	var original_rotation := sprite.rotation
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(sprite, "rotation", original_rotation - 0.08, 0.18)
+	tween.tween_property(sprite, "rotation", original_rotation + 0.08, 0.22)
+	tween.tween_property(sprite, "rotation", original_rotation, 0.18)
 	tween.tween_callback(_finish)
 
 
 func _finish() -> void:
-	_card.hide()
+	_hand.hide()
 	_active = false
 	finished.emit()
