@@ -69,3 +69,22 @@ func load_collection() -> void:
 
 	for piyoko_id in json.get("discovered", []):
 		discovered.append(str(piyoko_id))
+
+
+func delete_collection() -> bool:
+	discovered.clear()
+
+	if not FileAccess.file_exists(COLLECTION_PATH):
+		print("削除する図鑑データはありません")
+		return true
+
+	var error := DirAccess.remove_absolute(
+		ProjectSettings.globalize_path(COLLECTION_PATH)
+	)
+
+	if error != OK:
+		push_error("図鑑データの削除に失敗しました")
+		return false
+
+	print("図鑑データを削除しました")
+	return true
