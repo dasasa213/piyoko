@@ -366,6 +366,165 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	add_child(finish_care_confirm)
 
+<<<<<<< Updated upstream
+=======
+func _create_food_effect_ui() -> void:
+	food_effect_label = Label.new()
+	food_effect_label.visible = false
+	food_effect_label.z_index = 20
+	food_effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	food_effect_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	food_effect_label.add_theme_font_size_override("font_size", 26)
+	food_effect_label.add_theme_color_override("font_color", Color(0.36, 0.20, 0.12, 1.0))
+	food_effect_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	food_effect_label.add_theme_constant_override("shadow_offset_x", 2)
+	food_effect_label.add_theme_constant_override("shadow_offset_y", 2)
+	food_effect_label.size = Vector2(180, 60)
+	add_child(food_effect_label)
+
+func _start_food_effect(food_key: String, display_name: String) -> void:
+	if food_effect_active: return
+	food_effect_active = true
+	$FoodPanel.hide()
+	_set_action_buttons_disabled(true)
+	food_effect_label.text = display_name
+	food_effect_label.modulate = Color.WHITE
+	food_effect_label.scale = Vector2(0.8, 0.8)
+	var viewport_size := get_viewport_rect().size
+	food_effect_label.position = Vector2(viewport_size.x * 0.5 - 90.0, viewport_size.y * 0.72)
+	food_effect_label.show()
+	var target_position := Vector2(viewport_size.x * 0.5 - 90.0, viewport_size.y * 0.50 + 65.0)
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(food_effect_label, "position", target_position, 0.45)
+	tween.parallel().tween_property(food_effect_label, "scale", Vector2.ONE, 0.45)
+	tween.tween_interval(0.25)
+	tween.tween_property(food_effect_label, "modulate:a", 0.0, 0.25)
+	tween.tween_callback(_finish_food_effect.bind(food_key))
+
+func _finish_food_effect(food_key: String) -> void:
+	food_effect_label.hide()
+	food_effect_active = false
+	piyoko.feed(food_key)
+	var grew := _check_growth()
+	_update_status_display()
+	if not grew:
+		_set_action_buttons_disabled(false)
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
+	piyoko.print_status()
+	_save_game()
+
+func _create_pet_effect_ui() -> void:
+	pet_effect_label = Label.new()
+	pet_effect_label.visible = false
+	pet_effect_label.z_index = 20
+	pet_effect_label.text = "♡  なでなで  ♡"
+	pet_effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pet_effect_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pet_effect_label.add_theme_font_size_override("font_size", 28)
+	pet_effect_label.add_theme_color_override("font_color", Color(0.88, 0.30, 0.46, 1.0))
+	pet_effect_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	pet_effect_label.add_theme_constant_override("shadow_offset_x", 2)
+	pet_effect_label.add_theme_constant_override("shadow_offset_y", 2)
+	pet_effect_label.size = Vector2(240, 60)
+	add_child(pet_effect_label)
+
+func _start_pet_effect() -> void:
+	if pet_effect_active or food_effect_active: return
+	pet_effect_active = true
+	_set_action_buttons_disabled(true)
+	var viewport_size := get_viewport_rect().size
+	pet_effect_label.position = Vector2(viewport_size.x * 0.5 - 120.0, viewport_size.y * 0.42)
+	pet_effect_label.modulate = Color(1, 1, 1, 0)
+	pet_effect_label.scale = Vector2(0.8, 0.8)
+	pet_effect_label.show()
+	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	var original_rotation: float = float(sprite.rotation)
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(pet_effect_label, "modulate:a", 1.0, 0.15)
+	tween.parallel().tween_property(pet_effect_label, "scale", Vector2.ONE, 0.15)
+	tween.tween_property(sprite, "rotation", original_rotation - 0.08, 0.12)
+	tween.tween_property(sprite, "rotation", original_rotation + 0.08, 0.18)
+	tween.tween_property(sprite, "rotation", original_rotation - 0.05, 0.18)
+	tween.tween_property(sprite, "rotation", original_rotation, 0.12)
+	tween.parallel().tween_property(pet_effect_label, "position:y", pet_effect_label.position.y - 28.0, 0.35)
+	tween.parallel().tween_property(pet_effect_label, "modulate:a", 0.0, 0.35)
+	tween.tween_callback(_finish_pet_effect)
+
+func _finish_pet_effect() -> void:
+	pet_effect_label.hide()
+	pet_effect_active = false
+	piyoko.pet()
+	var grew := _check_growth()
+	_update_status_display()
+	if not grew:
+		_set_action_buttons_disabled(false)
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
+	piyoko.print_status()
+	_save_game()
+
+func _create_play_minigame_ui() -> void:
+	play_minigame_panel = Control.new()
+	play_minigame_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	play_minigame_panel.visible = false
+	play_minigame_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(play_minigame_panel)
+	var background := ColorRect.new()
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.color = Color(0.91764706, 0.95686275, 0.8745098, 1.0)
+	background.mouse_filter = Control.MOUSE_FILTER_STOP
+	play_minigame_panel.add_child(background)
+	var title := Label.new()
+	title.text = "ピヨコを3回タッチ！"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_color_override("font_color", Color(0.36, 0.20, 0.12, 1.0))
+	title.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.9))
+	title.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	title.offset_top = 24.0; title.offset_bottom = 66.0
+	play_minigame_panel.add_child(title)
+	play_minigame_count_label = Label.new()
+	play_minigame_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	play_minigame_count_label.add_theme_font_size_override("font_size", 24)
+	play_minigame_count_label.add_theme_color_override("font_color", Color(0.72, 0.24, 0.16, 1.0))
+	play_minigame_count_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	play_minigame_count_label.offset_top = 72.0; play_minigame_count_label.offset_bottom = 106.0
+	play_minigame_panel.add_child(play_minigame_count_label)
+	play_minigame_time_label = Label.new()
+	play_minigame_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	play_minigame_time_label.add_theme_font_size_override("font_size", 22)
+	play_minigame_time_label.add_theme_color_override("font_color", Color(0.18, 0.32, 0.22, 1.0))
+	play_minigame_time_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	play_minigame_time_label.offset_top = 108.0; play_minigame_time_label.offset_bottom = 142.0
+	play_minigame_panel.add_child(play_minigame_time_label)
+	play_minigame_result_label = Label.new()
+	play_minigame_result_label.visible = false
+	play_minigame_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	play_minigame_result_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	play_minigame_result_label.add_theme_font_size_override("font_size", 52)
+	play_minigame_result_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	play_minigame_result_label.anchor_top = 0.5; play_minigame_result_label.anchor_right = 1.0; play_minigame_result_label.anchor_bottom = 0.5
+	play_minigame_result_label.offset_top = -55.0; play_minigame_result_label.offset_bottom = 55.0
+	play_minigame_panel.add_child(play_minigame_result_label)
+	play_minigame_target = TextureButton.new()
+	play_minigame_target.ignore_texture_size = true
+	play_minigame_target.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	play_minigame_target.size = Vector2(128, 128)
+	play_minigame_target.pressed.connect(_on_play_target_pressed)
+	play_minigame_panel.add_child(play_minigame_target)
+	play_minigame_cancel_button = Button.new()
+	play_minigame_cancel_button.text = "やめる"
+	play_minigame_cancel_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	play_minigame_cancel_button.offset_left = 24.0; play_minigame_cancel_button.offset_right = -24.0
+	play_minigame_cancel_button.offset_top = -70.0; play_minigame_cancel_button.offset_bottom = -18.0
+	play_minigame_cancel_button.pressed.connect(_on_play_minigame_cancel_pressed)
+	play_minigame_panel.add_child(play_minigame_cancel_button)
+	play_minigame_timer = Timer.new(); play_minigame_timer.wait_time = PLAY_TIME_LIMIT; play_minigame_timer.one_shot = true
+	play_minigame_timer.timeout.connect(_on_play_minigame_timeout); add_child(play_minigame_timer)
+	play_result_timer = Timer.new(); play_result_timer.wait_time = PLAY_RESULT_TIME; play_result_timer.one_shot = true
+	play_result_timer.timeout.connect(_on_play_result_timeout); add_child(play_result_timer)
+>>>>>>> Stashed changes
 
 func _update_finish_care_button() -> void:
 	finish_care_button.visible = piyoko.growth_stage == 2
@@ -415,6 +574,7 @@ func _on_reset_button_pressed() -> void:
 
 
 func _on_reset_confirmed() -> void:
+<<<<<<< Updated upstream
 	if not PiyokoSaveManager.delete_save():
 		push_error("育成データのリセットに失敗しました")
 		return
@@ -434,3 +594,7 @@ func _save_game() -> void:
 func _save_if_started() -> void:
 	if piyoko.growth_stage >= 0:
 		_save_game()
+=======
+	if not PiyokoSaveManager.delete_save(): push_error("育成データのリセットに失敗しました"); return
+	get_tree().reload_current_scene()
+>>>>>>> Stashed changes
