@@ -2,10 +2,8 @@ extends Control
 
 
 func _ready() -> void:
-	#テスト用
-	#PiyokoSaveManager.delete_save()
-	
 	_update_start_buttons()
+	$OptionsPanel.hide()
 
 	$TitleCenter/TitleMenu/StartButton.pressed.connect(
 		_on_start_button_pressed
@@ -19,8 +17,24 @@ func _ready() -> void:
 		_on_new_game_button_pressed
 	)
 
+	$TitleCenter/TitleMenu/OptionsButton.pressed.connect(
+		_on_options_button_pressed
+	)
+
+	$OptionsPanel/OptionsMenu/FullResetButton.pressed.connect(
+		_on_full_reset_button_pressed
+	)
+
+	$OptionsPanel/OptionsMenu/BackButton.pressed.connect(
+		_on_options_back_button_pressed
+	)
+
 	$NewGameConfirm.confirmed.connect(
 		_on_new_game_confirmed
+	)
+
+	$FullResetConfirm.confirmed.connect(
+		_on_full_reset_confirmed
 	)
 
 
@@ -58,3 +72,31 @@ func _on_new_game_confirmed() -> void:
 	get_tree().change_scene_to_file(
 		"res://scenes/game.tscn"
 	)
+
+
+func _on_options_button_pressed() -> void:
+	$TitleCenter.hide()
+	$OptionsPanel.show()
+
+
+func _on_options_back_button_pressed() -> void:
+	$OptionsPanel.hide()
+	$TitleCenter.show()
+
+
+func _on_full_reset_button_pressed() -> void:
+	$FullResetConfirm.popup_centered()
+
+
+func _on_full_reset_confirmed() -> void:
+	var save_deleted := PiyokoSaveManager.delete_save()
+	var collection_deleted := PiyokoCollectionManager.delete_collection()
+
+	if not save_deleted or not collection_deleted:
+		push_error("完全初期化に失敗しました")
+		return
+
+	$OptionsPanel.hide()
+	$TitleCenter.show()
+	_update_start_buttons()
+	$FullResetComplete.popup_centered()
