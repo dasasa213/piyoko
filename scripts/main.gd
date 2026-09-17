@@ -21,6 +21,7 @@ func _ready() -> void:
 	$NewGameConfirm.confirmed.connect(_on_new_game_confirmed)
 	$FullResetConfirm.confirmed.connect(_on_full_reset_confirmed)
 	_style_title_dialogs()
+	_style_options_panel()
 
 
 func _style_title_dialogs() -> void:
@@ -28,6 +29,26 @@ func _style_title_dialogs() -> void:
 	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(440, 210))
 	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(480, 250))
 	_apply_dialog_style($FullResetComplete, style_source, Vector2i(400, 180))
+
+
+func _style_options_panel() -> void:
+	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
+	var option_buttons: Array[Button] = [
+		$OptionsPanel/OptionsBackground/OptionsMenu/FullResetButton,
+		$OptionsPanel/OptionsBackground/OptionsMenu/BackButton,
+	]
+
+	for button in option_buttons:
+		button.add_theme_font_size_override("font_size", 18)
+		button.add_theme_color_override("font_color", Color("492d16"))
+		button.add_theme_color_override("font_hover_color", Color("384514"))
+		button.add_theme_color_override("font_pressed_color", Color("492d16"))
+		button.add_theme_color_override("font_focus_color", Color("492d16"))
+		button.add_theme_color_override("font_disabled_color", Color("75654e"))
+		for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
+			var source_style := style_source.get_theme_stylebox(style_name)
+			if source_style != null:
+				button.add_theme_stylebox_override(style_name, source_style.duplicate())
 
 
 func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_size: Vector2i) -> void:
@@ -65,11 +86,13 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 		button.add_theme_font_size_override("font_size", 18)
 		button.add_theme_color_override("font_color", Color("492d16"))
 		button.add_theme_color_override("font_hover_color", Color("384514"))
-		for style_name in [&"normal", &"hover", &"pressed"]:
-			button.add_theme_stylebox_override(
-				style_name,
-				style_source.get_theme_stylebox(style_name).duplicate()
-			)
+		button.add_theme_color_override("font_pressed_color", Color("492d16"))
+		button.add_theme_color_override("font_focus_color", Color("492d16"))
+		button.add_theme_color_override("font_disabled_color", Color("75654e"))
+		for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
+			var source_style := style_source.get_theme_stylebox(style_name)
+			if source_style != null:
+				button.add_theme_stylebox_override(style_name, source_style.duplicate())
 
 
 ## タイトルからいつでも図鑑を確認できるよう、メニュー内に図鑑ボタンを追加する。
