@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dblo8atp7t0ri" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/01_title_meadow.png" id="2_title_bg"]
-[ext_resource type="Texture2D" path="res://assets/ui/logo/piyoko_title_logo.png" id="3_title_logo"]
+[ext_resource type="Texture2D" path="res://assets/ui/logo/piyoko_title_logo_compact.png" id="3_title_logo"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_button_normal"]
 bg_color = Color(1, 0.945098, 0.752941, 0.94)
