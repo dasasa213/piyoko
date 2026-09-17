@@ -53,6 +53,7 @@ const FORM_DATA := [
 	{"id": "adult_oshimotif", "name": "おしモチーフぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
 ]
 
+@onready var title_label: Label = $MainMargin/CollectionLayout/TitleLabel
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
 @onready var collection_area: ScrollContainer = $MainMargin/CollectionLayout/CollectionArea
@@ -70,8 +71,53 @@ func _ready() -> void:
 	_update_collection_count()
 	_update_collection_cards()
 	_update_back_button_text()
+	_style_collection_controls()
 	back_button.pressed.connect(_on_back_button_pressed)
 	call_deferred("_finish_layout")
+
+
+func _style_collection_controls() -> void:
+	# 系統図・矢印・カード配置には触れず、画面外周の案内と戻る操作だけを整える。
+	title_label.add_theme_font_size_override("font_size", 34)
+	title_label.add_theme_color_override("font_color", Color("fff7d5"))
+	title_label.add_theme_color_override("font_shadow_color", Color(0.20, 0.12, 0.05, 0.92))
+	title_label.add_theme_constant_override("shadow_offset_x", 2)
+	title_label.add_theme_constant_override("shadow_offset_y", 3)
+
+	count_label.add_theme_font_size_override("font_size", 18)
+	count_label.add_theme_color_override("font_color", Color("fff1b8"))
+	count_label.add_theme_color_override("font_shadow_color", Color(0.20, 0.12, 0.05, 0.92))
+	count_label.add_theme_constant_override("shadow_offset_x", 1)
+	count_label.add_theme_constant_override("shadow_offset_y", 2)
+
+	back_button.custom_minimum_size = Vector2(300, 56)
+	back_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	back_button.add_theme_font_size_override("font_size", 19)
+	back_button.add_theme_color_override("font_color", Color("492d16"))
+	back_button.add_theme_color_override("font_hover_color", Color("384514"))
+	back_button.add_theme_color_override("font_pressed_color", Color("492d16"))
+	back_button.add_theme_color_override("font_focus_color", Color("492d16"))
+	back_button.add_theme_color_override("font_disabled_color", Color("75654e"))
+	back_button.add_theme_stylebox_override("normal", _make_collection_button_style(Color("fff7d5"), Color("76502c"), 2))
+	back_button.add_theme_stylebox_override("hover", _make_collection_button_style(Color("ffe38a"), Color("6b9140"), 3))
+	back_button.add_theme_stylebox_override("pressed", _make_collection_button_style(Color("f5ce63"), Color("567a31"), 3))
+	back_button.add_theme_stylebox_override("focus", _make_collection_button_style(Color("fff7d5"), Color("6b9140"), 3))
+
+
+func _make_collection_button_style(fill: Color, border: Color, border_width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(18)
+	style.content_margin_left = 24.0
+	style.content_margin_top = 10.0
+	style.content_margin_right = 24.0
+	style.content_margin_bottom = 10.0
+	style.shadow_color = Color(0.18, 0.12, 0.05, 0.28)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 3)
+	return style
 
 
 func _build_diagram_canvas() -> void:
