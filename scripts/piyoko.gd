@@ -215,7 +215,7 @@ func _determine_child_type() -> void:
 		child_type = "balance"
 		return
 
-	var maximum: int = max(food_count, play_count, pet_count)
+	var maximum: int = max(food_count, max(play_count, pet_count))
 	var maximum_types: Array[String] = []
 	for care_type in counts:
 		if int(counts[care_type]) == maximum:
