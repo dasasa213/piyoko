@@ -21,6 +21,10 @@ func _ready() -> void:
 		_on_options_button_pressed
 	)
 
+	$TitleCenter/TitleMenu/QuitButton.pressed.connect(
+		_on_quit_button_pressed
+	)
+
 	$OptionsPanel/OptionsMenu/FullResetButton.pressed.connect(
 		_on_full_reset_button_pressed
 	)
@@ -82,6 +86,10 @@ func _on_options_button_pressed() -> void:
 func _on_options_back_button_pressed() -> void:
 	$OptionsPanel.hide()
 	$TitleCenter.show()
+
+
+func _on_quit_button_pressed() -> void:
+	get_tree().quit()
 
 
 func _on_full_reset_button_pressed() -> void:
