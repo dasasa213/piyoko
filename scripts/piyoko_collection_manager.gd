@@ -6,6 +6,7 @@ extends Node
 const COLLECTION_PATH := "user://piyoko_collection.json"
 
 var discovered: Array[String] = []
+var discovered_dates: Dictionary = {}
 
 
 func _ready() -> void:
@@ -21,6 +22,7 @@ func discover(piyoko_id: String) -> void:
 		return
 
 	discovered.append(piyoko_id)
+	discovered_dates[piyoko_id] = Time.get_date_string_from_system()
 	save_collection()
 
 	print("図鑑登録: ", piyoko_id)
@@ -28,6 +30,10 @@ func discover(piyoko_id: String) -> void:
 
 func is_discovered(piyoko_id: String) -> bool:
 	return piyoko_id in discovered
+
+
+func get_discovered_date(piyoko_id: String) -> String:
+	return str(discovered_dates.get(piyoko_id, ""))
 
 
 # ------------------------------------------------------------
@@ -41,7 +47,8 @@ func save_collection() -> void:
 		return
 
 	var data := {
-		"discovered": discovered
+		"discovered": discovered,
+		"discovered_dates": discovered_dates
 	}
 
 	file.store_string(JSON.stringify(data, "\t"))
@@ -51,11 +58,13 @@ func save_collection() -> void:
 func load_collection() -> void:
 	if not FileAccess.file_exists(COLLECTION_PATH):
 		discovered.clear()
+		discovered_dates.clear()
 		return
 
 	var data := _read_collection_data()
 	if data.is_empty():
 		discovered.clear()
+		discovered_dates.clear()
 		return
 
 	_apply_collection_data(data)
@@ -85,6 +94,7 @@ func _read_collection_data() -> Dictionary:
 
 func _apply_collection_data(data: Dictionary) -> void:
 	discovered.clear()
+	discovered_dates.clear()
 
 	var saved_discovered = data.get("discovered", [])
 	if typeof(saved_discovered) != TYPE_ARRAY:
@@ -94,6 +104,11 @@ func _apply_collection_data(data: Dictionary) -> void:
 	for piyoko_id in saved_discovered:
 		discovered.append(str(piyoko_id))
 
+	var saved_dates = data.get("discovered_dates", {})
+	if typeof(saved_dates) == TYPE_DICTIONARY:
+		for piyoko_id in saved_dates:
+			discovered_dates[str(piyoko_id)] = str(saved_dates[piyoko_id])
+
 
 # ------------------------------------------------------------
 # 完全初期化
@@ -101,6 +116,7 @@ func _apply_collection_data(data: Dictionary) -> void:
 
 func delete_collection() -> bool:
 	discovered.clear()
+	discovered_dates.clear()
 
 	if not FileAccess.file_exists(COLLECTION_PATH):
 		print("削除する図鑑データはありません")
