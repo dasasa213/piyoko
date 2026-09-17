@@ -49,9 +49,9 @@ func _refresh_dialog_dim() -> void:
 
 func _style_title_dialogs() -> void:
 	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
-	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(520, 250))
-	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(560, 310))
-	_apply_dialog_style($FullResetComplete, style_source, Vector2i(460, 210))
+	_apply_dialog_style($NewGameConfirm, style_source, Vector2i(640, 280))
+	_apply_dialog_style($FullResetConfirm, style_source, Vector2i(680, 340))
+	_apply_dialog_style($FullResetComplete, style_source, Vector2i(520, 240))
 
 
 func _style_options_panel() -> void:
@@ -116,8 +116,8 @@ func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_siz
 		dialog_buttons.append((dialog as ConfirmationDialog).get_cancel_button())
 
 	for button in dialog_buttons:
-		button.custom_minimum_size = Vector2(220, 56)
-		button.add_theme_font_size_override("font_size", 14)
+		button.custom_minimum_size = Vector2(260, 60)
+		button.add_theme_font_size_override("font_size", 16)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
