@@ -1,8 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://4tkknhhw0gue"]
+[gd_scene format=3 uid="uid://4tkknhhw0gue"]
 
 [ext_resource type="Script" uid="uid://dblo8atp7t0ri" path="res://scripts/main.gd" id="1_o5qli"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/01_title_meadow.png" id="2_title_bg"]
-[ext_resource type="Texture2D" path="res://assets/ui/logo/piyoko_title_logo_compact.png" id="3_title_logo"]
+[ext_resource type="Texture2D" uid="uid://bydmm8ljulqhj" path="res://assets/backgrounds/01_title_meadow.png" id="2_title_bg"]
+[ext_resource type="Texture2D" uid="uid://b43idf4cjqudk" path="res://assets/ui/logo/piyoko_title_logo_compact.png" id="3_title_logo"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_button_normal"]
 bg_color = Color(1, 0.945098, 0.752941, 0.94)
@@ -19,6 +19,19 @@ shadow_color = Color(0.176471, 0.329412, 0.152941, 0.42)
 shadow_size = 5
 shadow_offset = Vector2(0, 4)
 
+[sub_resource type="StyleBoxFlat" id="StyleBox_button_pressed"]
+content_margin_top = 5.0
+bg_color = Color(0.94902, 0.721569, 0.278431, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.301961, 0.478431, 0.145098, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
 [sub_resource type="StyleBoxFlat" id="StyleBox_button_hover"]
 bg_color = Color(1, 0.827451, 0.376471, 0.98)
 border_width_left = 4
@@ -33,19 +46,6 @@ corner_radius_bottom_left = 18
 shadow_color = Color(0.176471, 0.329412, 0.152941, 0.5)
 shadow_size = 6
 shadow_offset = Vector2(0, 4)
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_button_pressed"]
-bg_color = Color(0.94902, 0.721569, 0.278431, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.301961, 0.478431, 0.145098, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-content_margin_top = 5.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_options_panel"]
 bg_color = Color(1, 0.968627, 0.835294, 0.96)
@@ -89,7 +89,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="TitleLogo" type="TextureRect" parent="TitleCenter"]
+[node name="TitleLogo" type="TextureRect" parent="TitleCenter" unique_id=126836239]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -103,7 +103,7 @@ texture = ExtResource("3_title_logo")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SubtitleLabel" type="Label" parent="TitleCenter"]
+[node name="SubtitleLabel" type="Label" parent="TitleCenter" unique_id=496516130]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -112,7 +112,6 @@ offset_top = 252.0
 offset_right = -120.0
 offset_bottom = 292.0
 grow_horizontal = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.411765, 0.223529, 0.0862745, 1)
 theme_override_colors/font_outline_color = Color(1, 0.956863, 0.780392, 1)
 theme_override_constants/outline_size = 7
@@ -136,8 +135,8 @@ theme_override_colors/font_color = Color(0.286275, 0.176471, 0.0862745, 1)
 theme_override_colors/font_hover_color = Color(0.219608, 0.270588, 0.0784314, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_button_normal")
-theme_override_styles/hover = SubResource("StyleBox_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_button_pressed")
+theme_override_styles/hover = SubResource("StyleBox_button_hover")
 text = "はじめる"
 
 [node name="ContinueButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=472335182]
@@ -146,8 +145,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.286275, 0.176471, 0.0862745, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_button_normal")
-theme_override_styles/hover = SubResource("StyleBox_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_button_pressed")
+theme_override_styles/hover = SubResource("StyleBox_button_hover")
 text = "つづきから"
 
 [node name="NewGameButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1034704796]
@@ -156,8 +155,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.286275, 0.176471, 0.0862745, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_button_normal")
-theme_override_styles/hover = SubResource("StyleBox_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_button_pressed")
+theme_override_styles/hover = SubResource("StyleBox_button_hover")
 text = "はじめから"
 
 [node name="OptionsButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1104487341]
@@ -166,8 +165,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.286275, 0.176471, 0.0862745, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_button_normal")
-theme_override_styles/hover = SubResource("StyleBox_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_button_pressed")
+theme_override_styles/hover = SubResource("StyleBox_button_hover")
 text = "おぷしょん"
 
 [node name="QuitButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=209039756]
@@ -176,8 +175,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.286275, 0.176471, 0.0862745, 1)
 theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBox_button_normal")
-theme_override_styles/hover = SubResource("StyleBox_button_hover")
 theme_override_styles/pressed = SubResource("StyleBox_button_pressed")
+theme_override_styles/hover = SubResource("StyleBox_button_hover")
 text = "ゲームをおわる"
 
 [node name="OptionsPanel" type="CenterContainer" parent="." unique_id=1252827917]
@@ -189,7 +188,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="OptionsBackground" type="PanelContainer" parent="OptionsPanel"]
+[node name="OptionsBackground" type="PanelContainer" parent="OptionsPanel" unique_id=963994458]
 custom_minimum_size = Vector2(500, 330)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBox_options_panel")
@@ -233,7 +232,9 @@ oversampling_override = 1.0
 title = "確認"
 size = Vector2i(222, 106)
 ok_button_text = "はじめから"
-dialog_text = "今の育成データが消えます。\n図鑑の発見記録は残ります。\nはじめから遊びますか？"
+dialog_text = "今の育成データが消えます。
+図鑑の発見記録は残ります。
+はじめから遊びますか？"
 cancel_button_text = "キャンセル"
 
 [node name="FullResetConfirm" type="ConfirmationDialog" parent="." unique_id=965002594]
@@ -241,7 +242,11 @@ oversampling_override = 1.0
 title = "完全初期化の確認"
 size = Vector2i(360, 150)
 ok_button_text = "完全初期化する"
-dialog_text = "すべてのデータを初期化しますか？\n\n育成中のピヨコと図鑑の発見記録が\nすべて削除されます。\nこの操作は元に戻せません。"
+dialog_text = "すべてのデータを初期化しますか？
+
+育成中のピヨコと図鑑の発見記録が
+すべて削除されます。
+この操作は元に戻せません。"
 cancel_button_text = "キャンセル"
 
 [node name="FullResetComplete" type="AcceptDialog" parent="." unique_id=136835947]

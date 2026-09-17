@@ -300,7 +300,7 @@ func get_adult_type_name() -> String:
 		"rainbow":
 			return "にじいろぴよこ"
 		"oshimotif":
-			return "おしモチーフぴよこ"
+			return "みこぴよこ"
 		_:
 			return ""
 
