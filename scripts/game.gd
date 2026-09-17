@@ -509,7 +509,7 @@ func _create_finish_care_ui() -> void:
 
 	finish_care_confirm = ConfirmationDialog.new()
 	finish_care_confirm.title = "育成をおえる"
-	finish_care_confirm.dialog_text = "このピヨコの育成をおえますか？\n\n図鑑の発見記録は残り、\n新しいたまごから育成を始められます。"
+	finish_care_confirm.dialog_text = "このピヨコの育成をおえますか？\n\n図鑑とおもいでの記録は残り、\n新しいたまごから育成を始められます。"
 	finish_care_confirm.ok_button_text = "育成をおえる"
 	finish_care_confirm.cancel_button_text = "一緒にいる"
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
@@ -578,7 +578,15 @@ func _on_finish_care_button_pressed() -> void:
 
 
 func _on_finish_care_confirmed() -> void:
+	finish_care_button.disabled = true
+	# 育成データを削除する前に、現在のカウンターを1羽分のおもいでとして保存する。
+	# Manager側でも育成IDを確認し、同じ個体の重複登録を防止する。
+	if not PiyokoMemoryManager.add_completed_piyoko(piyoko):
+		finish_care_button.disabled = false
+		push_error("おもいでの保存に失敗しました")
+		return
 	if not PiyokoSaveManager.delete_save():
+		finish_care_button.disabled = false
 		push_error("育成完了後のセーブデータ削除に失敗しました")
 		return
 	get_tree().reload_current_scene()
