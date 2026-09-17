@@ -15,9 +15,11 @@ var is_hatching := false
 var finish_care_button: Button
 var finish_care_confirm: ConfirmationDialog
 
-var food_effect: FoodEffect
-var pet_effect: PetEffect
-var play_minigame: PlayMinigame
+# preloadしたスクリプトから生成する補助コンポーネント。
+# 独自クラス名への依存を避け、Godotが確実に解決できるNode型で保持する。
+var food_effect: Node
+var pet_effect: Node
+var play_minigame: Node
 
 
 # ------------------------------------------------------------
@@ -84,14 +86,12 @@ func _setup_components() -> void:
 	play_minigame = PlayMinigameScript.new()
 	add_child(play_minigame)
 	play_minigame.setup(self)
-	play_minigame.completed.connect(_on_play_minigame_completed)
+	play_minigame.finished.connect(_on_play_minigame_finished)
 
 
 func _setup_initial_view() -> void:
 	$GameMenuPanel.hide()
 	$PlayPanel.hide()
-
-	# 成長メッセージがピヨコ本体に重ならないよう少し上へ移動する。
 	$GrowthMessageLabel.position.y -= 110.0
 
 	_update_status_display()
@@ -101,7 +101,10 @@ func _setup_initial_view() -> void:
 	if piyoko.growth_stage == -1:
 		_start_egg_sequence()
 	else:
-		_show_care_view()
+		$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
+		_set_action_buttons_disabled(false)
 
 	_update_finish_care_button()
 
@@ -132,15 +135,12 @@ func _start_food_effect(food_key: String, display_name: String) -> void:
 
 	$FoodPanel.hide()
 	_set_action_buttons_disabled(true)
-	food_effect.play(food_key, display_name, get_viewport_rect().size)
+	food_effect.play(food_key, display_name)
 
 
 func _on_food_effect_finished(food_key: String) -> void:
 	piyoko.feed(food_key)
-	var grew := _check_growth()
-
-	_update_status_display()
-	_finish_care_action(grew, true)
+	_finish_care_action(true)
 
 
 # ------------------------------------------------------------
@@ -152,17 +152,12 @@ func _on_pet_button_pressed() -> void:
 		return
 
 	_set_action_buttons_disabled(true)
-
-	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
-	pet_effect.play(sprite, get_viewport_rect().size)
+	pet_effect.play()
 
 
 func _on_pet_effect_finished() -> void:
 	piyoko.pet()
-	var grew := _check_growth()
-
-	_update_status_display()
-	_finish_care_action(grew, true)
+	_finish_care_action(true)
 
 
 # ------------------------------------------------------------
@@ -170,30 +165,32 @@ func _on_pet_effect_finished() -> void:
 # ------------------------------------------------------------
 
 func _on_play_button_pressed() -> void:
+	if play_minigame.is_active():
+		return
+
 	var texture := PiyokoTextureManager.get_texture(
 		piyoko.growth_stage,
 		piyoko.child_type,
 		piyoko.adult_type
 	)
-	play_minigame.start(texture, get_viewport_rect().size)
+	play_minigame.start(texture)
 
 
-func _on_play_minigame_completed(success: bool) -> void:
+func _on_play_minigame_finished(success: bool) -> void:
 	piyoko.play(success)
-	var grew := _check_growth()
-
-	_update_status_display()
-	_finish_care_action(grew, success)
+	_finish_care_action(success)
 
 
 # ------------------------------------------------------------
 # お世話共通処理
 # ------------------------------------------------------------
 
-func _finish_care_action(grew: bool, play_happy_animation: bool) -> void:
+func _finish_care_action(play_happy_animation: bool) -> void:
+	var grew := _check_growth()
+	_update_status_display()
+
 	if not grew:
 		_set_action_buttons_disabled(false)
-
 		if play_happy_animation:
 			$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
 
@@ -205,43 +202,34 @@ func _finish_care_action(grew: bool, play_happy_animation: bool) -> void:
 # 成長・孵化
 # ------------------------------------------------------------
 
-func _check_growth() -> bool:
-	if not piyoko.check_growth():
-		return false
-
-	is_growing = true
-	_set_action_buttons_disabled(true)
-	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("grow_out")
-	return true
-
-
 func _on_animation_finished(animation_name: StringName) -> void:
 	var animation_player := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer
 	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
 
 	match animation_name:
 		"happy":
-			_finish_happy_animation(animation_player, sprite)
+			sprite.scale = Vector2.ONE
+			animation_player.play("idle")
+			animation_player.seek(0.0, true)
+
 		"grow_out":
 			_update_piyoko_texture()
 			animation_player.play("grow_in")
+
 		"grow_in":
 			_finish_growth_animation(animation_player, sprite)
+
 		"hatch":
 			_finish_hatch_animation(animation_player)
 
 
-func _finish_happy_animation(animation_player: AnimationPlayer, sprite: Sprite2D) -> void:
-	sprite.scale = Vector2.ONE
-	animation_player.play("idle")
-	animation_player.seek(0.0, true)
-
-
-func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Sprite2D) -> void:
+func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Control) -> void:
 	sprite.scale = Vector2.ONE
 
 	if is_hatching:
-		_show_care_view()
+		$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
 		$GrowthMessageLabel.text = "ピヨコが生まれた！"
 		is_hatching = false
 	else:
@@ -249,10 +237,10 @@ func _finish_growth_animation(animation_player: AnimationPlayer, sprite: Sprite2
 
 	$GrowthMessageLabel.show()
 	$GrowthMessageTimer.start()
-
 	is_growing = false
 	_set_action_buttons_disabled(false)
 	_update_finish_care_button()
+
 	animation_player.play("idle")
 	animation_player.seek(0.0, true)
 
@@ -268,6 +256,16 @@ func _finish_hatch_animation(animation_player: AnimationPlayer) -> void:
 	_update_status_display()
 	PiyokoSaveManager.save(piyoko)
 	animation_player.play("grow_in")
+
+
+func _check_growth() -> bool:
+	if not piyoko.check_growth():
+		return false
+
+	is_growing = true
+	_set_action_buttons_disabled(true)
+	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("grow_out")
+	return true
 
 
 func _start_egg_sequence() -> void:
@@ -291,42 +289,30 @@ func _on_hatch_button_pressed() -> void:
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("hatch")
 
 
-func _on_growth_message_timeout() -> void:
-	$GrowthMessageLabel.hide()
-
-
 # ------------------------------------------------------------
 # 表示更新
 # ------------------------------------------------------------
 
-func _show_care_view() -> void:
-	$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
-	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
-	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
-	_set_action_buttons_disabled(false)
-
-
 func _update_status_display() -> void:
-	var status := $MainMargin/GameLayout/Header/StatusMargin/StatusContainer
+	var status_container := $MainMargin/GameLayout/Header/StatusMargin/StatusContainer
 	var required_growth := piyoko.get_required_growth_count()
 
 	if required_growth > 0:
-		status.get_node("GrowthLabel").text = "%s：%d/%d" % [
+		status_container.get_node("GrowthLabel").text = "%s：%d/%d" % [
 			piyoko.get_growth_stage_name(),
 			piyoko.growth_count,
 			required_growth
 		]
 	else:
-		status.get_node("GrowthLabel").text = piyoko.get_growth_stage_name()
+		status_container.get_node("GrowthLabel").text = piyoko.get_growth_stage_name()
 
-	status.get_node("HungerLabel").text = "おなか：%d/5" % piyoko.hunger
-	status.get_node("FriendshipLabel").text = "なかよし：%d/5" % piyoko.friendship
-	status.get_node("MoodLabel").text = "きげん：%d/5" % piyoko.mood
+	status_container.get_node("HungerLabel").text = "おなか：%d/5" % piyoko.hunger
+	status_container.get_node("FriendshipLabel").text = "なかよし：%d/5" % piyoko.friendship
+	status_container.get_node("MoodLabel").text = "きげん：%d/5" % piyoko.mood
 
 
 func _update_piyoko_texture() -> void:
-	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
-	sprite.texture = PiyokoTextureManager.get_texture(
+	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite.texture = PiyokoTextureManager.get_texture(
 		piyoko.growth_stage,
 		piyoko.child_type,
 		piyoko.adult_type
@@ -337,6 +323,10 @@ func _set_action_buttons_disabled(disabled: bool) -> void:
 	$MainMargin/GameLayout/ActionMenu/FoodButton.disabled = disabled
 	$MainMargin/GameLayout/ActionMenu/PetButton.disabled = disabled
 	$MainMargin/GameLayout/ActionMenu/PlayButton.disabled = disabled
+
+
+func _on_growth_message_timeout() -> void:
+	$GrowthMessageLabel.hide()
 
 
 # ------------------------------------------------------------
@@ -390,12 +380,12 @@ func _on_close_menu_button_pressed() -> void:
 
 
 func _on_back_to_title_button_pressed() -> void:
-	_save_if_care_started()
+	_save_if_started()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 
 func _on_quit_button_pressed() -> void:
-	_save_if_care_started()
+	_save_if_started()
 	get_tree().quit()
 
 
@@ -425,6 +415,6 @@ func _save_game() -> void:
 		push_error("ピヨコのセーブに失敗しました")
 
 
-func _save_if_care_started() -> void:
+func _save_if_started() -> void:
 	if piyoko.growth_stage >= 0:
 		_save_game()
