@@ -18,8 +18,9 @@ const RETURN_SCENE_META := "collection_return_scene"
 const CARD_FRAME_SIZE := Vector2(116.0, 145.0)
 const CARD_FRAME_OFFSET := Vector2(0.0, -4.0)
 const CARD_SIZE := Vector2(128.0, 145.0)
-const CARD_TEXTURE_SIZE := Vector2(116.0, 104.0)
-const CARD_NAME_HEIGHT := 34.0
+const CARD_TEXTURE_SIZE := Vector2(116.0, 100.0)
+const CARD_NAME_HEIGHT := 38.0
+const CARD_NAME_FONT_SIZE := 12
 
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
@@ -68,12 +69,13 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	frame.show_behind_parent = true
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# 名前はカードの下部に専用領域を確保する。
+	# ピヨコを少し上へ寄せ、下側に名前専用の余白を確保する。
+	texture_rect.position.y = -2.0
 	name_label.custom_minimum_size = Vector2(0.0, CARD_NAME_HEIGHT)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 13)
+	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
 
@@ -82,23 +84,36 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 # ------------------------------------------------------------
 
 func _setup_growth_stage_guides() -> void:
-	# 既存のカード配置は変えず、各段が何の段階か分かる小さなラベルを重ねる。
-	_add_stage_label($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChibiRow, "ちび", Vector2(-78.0, 54.0))
-	_add_stage_label($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow, "こども", Vector2(-82.0, 54.0))
-	_add_stage_label($MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow, "おとな", Vector2(-82.0, 54.0))
+	# 各段の上中央へ小さく表示する。カードのHBoxContainerには入れず、
+	# CollectionAreaへ重ねることでカードの自動整列へ影響させない。
+	var area := $MainMargin/CollectionLayout/CollectionArea
+	_add_stage_label(area, "ちび", 0.5, 0.025)
+	_add_stage_label(area, "こども", 0.5, 0.305)
+	_add_stage_label(area, "おとな", 0.5, 0.625)
 
 
-func _add_stage_label(row: HBoxContainer, text_value: String, offset: Vector2) -> void:
+func _add_stage_label(area: Control, text_value: String, anchor_x: float, anchor_y: float) -> void:
 	var label := Label.new()
 	label.text = text_value
-	label.position = offset
+	label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	label.anchor_left = anchor_x
+	label.anchor_right = anchor_x
+	label.anchor_top = anchor_y
+	label.anchor_bottom = anchor_y
+	label.offset_left = -45.0
+	label.offset_right = 45.0
+	label.offset_top = 0.0
+	label.offset_bottom = 22.0
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", 14)
+	label.z_index = 5
+	label.add_theme_font_size_override("font_size", 13)
 	label.add_theme_color_override("font_color", Color(0.31, 0.20, 0.11, 1.0))
-	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.9))
+	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.95))
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
-	row.add_child(label)
+	area.add_child(label)
 
 
 func _update_back_button_text() -> void:
