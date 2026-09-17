@@ -356,6 +356,16 @@ func _create_finish_care_ui() -> void:
 	finish_care_button.text = "育成をおえる"
 	finish_care_button.custom_minimum_size = Vector2(0, 54)
 	finish_care_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	finish_care_button.add_theme_font_size_override("font_size", 22)
+	finish_care_button.add_theme_color_override("font_color", Color("492d16"))
+
+	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
+	for style_name in [&"normal", &"hover", &"pressed", &"disabled"]:
+		finish_care_button.add_theme_stylebox_override(
+			style_name,
+			style_source.get_theme_stylebox(style_name).duplicate()
+		)
+
 	finish_care_button.visible = false
 	finish_care_button.pressed.connect(_on_finish_care_button_pressed)
 	$MainMargin/GameLayout.add_child(finish_care_button)
