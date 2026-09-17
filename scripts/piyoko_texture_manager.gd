@@ -7,7 +7,7 @@ extends RefCounted
 # ========================================
 
 const EGG_TEXTURE := preload(
-	"res://assets/characters/piyoko/00_egg.png"
+	"res://assets/characters/piyoko/forms/00_egg.png"
 )
 
 
@@ -16,7 +16,7 @@ const EGG_TEXTURE := preload(
 # ========================================
 
 const CHIBI_TEXTURE := preload(
-	"res://assets/characters/piyoko/01_chibi_piyoko.png"
+	"res://assets/characters/piyoko/forms/01_chibi_piyoko.png"
 )
 
 
@@ -26,19 +26,19 @@ const CHIBI_TEXTURE := preload(
 
 const CHILD_TEXTURES := {
 	"food": preload(
-		"res://assets/characters/piyoko/02_child_food.png"
+		"res://assets/characters/piyoko/forms/02_child_food.png"
 	),
 
 	"play": preload(
-		"res://assets/characters/piyoko/03_child_play.png"
+		"res://assets/characters/piyoko/forms/03_child_play.png"
 	),
 
 	"pet": preload(
-		"res://assets/characters/piyoko/04_child_pet.png"
+		"res://assets/characters/piyoko/forms/04_child_pet.png"
 	),
 
 	"balance": preload(
-		"res://assets/characters/piyoko/05_child_balance.png"
+		"res://assets/characters/piyoko/forms/05_child_balance.png"
 	)
 }
 
@@ -49,35 +49,35 @@ const CHILD_TEXTURES := {
 
 const ADULT_TEXTURES := {
 	"sweets": preload(
-		"res://assets/characters/piyoko/06_adult_sweets.png"
+		"res://assets/characters/piyoko/forms/06_adult_sweets.png"
 	),
 
 	"gourmet": preload(
-		"res://assets/characters/piyoko/07_adult_gourmet.png"
+		"res://assets/characters/piyoko/forms/07_adult_gourmet.png"
 	),
 
 	"champion": preload(
-		"res://assets/characters/piyoko/08_adult_champion.png"
+		"res://assets/characters/piyoko/forms/08_adult_champion.png"
 	),
 
 	"challenger": preload(
-		"res://assets/characters/piyoko/09_adult_challenger.png"
+		"res://assets/characters/piyoko/forms/09_adult_challenger.png"
 	),
 
 	"love": preload(
-		"res://assets/characters/piyoko/10_adult_love.png"
+		"res://assets/characters/piyoko/forms/10_adult_love.png"
 	),
 
 	"nap": preload(
-		"res://assets/characters/piyoko/11_adult_nap.png"
+		"res://assets/characters/piyoko/forms/11_adult_nap.png"
 	),
 
 	"rainbow": preload(
-		"res://assets/characters/piyoko/12_adult_rainbow.png"
+		"res://assets/characters/piyoko/forms/12_adult_rainbow.png"
 	),
 
 	"oshimotif": preload(
-		"res://assets/characters/piyoko/13_adult_oshimotif.png"
+		"res://assets/characters/piyoko/forms/13_adult_oshimotif.png"
 	)
 }
 
@@ -88,7 +88,7 @@ const ADULT_TEXTURES := {
 
 const EXTRA_TEXTURES := {
 	"pooppiyo": preload(
-		"res://assets/characters/piyoko/14_extra_pooppiyo.png"
+		"res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"
 	)
 }
 

@@ -7,7 +7,7 @@ extends Control
 const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
-const GAME_BACKGROUND := preload("res://assets/backgrounds/main_room.png")
+const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
 const PIYOKO_RUG_OFFSET_Y := 105.0
 
 var piyoko: Piyoko

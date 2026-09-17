@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cxl6uh8aue7xk"]
 
 [ext_resource type="Script" uid="uid://sruot3n2gg54" path="res://scripts/game.gd" id="1_yqjtg"]
-[ext_resource type="Texture2D" uid="uid://cg2m2raxyf7d1" path="res://assets/characters/piyoko/00_egg.png" id="2_yqjtg"]
+[ext_resource type="Texture2D" uid="uid://cg2m2raxyf7d1" path="res://assets/characters/piyoko/forms/00_egg.png" id="2_yqjtg"]
 
 [sub_resource type="Animation" id="Animation_yqjtg"]
 length = 0.001
