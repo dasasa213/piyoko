@@ -10,13 +10,18 @@ var finish_care_confirm: ConfirmationDialog
 # あそぶミニゲーム
 const PLAY_TARGET_COUNT := 3
 const PLAY_TIME_LIMIT := 5.0
+const PLAY_RESULT_TIME := 1.2
 var play_minigame_panel: Control
 var play_minigame_target: TextureButton
 var play_minigame_count_label: Label
 var play_minigame_time_label: Label
+var play_minigame_result_label: Label
+var play_minigame_cancel_button: Button
 var play_minigame_timer: Timer
+var play_result_timer: Timer
 var play_minigame_hits: int = 0
 var play_minigame_active: bool = false
+var play_pending_success: bool = false
 
 
 func _ready() -> void:
@@ -91,11 +96,13 @@ func _create_play_minigame_ui() -> void:
 	play_minigame_panel.visible = false
 	play_minigame_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(play_minigame_panel)
+
 	var background := ColorRect.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.color = Color(0.91764706, 0.95686275, 0.8745098, 1.0)
 	background.mouse_filter = Control.MOUSE_FILTER_STOP
 	play_minigame_panel.add_child(background)
+
 	var title := Label.new()
 	title.text = "ピヨコを3回タッチ！"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -108,6 +115,7 @@ func _create_play_minigame_ui() -> void:
 	title.offset_top = 24.0
 	title.offset_bottom = 66.0
 	play_minigame_panel.add_child(title)
+
 	play_minigame_count_label = Label.new()
 	play_minigame_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	play_minigame_count_label.add_theme_font_size_override("font_size", 24)
@@ -116,6 +124,7 @@ func _create_play_minigame_ui() -> void:
 	play_minigame_count_label.offset_top = 72.0
 	play_minigame_count_label.offset_bottom = 106.0
 	play_minigame_panel.add_child(play_minigame_count_label)
+
 	play_minigame_time_label = Label.new()
 	play_minigame_time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	play_minigame_time_label.add_theme_font_size_override("font_size", 22)
@@ -124,6 +133,20 @@ func _create_play_minigame_ui() -> void:
 	play_minigame_time_label.offset_top = 108.0
 	play_minigame_time_label.offset_bottom = 142.0
 	play_minigame_panel.add_child(play_minigame_time_label)
+
+	play_minigame_result_label = Label.new()
+	play_minigame_result_label.visible = false
+	play_minigame_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	play_minigame_result_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	play_minigame_result_label.add_theme_font_size_override("font_size", 52)
+	play_minigame_result_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	play_minigame_result_label.add_theme_constant_override("shadow_offset_x", 3)
+	play_minigame_result_label.add_theme_constant_override("shadow_offset_y", 3)
+	play_minigame_result_label.set_anchors_preset(Control.PRESET_CENTER_WIDE)
+	play_minigame_result_label.offset_top = -55.0
+	play_minigame_result_label.offset_bottom = 55.0
+	play_minigame_panel.add_child(play_minigame_result_label)
+
 	play_minigame_target = TextureButton.new()
 	play_minigame_target.name = "PiyokoTarget"
 	play_minigame_target.ignore_texture_size = true
@@ -132,21 +155,30 @@ func _create_play_minigame_ui() -> void:
 	play_minigame_target.size = Vector2(128, 128)
 	play_minigame_target.pressed.connect(_on_play_target_pressed)
 	play_minigame_panel.add_child(play_minigame_target)
-	var cancel_button := Button.new()
-	cancel_button.text = "やめる"
-	cancel_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	cancel_button.offset_left = 24.0
-	cancel_button.offset_right = -24.0
-	cancel_button.offset_top = -70.0
-	cancel_button.offset_bottom = -18.0
-	cancel_button.pressed.connect(_on_play_minigame_cancel_pressed)
-	play_minigame_panel.add_child(cancel_button)
+
+	play_minigame_cancel_button = Button.new()
+	play_minigame_cancel_button.text = "やめる"
+	play_minigame_cancel_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	play_minigame_cancel_button.offset_left = 24.0
+	play_minigame_cancel_button.offset_right = -24.0
+	play_minigame_cancel_button.offset_top = -70.0
+	play_minigame_cancel_button.offset_bottom = -18.0
+	play_minigame_cancel_button.pressed.connect(_on_play_minigame_cancel_pressed)
+	play_minigame_panel.add_child(play_minigame_cancel_button)
+
 	play_minigame_timer = Timer.new()
 	play_minigame_timer.name = "PlayMinigameTimer"
 	play_minigame_timer.wait_time = PLAY_TIME_LIMIT
 	play_minigame_timer.one_shot = true
 	play_minigame_timer.timeout.connect(_on_play_minigame_timeout)
 	add_child(play_minigame_timer)
+
+	play_result_timer = Timer.new()
+	play_result_timer.name = "PlayResultTimer"
+	play_result_timer.wait_time = PLAY_RESULT_TIME
+	play_result_timer.one_shot = true
+	play_result_timer.timeout.connect(_on_play_result_timeout)
+	add_child(play_result_timer)
 
 
 func _update_finish_care_button() -> void:
@@ -180,10 +212,16 @@ func _on_play_button_pressed() -> void:
 	_start_play_minigame()
 
 func _start_play_minigame() -> void:
-	if play_minigame_active:
+	if play_minigame_active or not play_result_timer.is_stopped():
 		return
 	play_minigame_active = true
 	play_minigame_hits = 0
+	play_minigame_result_label.hide()
+	play_minigame_count_label.show()
+	play_minigame_time_label.show()
+	play_minigame_target.show()
+	play_minigame_target.disabled = false
+	play_minigame_cancel_button.show()
 	play_minigame_panel.show()
 	play_minigame_target.texture_normal = PiyokoTextureManager.get_texture(piyoko.growth_stage, piyoko.child_type, piyoko.adult_type)
 	_update_play_minigame_display()
@@ -200,7 +238,7 @@ func _on_play_target_pressed() -> void:
 	play_minigame_hits += 1
 	_update_play_minigame_display()
 	if play_minigame_hits >= PLAY_TARGET_COUNT:
-		_finish_play_minigame(true)
+		_show_play_result(true)
 	else:
 		_move_play_target()
 
@@ -216,7 +254,32 @@ func _update_play_minigame_display() -> void:
 
 func _on_play_minigame_timeout() -> void:
 	if play_minigame_active:
-		_finish_play_minigame(false)
+		_show_play_result(false)
+
+func _show_play_result(success: bool) -> void:
+	if not play_minigame_active:
+		return
+	play_minigame_active = false
+	play_pending_success = success
+	play_minigame_timer.stop()
+	play_minigame_target.disabled = true
+	play_minigame_target.hide()
+	play_minigame_count_label.hide()
+	play_minigame_time_label.hide()
+	play_minigame_cancel_button.hide()
+	play_minigame_result_label.show()
+	if success:
+		play_minigame_result_label.text = "せいこう！\nやったね！"
+		play_minigame_result_label.add_theme_color_override("font_color", Color(0.90, 0.36, 0.12, 1.0))
+	else:
+		play_minigame_result_label.text = "しっぱい…\nざんねん！"
+		play_minigame_result_label.add_theme_color_override("font_color", Color(0.28, 0.36, 0.58, 1.0))
+	play_result_timer.start()
+
+func _on_play_result_timeout() -> void:
+	play_minigame_result_label.hide()
+	play_minigame_panel.hide()
+	_apply_play_result(play_pending_success)
 
 func _on_play_minigame_cancel_pressed() -> void:
 	if not play_minigame_active:
@@ -226,12 +289,7 @@ func _on_play_minigame_cancel_pressed() -> void:
 	play_minigame_panel.hide()
 	print("あそぶのをやめました")
 
-func _finish_play_minigame(success: bool) -> void:
-	if not play_minigame_active:
-		return
-	play_minigame_active = false
-	play_minigame_timer.stop()
-	play_minigame_panel.hide()
+func _apply_play_result(success: bool) -> void:
 	piyoko.play(success)
 	var grew := _check_growth()
 	_update_status_display()
