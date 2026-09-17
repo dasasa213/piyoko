@@ -16,6 +16,7 @@ var is_hatching := false
 
 var finish_care_button: Button
 var finish_care_confirm: ConfirmationDialog
+var dialog_dim: ColorRect
 
 var food_effect: Node
 var pet_effect: Node
@@ -28,6 +29,7 @@ var play_minigame: Node
 
 func _ready() -> void:
 	_setup_background()
+	_setup_dialog_dim()
 	_load_piyoko()
 	_connect_scene_signals()
 	_setup_components()
@@ -51,6 +53,21 @@ func _setup_background() -> void:
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	add_child(background)
 	move_child(background, 0)
+
+
+func _setup_dialog_dim() -> void:
+	dialog_dim = ColorRect.new()
+	dialog_dim.name = "DialogDim"
+	dialog_dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dialog_dim.color = Color(0.08, 0.12, 0.06, 0.38)
+	dialog_dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dialog_dim.hide()
+	add_child(dialog_dim)
+
+
+func _refresh_dialog_dim() -> void:
+	var finish_visible := is_instance_valid(finish_care_confirm) and finish_care_confirm.visible
+	dialog_dim.visible = $ResetConfirmDialog.visible or finish_visible
 
 
 func _load_piyoko() -> void:
@@ -85,6 +102,7 @@ func _connect_scene_signals() -> void:
 	$GameMenuPanel/GameMenu/CollectionButton.pressed.connect(_on_collection_button_pressed)
 	$GameMenuPanel/GameMenu/ResetButton.pressed.connect(_on_reset_button_pressed)
 	$ResetConfirmDialog.confirmed.connect(_on_reset_confirmed)
+	$ResetConfirmDialog.visibility_changed.connect(_refresh_dialog_dim)
 	_apply_dialog_style($ResetConfirmDialog, Vector2i(560, 310))
 
 
@@ -409,6 +427,7 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.ok_button_text = "育成をおえる"
 	finish_care_confirm.cancel_button_text = "まだ一緒にいる"
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
+	finish_care_confirm.visibility_changed.connect(_refresh_dialog_dim)
 	add_child(finish_care_confirm)
 	_apply_dialog_style(finish_care_confirm, Vector2i(560, 280))
 
@@ -448,7 +467,7 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
 	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
 		button.custom_minimum_size = Vector2(220, 56)
-		button.add_theme_font_size_override("font_size", 16)
+		button.add_theme_font_size_override("font_size", 14)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
