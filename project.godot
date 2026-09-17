@@ -15,6 +15,10 @@ run/main_scene="uid://4tkknhhw0gue"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+PiyokoCollectionManager="*uid://cyqux74yf87o3"
+
 [display]
 
 window/stretch/mode="canvas_items"

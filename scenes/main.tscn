@@ -1,11 +1,62 @@
 [gd_scene format=3 uid="uid://4tkknhhw0gue"]
 
-[node name="Main" type="Node2D" unique_id=2049849376]
+[ext_resource type="Script" uid="uid://dblo8atp7t0ri" path="res://scripts/main.gd" id="1_o5qli"]
 
-[node name="Label" type="Label" parent="." unique_id=1258428698]
-offset_left = 500.0
-offset_top = 280.0
-offset_right = 655.0
-offset_bottom = 347.0
+[node name="Main" type="Control" unique_id=558204871]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+script = ExtResource("1_o5qli")
+
+[node name="Background" type="ColorRect" parent="." unique_id=2091564545]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0.972549, 0.9098039, 1)
+
+[node name="TitleCenter" type="CenterContainer" parent="." unique_id=369650082]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleMenu" type="VBoxContainer" parent="TitleCenter" unique_id=2108576540]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="TitleCenter/TitleMenu" unique_id=1258428698]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.41960785, 0.30980393, 0.22745098, 1)
 theme_override_font_sizes/font_size = 48
 text = "Piyoko"
+
+[node name="SubtitleLabel" type="Label" parent="TitleCenter/TitleMenu" unique_id=513081845]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5411765, 0.45490196, 0.3882353, 1)
+text = "小さないのちと、やさしい毎日を。"
+
+[node name="StartButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1716370899]
+layout_mode = 2
+text = "はじめる"
+
+[node name="ContinueButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1990489531]
+layout_mode = 2
+text = "つづきから"
+
+[node name="NewGameButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1433821803]
+layout_mode = 2
+text = "はじめから"
+
+[node name="NewGameConfirm" type="ConfirmationDialog" parent="." unique_id=1849592657]
+oversampling_override = 1.0
+title = "確認"
+size = Vector2i(222, 106)
+ok_button_text = "はじめから"
+dialog_text = "今の育成データが消えます。
+はじめから遊びますか？"
+cancel_button_text = "キャンセル"
