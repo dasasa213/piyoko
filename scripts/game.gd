@@ -7,6 +7,7 @@ extends Control
 const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
+const GAME_BACKGROUND := preload("res://assets/backgrounds/main_room.png")
 
 var piyoko: Piyoko
 var is_growing := false
@@ -27,6 +28,7 @@ var play_minigame: Node
 # ------------------------------------------------------------
 
 func _ready() -> void:
+	_setup_background()
 	_load_piyoko()
 	_connect_scene_signals()
 	_setup_components()
@@ -34,6 +36,21 @@ func _ready() -> void:
 
 	print("ゲーム画面：ピヨコを作成しました")
 	piyoko.print_status()
+
+
+# 既存の単色背景を非表示にし、育成画面用の画像を最背面に配置する。
+func _setup_background() -> void:
+	$Background.hide()
+
+	var background := TextureRect.new()
+	background.name = "RoomBackground"
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background.texture = GAME_BACKGROUND
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	add_child(background)
+	move_child(background, 0)
 
 
 func _load_piyoko() -> void:
