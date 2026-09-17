@@ -415,8 +415,11 @@ func _create_finish_care_ui() -> void:
 
 func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
 	dialog.min_size = minimum_size
-	dialog.add_theme_font_size_override("title_font_size", 22)
-	dialog.add_theme_color_override("title_color", Color("6b4f3a"))
+	# 標準タイトルバーを使わず、見出しを本文カード内へ収める。
+	var heading := dialog.title
+	if not heading.is_empty():
+		dialog.dialog_text = "%s\n\n%s" % [heading, dialog.dialog_text]
+		dialog.title = ""
 
 	var panel_style := StyleBoxFlat.new()
 	panel_style.bg_color = Color("fff7d5")
@@ -429,16 +432,9 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 	panel_style.content_margin_bottom = 20.0
 	panel_style.shadow_color = Color(0.12, 0.25, 0.10, 0.4)
 	panel_style.shadow_size = 10
-	# 外枠は1枚だけにし、本文側は同色のフラットな背景にする。
-	var content_style := StyleBoxFlat.new()
-	content_style.bg_color = Color("fff7d5")
-	content_style.set_corner_radius_all(16)
-	content_style.content_margin_left = 18.0
-	content_style.content_margin_top = 14.0
-	content_style.content_margin_right = 18.0
-	content_style.content_margin_bottom = 14.0
-	dialog.add_theme_stylebox_override("panel", content_style)
-	dialog.add_theme_stylebox_override("embedded_border", panel_style)
+	# 枠線付きカードは本文側の1枚だけ。背面の標準ウィンドウ枠は空にする。
+	dialog.add_theme_stylebox_override("panel", panel_style)
+	dialog.add_theme_stylebox_override("embedded_border", StyleBoxEmpty.new())
 
 	var message_label := dialog.get_label()
 	message_label.add_theme_font_size_override("font_size", 18)
