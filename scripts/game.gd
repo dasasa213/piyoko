@@ -425,7 +425,7 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.title = "育成をおえる"
 	finish_care_confirm.dialog_text = "このピヨコの育成をおえますか？\n\n図鑑の発見記録は残り、\n新しいたまごから育成を始められます。"
 	finish_care_confirm.ok_button_text = "育成をおえる"
-	finish_care_confirm.cancel_button_text = "まだ一緒にいる"
+	finish_care_confirm.cancel_button_text = "一緒にいる"
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	finish_care_confirm.visibility_changed.connect(_refresh_dialog_dim)
 	add_child(finish_care_confirm)
