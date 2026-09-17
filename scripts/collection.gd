@@ -1,9 +1,9 @@
 extends Control
 
-## ピヨコ図鑑画面を管理する。
-## 発見済みの姿だけ名前と本来の色で表示し、
-## 未発見の姿はシルエット＋「？？？」で表示する。
-## 現在の種類数では1画面に収め、将来系統が増えた時だけスクロールできる構造にする。
+## ピヨコ図鑑画面。
+## 系統図は VBox/HBox の自動配置に線を後付けせず、
+## 1枚の DiagramCanvas 上で「カード・カテゴリ・進化線」を同じ座標系で管理する。
+## Canvas が表示領域を超えた場合だけ ScrollContainer でスクロールする。
 
 const TOTAL_COLLECTION_COUNT := 9
 const UNDISCOVERED_NAME := "？？？"
@@ -11,18 +11,22 @@ const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
 
-# 1280x648 で3段を収めるため、カードは横長を維持しつつ少しだけ高さを抑える。
-const CARD_FRAME_SIZE := Vector2(180.0, 126.0)
 const CARD_SIZE := Vector2(180.0, 126.0)
 const CARD_TEXTURE_SIZE := Vector2(180.0, 91.0)
 const CARD_NAME_HEIGHT := 31.0
 const CARD_NAME_FONT_SIZE := 14
-const STAGE_LABEL_HEIGHT := 20.0
+
+# 現在9種類が1画面に収まる系統図サイズ。
+# 将来種類が増えた場合は、この Canvas を広げれば ScrollContainer が自動で対応する。
+const DIAGRAM_SIZE := Vector2(1120.0, 452.0)
+const CHIBI_POS := Vector2(470.0, 8.0)
+const CHILD_Y := 166.0
+const ADULT_Y := 324.0
+const COLUMN_X := [80.0, 340.0, 600.0, 860.0]
 
 const LINE_COLOR := Color(0.28, 0.17, 0.09, 0.92)
 const LINE_WIDTH := 4.0
 const ARROW_SIZE := 7.0
-const LINE_LABEL_CLEARANCE := 16.0
 
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
 @onready var back_button: Button = $MainMargin/CollectionLayout/BackButton
@@ -32,13 +36,14 @@ const LINE_LABEL_CLEARANCE := 16.0
 @onready var child_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/ChildRow
 @onready var adult_row: HBoxContainer = $MainMargin/CollectionLayout/CollectionArea/EvolutionTree/AdultRow
 
+var diagram_canvas: Control
 var evolution_lines: Control
-var child_stage_label: Label
-var adult_stage_label: Label
+var chibi_card: Control
+var child_cards: Array[Control] = []
+var adult_cards: Array[Control] = []
 
 func _ready() -> void:
-	_setup_tree_layout()
-	_align_evolution_columns()
+	_build_diagram_canvas()
 	_setup_card_frames()
 	_setup_stage_labels()
 	_setup_evolution_lines()
@@ -47,49 +52,74 @@ func _ready() -> void:
 	_update_back_button_text()
 	back_button.pressed.connect(_on_back_button_pressed)
 
-func _setup_tree_layout() -> void:
-	evolution_tree.custom_minimum_size = Vector2.ZERO
-	evolution_tree.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	evolution_tree.alignment = BoxContainer.ALIGNMENT_BEGIN
-	# 見出し用の行を含めても現行9種類が1画面に収まる間隔。
-	evolution_tree.add_theme_constant_override("separation", 1)
-	chibi_row.custom_minimum_size = Vector2(0.0, CARD_SIZE.y)
-	child_row.custom_minimum_size = Vector2(0.0, CARD_SIZE.y)
-	adult_row.custom_minimum_size = Vector2(0.0, CARD_SIZE.y)
-	child_row.add_theme_constant_override("separation", 34)
-	adult_row.add_theme_constant_override("separation", 34)
-	var future_space := evolution_tree.get_node_or_null("FutureSpace") as Control
-	if future_space != null:
-		future_space.custom_minimum_size = Vector2.ZERO
-		future_space.hide()
+## 系統図専用キャンバスを作り、既存カードをそこへ移す。
+## これによりカードと線が必ず同じ座標系になり、Container の再配置にも影響されない。
+func _build_diagram_canvas() -> void:
 	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 
-## 進化元と進化先を同じ列にそろえる。
-## ごはん→すいーつ / やんちゃ→ちゃんぷ / あまえ→らぶ / へいきん→ふぁいと。
-func _align_evolution_columns() -> void:
-	var ordered_adults: Array[Control] = [
-		adult_row.get_node("SweetsAdultCard"),
-		adult_row.get_node("ChampionAdultCard"),
-		adult_row.get_node("LoveAdultCard"),
-		adult_row.get_node("ChallengerAdultCard")
+	diagram_canvas = Control.new()
+	diagram_canvas.name = "DiagramCanvas"
+	diagram_canvas.custom_minimum_size = DIAGRAM_SIZE
+	diagram_canvas.size = DIAGRAM_SIZE
+	diagram_canvas.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	evolution_tree.add_child(diagram_canvas)
+
+	chibi_card = chibi_row.get_node("ChibiCard") as Control
+	child_cards = [
+		child_row.get_node("FoodChildCard") as Control,
+		child_row.get_node("PlayChildCard") as Control,
+		child_row.get_node("PetChildCard") as Control,
+		child_row.get_node("BalanceChildCard") as Control
 	]
-	for i in ordered_adults.size():
-		adult_row.move_child(ordered_adults[i], i)
+	adult_cards = [
+		adult_row.get_node("SweetsAdultCard") as Control,
+		adult_row.get_node("ChampionAdultCard") as Control,
+		adult_row.get_node("LoveAdultCard") as Control,
+		adult_row.get_node("ChallengerAdultCard") as Control
+	]
+
+	_reparent_card(chibi_card, CHIBI_POS)
+	for i in child_cards.size():
+		_reparent_card(child_cards[i], Vector2(COLUMN_X[i], CHILD_Y))
+	for i in adult_cards.size():
+		_reparent_card(adult_cards[i], Vector2(COLUMN_X[i], ADULT_Y))
+
+	# 元のレイアウト行は空になったので、系統図の高さに影響させない。
+	chibi_row.hide()
+	child_row.hide()
+	adult_row.hide()
+	chibi_row.custom_minimum_size = Vector2.ZERO
+	child_row.custom_minimum_size = Vector2.ZERO
+	adult_row.custom_minimum_size = Vector2.ZERO
+	var future_space := evolution_tree.get_node_or_null("FutureSpace") as Control
+	if future_space != null:
+		future_space.hide()
+		future_space.custom_minimum_size = Vector2.ZERO
+
+	# tscn に残っている旧900px指定を実行時に解除する。
+	evolution_tree.custom_minimum_size = Vector2.ZERO
+	evolution_tree.add_theme_constant_override("separation", 0)
+
+func _reparent_card(card: Control, target_position: Vector2) -> void:
+	card.reparent(diagram_canvas)
+	card.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	card.position = target_position
+	card.size = CARD_SIZE
+	card.custom_minimum_size = CARD_SIZE
 
 func _setup_card_frames() -> void:
-	_setup_card(chibi_row.get_node("ChibiCard"), chibi_row.get_node("ChibiCard/Frame"), chibi_row.get_node("ChibiCard/ChibiTexture"), chibi_row.get_node("ChibiCard/ChibiName"))
-	_setup_card(child_row.get_node("FoodChildCard"), child_row.get_node("FoodChildCard/Frame"), child_row.get_node("FoodChildCard/FoodChildTexture"), child_row.get_node("FoodChildCard/FoodChildName"))
-	_setup_card(child_row.get_node("PlayChildCard"), child_row.get_node("PlayChildCard/Frame"), child_row.get_node("PlayChildCard/PlayChildTexture"), child_row.get_node("PlayChildCard/PlayChildName"))
-	_setup_card(child_row.get_node("PetChildCard"), child_row.get_node("PetChildCard/Frame"), child_row.get_node("PetChildCard/PetChildTexture"), child_row.get_node("PetChildCard/PetChildName"))
-	_setup_card(child_row.get_node("BalanceChildCard"), child_row.get_node("BalanceChildCard/Frame"), child_row.get_node("BalanceChildCard/BalanceChildTexture"), child_row.get_node("BalanceChildCard/BalanceChildName"))
-	_setup_card(adult_row.get_node("SweetsAdultCard"), adult_row.get_node("SweetsAdultCard/Frame"), adult_row.get_node("SweetsAdultCard/SweetsAdultTexture"), adult_row.get_node("SweetsAdultCard/SweetsAdultName"))
-	_setup_card(adult_row.get_node("ChampionAdultCard"), adult_row.get_node("ChampionAdultCard/Frame"), adult_row.get_node("ChampionAdultCard/ChampionAdultTexture"), adult_row.get_node("ChampionAdultCard/ChampionAdultName"))
-	_setup_card(adult_row.get_node("ChallengerAdultCard"), adult_row.get_node("ChallengerAdultCard/Frame"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultTexture"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultName"))
-	_setup_card(adult_row.get_node("LoveAdultCard"), adult_row.get_node("LoveAdultCard/Frame"), adult_row.get_node("LoveAdultCard/LoveAdultTexture"), adult_row.get_node("LoveAdultCard/LoveAdultName"))
+	_setup_card(chibi_card, chibi_card.get_node("Frame"), chibi_card.get_node("ChibiTexture"), chibi_card.get_node("ChibiName"))
+	_setup_card(child_cards[0], child_cards[0].get_node("Frame"), child_cards[0].get_node("FoodChildTexture"), child_cards[0].get_node("FoodChildName"))
+	_setup_card(child_cards[1], child_cards[1].get_node("Frame"), child_cards[1].get_node("PlayChildTexture"), child_cards[1].get_node("PlayChildName"))
+	_setup_card(child_cards[2], child_cards[2].get_node("Frame"), child_cards[2].get_node("PetChildTexture"), child_cards[2].get_node("PetChildName"))
+	_setup_card(child_cards[3], child_cards[3].get_node("Frame"), child_cards[3].get_node("BalanceChildTexture"), child_cards[3].get_node("BalanceChildName"))
+	_setup_card(adult_cards[0], adult_cards[0].get_node("Frame"), adult_cards[0].get_node("SweetsAdultTexture"), adult_cards[0].get_node("SweetsAdultName"))
+	_setup_card(adult_cards[1], adult_cards[1].get_node("Frame"), adult_cards[1].get_node("ChampionAdultTexture"), adult_cards[1].get_node("ChampionAdultName"))
+	_setup_card(adult_cards[2], adult_cards[2].get_node("Frame"), adult_cards[2].get_node("LoveAdultTexture"), adult_cards[2].get_node("LoveAdultName"))
+	_setup_card(adult_cards[3], adult_cards[3].get_node("Frame"), adult_cards[3].get_node("ChallengerAdultTexture"), adult_cards[3].get_node("ChallengerAdultName"))
 
-func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: TextureRect, name_label: Label) -> void:
-	card.custom_minimum_size = CARD_SIZE
+func _setup_card(card: Control, frame: NinePatchRect, texture_rect: TextureRect, name_label: Label) -> void:
 	card.add_theme_constant_override("separation", 0)
 	texture_rect.custom_minimum_size = CARD_TEXTURE_SIZE
 	texture_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -98,7 +128,7 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	frame.reparent(texture_rect)
 	frame.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	frame.position = Vector2.ZERO
-	frame.size = CARD_FRAME_SIZE
+	frame.size = CARD_SIZE
 	frame.show_behind_parent = true
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	name_label.custom_minimum_size = Vector2(0.0, CARD_NAME_HEIGHT)
@@ -108,18 +138,17 @@ func _setup_card(card: VBoxContainer, frame: NinePatchRect, texture_rect: Textur
 	name_label.add_theme_font_size_override("font_size", CARD_NAME_FONT_SIZE)
 	name_label.add_theme_color_override("font_color", Color(0.20, 0.12, 0.07, 1.0))
 
-## 各カテゴリ名をカード段の直前に独立した行として配置する。
-## 線はこのラベル行を避けて描画するため、文字と進化線が重ならない。
+## カテゴリ名は進化線の途中ではなく、各段の左側に独立表示する。
 func _setup_stage_labels() -> void:
-	_add_stage_label("🌱 ちび", chibi_row)
-	child_stage_label = _add_stage_label("🌸 こども", child_row)
-	adult_stage_label = _add_stage_label("♛ おとな", adult_row)
+	_add_stage_label("🌱 ちび", Vector2(8.0, CHIBI_POS.y + 50.0))
+	_add_stage_label("🌸 こども", Vector2(8.0, CHILD_Y + 50.0))
+	_add_stage_label("♛ おとな", Vector2(8.0, ADULT_Y + 50.0))
 
-func _add_stage_label(text_value: String, before_row: Control) -> Label:
+func _add_stage_label(text_value: String, target_position: Vector2) -> void:
 	var label := Label.new()
 	label.text = text_value
-	label.custom_minimum_size = Vector2(0.0, STAGE_LABEL_HEIGHT)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.position = target_position
+	label.size = Vector2(70.0, 28.0)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -128,85 +157,47 @@ func _add_stage_label(text_value: String, before_row: Control) -> Label:
 	label.add_theme_color_override("font_shadow_color", Color(1.0, 0.96, 0.84, 0.95))
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
-	evolution_tree.add_child(label)
-	evolution_tree.move_child(label, before_row.get_index())
-	return label
+	diagram_canvas.add_child(label)
 
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
+	evolution_lines.position = Vector2.ZERO
+	evolution_lines.size = DIAGRAM_SIZE
 	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	evolution_lines.z_index = 10
+	# カードより後ろ、背景より前。
+	evolution_lines.z_index = -1
 	evolution_lines.draw.connect(_draw_evolution_lines)
-	evolution_tree.add_child(evolution_lines)
-	call_deferred("_refresh_evolution_lines")
-
-func _refresh_evolution_lines() -> void:
-	if evolution_lines == null:
-		return
-	evolution_lines.global_position = evolution_tree.global_position
-	evolution_lines.size = evolution_tree.size
+	diagram_canvas.add_child(evolution_lines)
 	evolution_lines.queue_redraw()
 
 func _draw_evolution_lines() -> void:
-	if evolution_lines == null:
-		return
-	var chibi_card := chibi_row.get_node("ChibiCard") as Control
-	var child_cards: Array[Control] = [
-		child_row.get_node("FoodChildCard"),
-		child_row.get_node("PlayChildCard"),
-		child_row.get_node("PetChildCard"),
-		child_row.get_node("BalanceChildCard")
-	]
-	var adult_cards: Array[Control] = [
-		adult_row.get_node("SweetsAdultCard"),
-		adult_row.get_node("ChampionAdultCard"),
-		adult_row.get_node("LoveAdultCard"),
-		adult_row.get_node("ChallengerAdultCard")
-	]
-
-	# ちび → こども4種。
-	# 「こども」見出しの上側で横分岐し、見出しの左右を避けて各カードへ落とす。
+	# ちび → こども4種：カード間の空白だけを使って分岐する。
 	var start := _bottom_center(chibi_card)
 	var child_tops: Array[Vector2] = []
 	for card in child_cards:
 		child_tops.append(_top_center(card))
-	var child_label_top := _top_center(child_stage_label)
-	var child_label_bottom := _bottom_center(child_stage_label)
-	var branch_y := child_label_top.y - 5.0
-	_draw_line_local(start, Vector2(start.x, branch_y))
-	_draw_line_local(Vector2(child_tops[0].x, branch_y), Vector2(child_tops[child_tops.size() - 1].x, branch_y))
+	var branch_y := (start.y + child_tops[0].y) * 0.5
+	_draw_line(start, Vector2(start.x, branch_y))
+	_draw_line(Vector2(child_tops[0].x, branch_y), Vector2(child_tops[3].x, branch_y))
 	for target in child_tops:
-		# 中央見出しと線が重ならないよう、ラベル行の下からカードへ矢印を描く。
-		var line_start := Vector2(target.x, child_label_bottom.y + 2.0)
-		_draw_arrow_path(line_start, target)
+		_draw_arrow(Vector2(target.x, branch_y), target)
 
-	# こども → おとな。
-	# 4列は対応する進化先の真上に並んでいるので、ラベル行をまたがず上下2本に分ける。
-	var adult_label_top := _top_center(adult_stage_label)
-	var adult_label_bottom := _bottom_center(adult_stage_label)
+	# こども → おとな：対応する列へそのまま縦に進化する。
 	for i in child_cards.size():
-		var from := _bottom_center(child_cards[i])
-		var target := _top_center(adult_cards[i])
-		_draw_line_local(from, Vector2(from.x, adult_label_top.y - LINE_LABEL_CLEARANCE * 0.25))
-		_draw_arrow_path(Vector2(target.x, adult_label_bottom.y + 2.0), target)
+		_draw_arrow(_bottom_center(child_cards[i]), _top_center(adult_cards[i]))
 
-func _top_center(control: Control) -> Vector2:
-	var global_point := control.global_position + Vector2(control.size.x * 0.5, 0.0)
-	return _global_to_line_local(global_point)
+func _top_center(card: Control) -> Vector2:
+	return card.position + Vector2(card.size.x * 0.5, 0.0)
 
-func _bottom_center(control: Control) -> Vector2:
-	var global_point := control.global_position + Vector2(control.size.x * 0.5, control.size.y)
-	return _global_to_line_local(global_point)
+func _bottom_center(card: Control) -> Vector2:
+	return card.position + Vector2(card.size.x * 0.5, card.size.y)
 
-func _global_to_line_local(global_point: Vector2) -> Vector2:
-	return global_point - evolution_lines.global_position
-
-func _draw_line_local(from: Vector2, to: Vector2) -> void:
+func _draw_line(from: Vector2, to: Vector2) -> void:
 	evolution_lines.draw_line(from, to, LINE_COLOR, LINE_WIDTH, true)
 
-func _draw_arrow_path(from: Vector2, to: Vector2) -> void:
-	_draw_line_local(from, to)
+func _draw_arrow(from: Vector2, to: Vector2) -> void:
+	_draw_line(from, to)
 	var tip := to - Vector2(0.0, 3.0)
 	var points := PackedVector2Array([
 		tip,
@@ -222,28 +213,26 @@ func _update_back_button_text() -> void:
 		back_button.text = "育成画面にもどる"
 
 func _update_collection_count() -> void:
-	var discovered_count := PiyokoCollectionManager.discovered.size()
-	count_label.text = "発見数：%d / %d" % [discovered_count, TOTAL_COLLECTION_COUNT]
+	count_label.text = "発見数：%d / %d" % [PiyokoCollectionManager.discovered.size(), TOTAL_COLLECTION_COUNT]
 
 func _update_collection_cards() -> void:
-	_update_card("chibi", chibi_row.get_node("ChibiCard/ChibiTexture"), chibi_row.get_node("ChibiCard/ChibiName"), "ちびぴよこ")
-	_update_card("child_food", child_row.get_node("FoodChildCard/FoodChildTexture"), child_row.get_node("FoodChildCard/FoodChildName"), "ごはんぴよこ")
-	_update_card("child_play", child_row.get_node("PlayChildCard/PlayChildTexture"), child_row.get_node("PlayChildCard/PlayChildName"), "やんちゃぴよこ")
-	_update_card("child_pet", child_row.get_node("PetChildCard/PetChildTexture"), child_row.get_node("PetChildCard/PetChildName"), "あまえぴよこ")
-	_update_card("child_balance", child_row.get_node("BalanceChildCard/BalanceChildTexture"), child_row.get_node("BalanceChildCard/BalanceChildName"), "へいきんぴよこ")
-	_update_card("adult_sweets", adult_row.get_node("SweetsAdultCard/SweetsAdultTexture"), adult_row.get_node("SweetsAdultCard/SweetsAdultName"), "すいーつぴよこ")
-	_update_card("adult_champion", adult_row.get_node("ChampionAdultCard/ChampionAdultTexture"), adult_row.get_node("ChampionAdultCard/ChampionAdultName"), "ちゃんぷぴよこ")
-	_update_card("adult_challenger", adult_row.get_node("ChallengerAdultCard/ChallengerAdultTexture"), adult_row.get_node("ChallengerAdultCard/ChallengerAdultName"), "ふぁいとぴよこ")
-	_update_card("adult_love", adult_row.get_node("LoveAdultCard/LoveAdultTexture"), adult_row.get_node("LoveAdultCard/LoveAdultName"), "らぶぴよこ")
+	_update_card("chibi", chibi_card.get_node("ChibiTexture"), chibi_card.get_node("ChibiName"), "ちびぴよこ")
+	_update_card("child_food", child_cards[0].get_node("FoodChildTexture"), child_cards[0].get_node("FoodChildName"), "ごはんぴよこ")
+	_update_card("child_play", child_cards[1].get_node("PlayChildTexture"), child_cards[1].get_node("PlayChildName"), "やんちゃぴよこ")
+	_update_card("child_pet", child_cards[2].get_node("PetChildTexture"), child_cards[2].get_node("PetChildName"), "あまえぴよこ")
+	_update_card("child_balance", child_cards[3].get_node("BalanceChildTexture"), child_cards[3].get_node("BalanceChildName"), "へいきんぴよこ")
+	_update_card("adult_sweets", adult_cards[0].get_node("SweetsAdultTexture"), adult_cards[0].get_node("SweetsAdultName"), "すいーつぴよこ")
+	_update_card("adult_champion", adult_cards[1].get_node("ChampionAdultTexture"), adult_cards[1].get_node("ChampionAdultName"), "ちゃんぷぴよこ")
+	_update_card("adult_love", adult_cards[2].get_node("LoveAdultTexture"), adult_cards[2].get_node("LoveAdultName"), "らぶぴよこ")
+	_update_card("adult_challenger", adult_cards[3].get_node("ChallengerAdultTexture"), adult_cards[3].get_node("ChallengerAdultName"), "ふぁいとぴよこ")
 
 func _update_card(piyoko_id: String, texture_rect: TextureRect, name_label: Label, discovered_name: String) -> void:
-	var discovered := PiyokoCollectionManager.is_discovered(piyoko_id)
-	if discovered:
+	if PiyokoCollectionManager.is_discovered(piyoko_id):
 		texture_rect.self_modulate = Color.WHITE
 		name_label.text = discovered_name
-		return
-	texture_rect.self_modulate = SILHOUETTE_COLOR
-	name_label.text = UNDISCOVERED_NAME
+	else:
+		texture_rect.self_modulate = SILHOUETTE_COLOR
+		name_label.text = UNDISCOVERED_NAME
 
 func _on_back_button_pressed() -> void:
 	var return_scene := DEFAULT_RETURN_SCENE
