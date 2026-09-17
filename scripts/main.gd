@@ -16,18 +16,29 @@ func _ready() -> void:
 	$TitleCenter/TitleMenu/NewGameButton.pressed.connect(_on_new_game_button_pressed)
 	$TitleCenter/TitleMenu/OptionsButton.pressed.connect(_on_options_button_pressed)
 	$TitleCenter/TitleMenu/QuitButton.pressed.connect(_on_quit_button_pressed)
-	$OptionsPanel/OptionsMenu/FullResetButton.pressed.connect(_on_full_reset_button_pressed)
-	$OptionsPanel/OptionsMenu/BackButton.pressed.connect(_on_options_back_button_pressed)
+	$OptionsPanel/OptionsBackground/OptionsMenu/FullResetButton.pressed.connect(_on_full_reset_button_pressed)
+	$OptionsPanel/OptionsBackground/OptionsMenu/BackButton.pressed.connect(_on_options_back_button_pressed)
 	$NewGameConfirm.confirmed.connect(_on_new_game_confirmed)
 	$FullResetConfirm.confirmed.connect(_on_full_reset_confirmed)
 
 
 ## タイトルからいつでも図鑑を確認できるよう、メニュー内に図鑑ボタンを追加する。
-## OptionsButtonの直前へ配置し、既存の開始系ボタンの並びは維持する。
+## OptionsButtonの直前へ配置し、タイトル用ボタンの見た目を引き継ぐ。
 func _setup_collection_button() -> void:
 	collection_button = Button.new()
 	collection_button.name = "CollectionButton"
 	collection_button.text = "ピヨコ図鑑"
+	collection_button.custom_minimum_size = Vector2(292, 48)
+	collection_button.add_theme_font_size_override("font_size", 22)
+	collection_button.add_theme_color_override("font_color", Color("492d16"))
+
+	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
+	for style_name in [&"normal", &"hover", &"pressed"]:
+		collection_button.add_theme_stylebox_override(
+			style_name,
+			style_source.get_theme_stylebox(style_name).duplicate()
+		)
+
 	collection_button.pressed.connect(_on_collection_button_pressed)
 
 	var title_menu := $TitleCenter/TitleMenu
@@ -63,7 +74,6 @@ func _on_new_game_confirmed() -> void:
 
 
 func _on_collection_button_pressed() -> void:
-	# 図鑑側が戻り先を判定できるよう、タイトルから開いたことを一時的に記録する。
 	get_tree().set_meta(COLLECTION_RETURN_SCENE_META, TITLE_SCENE)
 	get_tree().change_scene_to_file("res://scenes/collection.tscn")
 

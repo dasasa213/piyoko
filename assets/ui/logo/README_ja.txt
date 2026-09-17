@@ -1,18 +1,15 @@
-Piyoko タイトルロゴ素材 v1
+Piyoko タイトルロゴ素材
 
-格納先：res://assets/ui/logo/
+- piyoko_title_with_subtitle.png
+  タイトル画面で使用する正式ロゴです。
+  「Piyoko」と「小さないのちと、やさしい毎日を。」を一体化しています。
 
-- piyoko_title_logo.png：タイトル画面用ロゴ
-- 背景透過PNG
-- 2135×736px
+- piyoko_title_logo.png
+  サブタイトルなしのロゴ単体です。
+  宣伝画像、起動画面、将来の別レイアウトなどに使用できます。
 
-デザイン方針
-- 初期参考画像の、濃紺で太いピクセル文字を継承
-- 読みやすさを優先した横長構成
-- 黄色のハイライトでピヨコらしさを追加
-- サブタイトルは画像へ含めず、Godot側で表示
-
-表示文言
-小さないのちと、やさしい毎日を。
-
-GodotではTextureRectのExpand ModeをFit Width Proportionalなどに設定し、縦横比を維持してください。
+共通仕様
+- 背景透過 PNG
+- パステル調・自然系のドット絵
+- クリーム／黄色の文字、茶色の輪郭、緑の葉、小花、たまごピヨコ
+- Godot では TextureRect の Stretch Mode を Keep Aspect Centered にして使用
