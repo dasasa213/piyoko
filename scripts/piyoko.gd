@@ -9,7 +9,7 @@ extends RefCounted
 # 成長ルール
 # ------------------------------------------------------------
 
-const CHILD_GROWTH_COUNT := 10
+const CHILD_GROWTH_COUNT := 5
 const ADULT_GROWTH_COUNT := 15
 const STATUS_MIN := 0
 const STATUS_MAX := 5
@@ -211,7 +211,7 @@ func _determine_child_type() -> void:
 	var sorted_counts := [food_count, play_count, pet_count]
 	sorted_counts.sort()
 
-	if sorted_counts == [3, 3, 4]:
+	if sorted_counts == [1, 2, 2]:
 		child_type = "balance"
 		return
 
