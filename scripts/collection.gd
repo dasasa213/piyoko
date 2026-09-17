@@ -113,6 +113,7 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 
 	var frame := NinePatchRect.new()
 	frame.name = "Frame"
+	card.add_child(frame)
 	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	frame.texture = FRAME_TEXTURE
 	frame.patch_margin_left = 24
@@ -120,7 +121,6 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	frame.patch_margin_right = 24
 	frame.patch_margin_bottom = 24
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(frame)
 
 	var texture_rect := TextureRect.new()
 	texture_rect.name = "PiyokoTexture"
