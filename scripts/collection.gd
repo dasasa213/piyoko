@@ -12,28 +12,28 @@ const RETURN_SCENE_META := "collection_return_scene"
 
 const FRAME_TEXTURE := preload("res://assets/ui/panels/frame_card.png")
 
-const CARD_SIZE := Vector2(150.0, 118.0)
-const CARD_TEXTURE_POSITION := Vector2(7.0, 5.0)
-const CARD_TEXTURE_SIZE := Vector2(136.0, 80.0)
-const CARD_NAME_POSITION := Vector2(4.0, 86.0)
-const CARD_NAME_SIZE := Vector2(142.0, 27.0)
-const CARD_NAME_FONT_SIZE := 13
+const CARD_SIZE := Vector2(165.0, 130.0)
+const CARD_TEXTURE_POSITION := Vector2(7.5, 5.0)
+const CARD_TEXTURE_SIZE := Vector2(150.0, 90.0)
+const CARD_NAME_POSITION := Vector2(5.0, 96.0)
+const CARD_NAME_SIZE := Vector2(155.0, 29.0)
+const CARD_NAME_FONT_SIZE := 14
 
 # 1280x720の画面内で14形態を確認できるサイズ。
-const DIAGRAM_SIZE := Vector2(1450.0, 650.0)
-const CENTER_CARD_X := 650.0
+const DIAGRAM_SIZE := Vector2(1570.0, 720.0)
+const CENTER_CARD_X := 702.5
 const EGG_Y := 0.0
-const CHIBI_Y := 170.0
-const CHILD_Y := 340.0
-const ADULT_Y := 510.0
-const CHILD_X := [198.5, 532.5, 866.5, 1200.5]
-const ADULT_X := [115.0, 282.0, 449.0, 616.0, 783.0, 950.0, 1117.0, 1284.0]
+const CHIBI_Y := 190.0
+const CHILD_Y := 380.0
+const ADULT_Y := 570.0
+const CHILD_X := [210.0, 570.0, 930.0, 1290.0]
+const ADULT_X := [120.0, 300.0, 480.0, 660.0, 840.0, 1020.0, 1200.0, 1380.0]
 const STAGE_LABEL_X := 2.0
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
 const LINE_WIDTH := 4.0
-const ARROW_SIZE := 8.0
-const LINE_GAP := 9.0
+const ARROW_SIZE := 10.0
+const LINE_GAP := 14.0
 
 const FORM_DATA := [
 	{"id": "egg", "name": "たまご", "texture": PiyokoTextureManager.EGG_TEXTURE},
@@ -225,7 +225,7 @@ func _draw_branch(source_card: Control, target_cards: Array) -> void:
 	for target_card in target_cards:
 		target_tops.append(_top_center(target_card as Control))
 
-	var branch_y := start.y + ((target_tops[0].y - start.y) * 0.48)
+	var branch_y := start.y + ((target_tops[0].y - start.y) * 0.5)
 	_draw_line(start + Vector2(0.0, LINE_GAP), Vector2(start.x, branch_y))
 	_draw_line(Vector2(target_tops[0].x, branch_y), Vector2(target_tops[-1].x, branch_y))
 
