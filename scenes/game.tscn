@@ -462,6 +462,10 @@ grow_horizontal = 0
 [node name="GameMenu" type="VBoxContainer" parent="GameMenuPanel" unique_id=1391073845]
 layout_mode = 2
 
+[node name="CollectionButton" type="Button" parent="GameMenuPanel/GameMenu" unique_id=1846072961]
+layout_mode = 2
+text = "図鑑"
+
 [node name="BackToTitleButton" type="Button" parent="GameMenuPanel/GameMenu" unique_id=1730399478]
 layout_mode = 2
 text = "タイトルへ戻る"

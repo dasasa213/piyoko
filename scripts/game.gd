@@ -81,6 +81,10 @@ func _ready() -> void:
 		_on_close_menu_button_pressed
 	)
 	
+	$GameMenuPanel/GameMenu/CollectionButton.pressed.connect(
+		_on_collection_button_pressed
+	)
+	
 	#③ローした状態画面へ反映
 	_update_status_display()
 	_update_piyoko_texture()
@@ -409,3 +413,7 @@ func _on_quit_button_pressed() -> void:
 		PiyokoSaveManager.save(piyoko)
 
 	get_tree().quit()
+
+
+func _on_collection_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/collection.tscn")
