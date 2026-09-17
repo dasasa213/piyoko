@@ -1,299 +1,339 @@
 extends Control
 
 const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
+const SELECTED_MEMORY_META := "selected_memory_number"
 const TITLE_SCENE := "res://scenes/main.tscn"
+const PAGE_SIZE := 12
+const GRID_COLUMNS := 6
 
-var content_panel: PanelContainer
+var records: Array[Dictionary] = []
+var current_page := 0
+var sort_mode := 0
+
+var count_label: Label
+var sort_option: OptionButton
+var cards_grid: GridContainer
 var empty_panel: PanelContainer
-var portrait: TextureRect
-var name_label: Label
-var stage_label: Label
-var status_grid: GridContainer
-var care_grid: GridContainer
+var page_label: Label
+var previous_button: Button
+var next_button: Button
 
 
 func _ready() -> void:
 	_build_screen()
-	_load_record()
+	_reload_records()
 
 
 func _build_screen() -> void:
 	var shade := ColorRect.new()
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color(0.20, 0.12, 0.04, 0.08)
+	shade.color = Color(0.20, 0.12, 0.04, 0.10)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 
-	var title_panel := PanelContainer.new()
-	title_panel.anchor_left = 0.5
-	title_panel.anchor_right = 0.5
-	title_panel.offset_left = -260.0
-	title_panel.offset_top = 20.0
-	title_panel.offset_right = 260.0
-	title_panel.offset_bottom = 78.0
-	title_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(1.0, 0.97, 0.84, 0.95), 18, 3))
-	add_child(title_panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 34)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 34)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	add_child(margin)
+
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 9)
+	margin.add_child(layout)
 
 	var title := Label.new()
-	title.text = "育成記録"
+	title.text = "ピヨコのおもいで"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", Color("492d16"))
-	title_panel.add_child(title)
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", Color("fff7d5"))
+	title.add_theme_color_override("font_shadow_color", Color(0.20, 0.12, 0.05, 0.92))
+	title.add_theme_constant_override("shadow_offset_x", 2)
+	title.add_theme_constant_override("shadow_offset_y", 3)
+	layout.add_child(title)
 
-	var back_button := Button.new()
-	back_button.text = "もどる"
-	back_button.anchor_left = 1.0
-	back_button.anchor_right = 1.0
-	back_button.offset_left = -178.0
-	back_button.offset_top = 24.0
-	back_button.offset_right = -28.0
-	back_button.offset_bottom = 76.0
-	_style_button(back_button)
-	back_button.pressed.connect(_on_back_pressed)
-	add_child(back_button)
+	var toolbar := HBoxContainer.new()
+	toolbar.add_theme_constant_override("separation", 14)
+	layout.add_child(toolbar)
 
-	content_panel = PanelContainer.new()
-	content_panel.anchor_left = 0.5
-	content_panel.anchor_top = 0.5
-	content_panel.anchor_right = 0.5
-	content_panel.anchor_bottom = 0.5
-	content_panel.offset_left = -500.0
-	content_panel.offset_top = -230.0
-	content_panel.offset_right = 500.0
-	content_panel.offset_bottom = 280.0
-	content_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(1.0, 0.97, 0.84, 0.95), 24, 4))
-	add_child(content_panel)
+	count_label = Label.new()
+	count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count_label.add_theme_font_size_override("font_size", 19)
+	count_label.add_theme_color_override("font_color", Color("492d16"))
+	toolbar.add_child(count_label)
 
-	var page_margin := MarginContainer.new()
-	page_margin.add_theme_constant_override("margin_left", 34)
-	page_margin.add_theme_constant_override("margin_top", 28)
-	page_margin.add_theme_constant_override("margin_right", 34)
-	page_margin.add_theme_constant_override("margin_bottom", 28)
-	content_panel.add_child(page_margin)
+	var sort_label := Label.new()
+	sort_label.text = "並び替え"
+	sort_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	sort_label.add_theme_font_size_override("font_size", 17)
+	sort_label.add_theme_color_override("font_color", Color("492d16"))
+	toolbar.add_child(sort_label)
 
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 42)
-	page_margin.add_child(columns)
+	sort_option = OptionButton.new()
+	sort_option.custom_minimum_size = Vector2(190, 44)
+	sort_option.add_item("新しい順", 0)
+	sort_option.add_item("古い順", 1)
+	sort_option.add_item("ピヨコの種類", 2)
+	sort_option.add_theme_font_size_override("font_size", 16)
+	sort_option.item_selected.connect(_on_sort_selected)
+	toolbar.add_child(sort_option)
 
-	var profile_column := VBoxContainer.new()
-	profile_column.custom_minimum_size = Vector2(360, 0)
-	profile_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	profile_column.add_theme_constant_override("separation", 10)
-	columns.add_child(profile_column)
+	var album_panel := PanelContainer.new()
+	album_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	album_panel.add_theme_stylebox_override("panel", _make_panel_style())
+	layout.add_child(album_panel)
 
-	var profile_title := _make_section_title("いまのピヨコ")
-	profile_column.add_child(profile_title)
+	var album_margin := MarginContainer.new()
+	album_margin.add_theme_constant_override("margin_left", 18)
+	album_margin.add_theme_constant_override("margin_top", 16)
+	album_margin.add_theme_constant_override("margin_right", 18)
+	album_margin.add_theme_constant_override("margin_bottom", 14)
+	album_panel.add_child(album_margin)
 
-	var portrait_center := CenterContainer.new()
-	portrait_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	profile_column.add_child(portrait_center)
-
-	portrait = TextureRect.new()
-	portrait.custom_minimum_size = Vector2(210, 210)
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait_center.add_child(portrait)
-
-	name_label = Label.new()
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 27)
-	name_label.add_theme_color_override("font_color", Color("492d16"))
-	profile_column.add_child(name_label)
-
-	stage_label = Label.new()
-	stage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stage_label.add_theme_font_size_override("font_size", 18)
-	stage_label.add_theme_color_override("font_color", Color("58743b"))
-	profile_column.add_child(stage_label)
-
-	var divider := VSeparator.new()
-	divider.add_theme_color_override("separator", Color("93aa66"))
-	divider.add_theme_constant_override("separation", 3)
-	columns.add_child(divider)
-
-	var record_column := VBoxContainer.new()
-	record_column.custom_minimum_size = Vector2(500, 0)
-	record_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	record_column.add_theme_constant_override("separation", 10)
-	columns.add_child(record_column)
-
-	record_column.add_child(_make_section_title("お世話のきろく"))
-	care_grid = GridContainer.new()
-	care_grid.columns = 2
-	care_grid.add_theme_constant_override("h_separation", 24)
-	care_grid.add_theme_constant_override("v_separation", 8)
-	record_column.add_child(care_grid)
-
-	var line := HSeparator.new()
-	line.add_theme_color_override("separator", Color("93aa66"))
-	line.add_theme_constant_override("separation", 2)
-	record_column.add_child(line)
-
-	record_column.add_child(_make_section_title("いまのようす"))
-	status_grid = GridContainer.new()
-	status_grid.columns = 2
-	status_grid.add_theme_constant_override("h_separation", 24)
-	status_grid.add_theme_constant_override("v_separation", 8)
-	record_column.add_child(status_grid)
+	cards_grid = GridContainer.new()
+	cards_grid.columns = GRID_COLUMNS
+	cards_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cards_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	cards_grid.add_theme_constant_override("h_separation", 10)
+	cards_grid.add_theme_constant_override("v_separation", 10)
+	album_margin.add_child(cards_grid)
 
 	empty_panel = PanelContainer.new()
-	empty_panel.anchor_left = 0.5
-	empty_panel.anchor_top = 0.5
-	empty_panel.anchor_right = 0.5
-	empty_panel.anchor_bottom = 0.5
-	empty_panel.offset_left = -360.0
-	empty_panel.offset_top = -105.0
-	empty_panel.offset_right = 360.0
-	empty_panel.offset_bottom = 105.0
-	empty_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(1.0, 0.97, 0.84, 0.96), 24, 4))
-	add_child(empty_panel)
+	empty_panel.add_theme_stylebox_override("panel", _make_empty_style())
+	album_margin.add_child(empty_panel)
 
 	var empty_box := VBoxContainer.new()
 	empty_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	empty_box.add_theme_constant_override("separation", 18)
+	empty_box.add_theme_constant_override("separation", 12)
 	empty_panel.add_child(empty_box)
 
 	var empty_title := Label.new()
-	empty_title.text = "まだ育成記録はありません"
+	empty_title.text = "まだおもいではありません"
 	empty_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	empty_title.add_theme_font_size_override("font_size", 28)
+	empty_title.add_theme_font_size_override("font_size", 27)
 	empty_title.add_theme_color_override("font_color", Color("492d16"))
 	empty_box.add_child(empty_title)
 
 	var empty_guide := Label.new()
-	empty_guide.text = "たまごから育成を始めると、ここに思い出が残ります。"
+	empty_guide.text = "大人ぴよこまで育てて「育成をおえる」と、\nここに1羽ずつ記録されます。"
 	empty_guide.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	empty_guide.add_theme_font_size_override("font_size", 18)
 	empty_guide.add_theme_color_override("font_color", Color("58743b"))
 	empty_box.add_child(empty_guide)
 
+	var footer := HBoxContainer.new()
+	footer.alignment = BoxContainer.ALIGNMENT_CENTER
+	footer.add_theme_constant_override("separation", 14)
+	layout.add_child(footer)
 
-func _load_record() -> void:
-	if not PiyokoSaveManager.has_save():
-		content_panel.hide()
-		empty_panel.show()
-		return
+	var back_button := Button.new()
+	back_button.text = "もどる"
+	_style_button(back_button, Vector2(180, 48))
+	back_button.pressed.connect(_on_back_pressed)
+	footer.add_child(back_button)
 
-	var piyoko := Piyoko.new()
-	if not PiyokoSaveManager.load_save(piyoko):
-		content_panel.hide()
-		empty_panel.show()
-		return
+	previous_button = Button.new()
+	previous_button.text = "◀ 前のページ"
+	_style_button(previous_button, Vector2(165, 48))
+	previous_button.pressed.connect(_on_previous_page)
+	footer.add_child(previous_button)
 
-	empty_panel.hide()
-	content_panel.show()
-	portrait.texture = PiyokoTextureManager.get_texture(
-		piyoko.growth_stage,
-		piyoko.child_type,
-		piyoko.adult_type
-	)
-	name_label.text = piyoko.get_growth_stage_name()
-	stage_label.text = _stage_description(piyoko)
+	page_label = Label.new()
+	page_label.custom_minimum_size.x = 110
+	page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	page_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	page_label.add_theme_font_size_override("font_size", 18)
+	page_label.add_theme_color_override("font_color", Color("492d16"))
+	footer.add_child(page_label)
 
-	_clear_grid(care_grid)
-	_add_value_row(care_grid, "総お世話回数", "%d 回" % piyoko.total_care_count)
-	_add_value_row(care_grid, "ごはん", "%d 回" % piyoko.food_count)
-	_add_value_row(care_grid, "  ケーキ・おにぎり・野菜", "%d・%d・%d 回" % [
-		piyoko.shortcake_count,
-		piyoko.onigiri_count,
-		piyoko.broccoli_count
-	])
-	_add_value_row(care_grid, "なでる", "%d 回" % piyoko.pet_count)
-	_add_value_row(care_grid, "あそぶ", "%d 回（成功 %d／失敗 %d）" % [
-		piyoko.play_count,
-		piyoko.play_success_count,
-		piyoko.play_failure_count
-	])
-	_add_value_row(care_grid, "さいごのお世話", _last_care_name(piyoko.last_care))
-
-	_clear_grid(status_grid)
-	_add_value_row(status_grid, "おなか", "%d / 5" % piyoko.hunger)
-	_add_value_row(status_grid, "なかよし", "%d / 5" % piyoko.friendship)
-	_add_value_row(status_grid, "きげん", "%d / 5" % piyoko.mood)
+	next_button = Button.new()
+	next_button.text = "次のページ ▶"
+	_style_button(next_button, Vector2(165, 48))
+	next_button.pressed.connect(_on_next_page)
+	footer.add_child(next_button)
 
 
-func _stage_description(piyoko: Piyoko) -> String:
-	var required := piyoko.get_required_growth_count()
-	if required <= 0:
-		return "大人になったピヨコ"
-	return "次の成長まで %d / %d" % [piyoko.growth_count, required]
+func _reload_records() -> void:
+	records = PiyokoMemoryManager.load_memories()
+	_sort_records()
+	var page_count := _page_count()
+	current_page = clamp(current_page, 0, max(0, page_count - 1))
+	_refresh_cards()
 
 
-func _last_care_name(last_care: String) -> String:
-	match last_care:
-		"food":
-			return "ごはん"
-		"pet":
-			return "なでる"
-		"play":
-			return "あそぶ"
-		_:
-			return "まだありません"
+func _sort_records() -> void:
+	match sort_mode:
+		0:
+			records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+				return str(a.get("completed_at", "")) > str(b.get("completed_at", ""))
+			)
+		1:
+			records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+				return str(a.get("completed_at", "")) < str(b.get("completed_at", ""))
+			)
+		2:
+			records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+				var a_name := _adult_name(str(a.get("adult_type", "")))
+				var b_name := _adult_name(str(b.get("adult_type", "")))
+				if a_name == b_name:
+					return int(a.get("育成No", 0)) < int(b.get("育成No", 0))
+				return a_name < b_name
+			)
 
 
-func _clear_grid(grid: GridContainer) -> void:
-	for child in grid.get_children():
+func _refresh_cards() -> void:
+	for child in cards_grid.get_children():
 		child.queue_free()
 
+	count_label.text = "育てたピヨコの数：%d羽" % records.size()
+	empty_panel.visible = records.is_empty()
+	cards_grid.visible = not records.is_empty()
 
-func _add_value_row(grid: GridContainer, item_name: String, value: String) -> void:
-	var item := Label.new()
-	item.text = item_name
-	item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	item.add_theme_font_size_override("font_size", 17)
-	item.add_theme_color_override("font_color", Color("76512f"))
-	grid.add_child(item)
+	var page_count := _page_count()
+	page_label.text = "%d / %d" % [current_page + 1, max(1, page_count)]
+	previous_button.disabled = current_page <= 0
+	next_button.disabled = current_page + 1 >= page_count
 
-	var value_label := Label.new()
-	value_label.text = value
-	value_label.custom_minimum_size.x = 240.0
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	value_label.add_theme_font_size_override("font_size", 18)
-	value_label.add_theme_color_override("font_color", Color("492d16"))
-	grid.add_child(value_label)
+	var start_index := current_page * PAGE_SIZE
+	var end_index := min(start_index + PAGE_SIZE, records.size())
+	for index in range(start_index, end_index):
+		cards_grid.add_child(_create_memory_card(records[index]))
 
 
-func _make_section_title(text: String) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 22)
-	label.add_theme_color_override("font_color", Color("58743b"))
-	return label
+func _create_memory_card(record: Dictionary) -> Button:
+	var memory_number := int(record.get("育成No", 0))
+	var adult_type := str(record.get("adult_type", ""))
+
+	var card := Button.new()
+	card.custom_minimum_size = Vector2(158, 202)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	card.add_theme_stylebox_override("normal", _make_card_style(Color(1.0, 0.98, 0.90, 0.96), Color("76502c"), 2))
+	card.add_theme_stylebox_override("hover", _make_card_style(Color("fff1bd"), Color("6b9140"), 3))
+	card.add_theme_stylebox_override("pressed", _make_card_style(Color("f7dda0"), Color("567a31"), 3))
+	card.pressed.connect(_on_card_pressed.bind(memory_number))
+
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 9
+	box.offset_top = 7
+	box.offset_right = -9
+	box.offset_bottom = -7
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_theme_constant_override("separation", 1)
+	card.add_child(box)
+
+	var number_label := Label.new()
+	number_label.text = "No.%03d" % memory_number
+	number_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	number_label.add_theme_font_size_override("font_size", 15)
+	number_label.add_theme_color_override("font_color", Color("76502c"))
+	number_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(number_label)
+
+	var portrait := TextureRect.new()
+	portrait.custom_minimum_size = Vector2(132, 92)
+	portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(adult_type, PiyokoTextureManager.CHIBI_TEXTURE)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(portrait)
+
+	var name_label := Label.new()
+	name_label.text = _adult_name(adult_type)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_color_override("font_color", Color("492d16"))
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(name_label)
+
+	var lineage_label := Label.new()
+	lineage_label.text = "%s系" % _child_short_name(str(record.get("child_type", "")))
+	lineage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lineage_label.add_theme_font_size_override("font_size", 13)
+	lineage_label.add_theme_color_override("font_color", Color("58743b"))
+	lineage_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(lineage_label)
+
+	var date_label := Label.new()
+	date_label.text = _format_datetime(str(record.get("completed_at", "")))
+	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	date_label.add_theme_font_size_override("font_size", 12)
+	date_label.add_theme_color_override("font_color", Color("76502c"))
+	date_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(date_label)
+
+	var favorite := CheckButton.new()
+	favorite.text = "★"
+	favorite.button_pressed = bool(record.get("favorite", false))
+	favorite.tooltip_text = "お気に入り"
+	favorite.anchor_left = 1.0
+	favorite.anchor_right = 1.0
+	favorite.offset_left = -42
+	favorite.offset_top = 3
+	favorite.offset_right = -5
+	favorite.offset_bottom = 38
+	favorite.add_theme_font_size_override("font_size", 21)
+	favorite.add_theme_color_override("font_color", Color("c6a15b"))
+	favorite.add_theme_color_override("font_pressed_color", Color("e4a900"))
+	favorite.toggled.connect(_on_favorite_toggled.bind(memory_number))
+	card.add_child(favorite)
+	return card
 
 
-func _make_panel_style(color: Color, radius: int, border_width: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.border_color = Color("6b9140")
-	style.set_border_width_all(border_width)
-	style.set_corner_radius_all(radius)
-	style.shadow_color = Color(0.12, 0.25, 0.10, 0.36)
-	style.shadow_size = 9
-	return style
+func _adult_name(adult_type: String) -> String:
+	var form := PiyokoCollectionCatalog.get_form("adult_" + adult_type)
+	return str(form.get("name", "大人ぴよこ"))
 
 
-func _style_button(button: Button) -> void:
-	button.custom_minimum_size = Vector2(150, 52)
-	button.add_theme_font_size_override("font_size", 19)
-	button.add_theme_color_override("font_color", Color("492d16"))
+func _child_short_name(child_type: String) -> String:
+	var form := PiyokoCollectionCatalog.get_form("child_" + child_type)
+	return str(form.get("name", "子ぴよこ")).trim_suffix("ぴよこ")
 
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(1.0, 0.945, 0.753, 0.96)
-	normal.border_color = Color("7c4c26")
-	normal.set_border_width_all(3)
-	normal.set_corner_radius_all(18)
-	normal.shadow_color = Color(0.18, 0.33, 0.15, 0.4)
-	normal.shadow_size = 5
-	button.add_theme_stylebox_override("normal", normal)
 
-	var hover := normal.duplicate() as StyleBoxFlat
-	hover.bg_color = Color("ffd360")
-	hover.border_color = Color("639133")
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", hover)
+func _format_datetime(value: String) -> String:
+	if value.is_empty():
+		return "日時不明"
+	return value.replace("T", " ")
+
+
+func _page_count() -> int:
+	return int(ceil(float(records.size()) / float(PAGE_SIZE))) if not records.is_empty() else 1
+
+
+func _on_sort_selected(index: int) -> void:
+	sort_mode = index
+	current_page = 0
+	_sort_records()
+	_refresh_cards()
+
+
+func _on_card_pressed(memory_number: int) -> void:
+	get_tree().set_meta(SELECTED_MEMORY_META, memory_number)
+	get_tree().change_scene_to_file("res://scenes/memory_detail.tscn")
+
+
+func _on_favorite_toggled(enabled: bool, memory_number: int) -> void:
+	if PiyokoMemoryManager.set_favorite(memory_number, enabled):
+		for record in records:
+			if int(record.get("育成No", 0)) == memory_number:
+				record["favorite"] = enabled
+				break
+
+
+func _on_previous_page() -> void:
+	if current_page > 0:
+		current_page -= 1
+		_refresh_cards()
+
+
+func _on_next_page() -> void:
+	if current_page + 1 < _page_count():
+		current_page += 1
+		_refresh_cards()
 
 
 func _on_back_pressed() -> void:
@@ -302,3 +342,42 @@ func _on_back_pressed() -> void:
 		return_scene = str(get_tree().get_meta(MEMORIES_RETURN_SCENE_META))
 		get_tree().remove_meta(MEMORIES_RETURN_SCENE_META)
 	get_tree().change_scene_to_file(return_scene)
+
+
+func _make_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.97, 0.84, 0.93)
+	style.border_color = Color("76502c")
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(22)
+	style.shadow_color = Color(0.12, 0.20, 0.08, 0.34)
+	style.shadow_size = 8
+	return style
+
+
+func _make_empty_style() -> StyleBoxFlat:
+	var style := _make_panel_style()
+	style.bg_color = Color(1.0, 0.98, 0.88, 0.96)
+	return style
+
+
+func _make_card_style(fill: Color, border: Color, border_width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(16)
+	style.shadow_color = Color(0.18, 0.12, 0.05, 0.24)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 2)
+	return style
+
+
+func _style_button(button: Button, minimum_size: Vector2) -> void:
+	button.custom_minimum_size = minimum_size
+	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_color_override("font_color", Color("492d16"))
+	button.add_theme_color_override("font_hover_color", Color("384514"))
+	button.add_theme_stylebox_override("normal", _make_card_style(Color("fff7d5"), Color("76502c"), 2))
+	button.add_theme_stylebox_override("hover", _make_card_style(Color("ffe38a"), Color("6b9140"), 3))
+	button.add_theme_stylebox_override("pressed", _make_card_style(Color("f5ce63"), Color("567a31"), 3))
