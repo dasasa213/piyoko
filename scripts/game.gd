@@ -16,7 +16,7 @@ var finish_care_button: Button
 var finish_care_confirm: ConfirmationDialog
 
 # preloadしたスクリプトから生成する補助コンポーネント。
-# 独自クラス名への依存を避け、Godotが確実に解決できるNode型で保持する。
+# Node型で保持し、各コンポーネント固有の処理は公開API経由で呼び出す。
 var food_effect: Node
 var pet_effect: Node
 var play_minigame: Node
@@ -86,7 +86,7 @@ func _setup_components() -> void:
 	play_minigame = PlayMinigameScript.new()
 	add_child(play_minigame)
 	play_minigame.setup(self)
-	play_minigame.finished.connect(_on_play_minigame_finished)
+	play_minigame.completed.connect(_on_play_minigame_finished)
 
 
 func _setup_initial_view() -> void:
@@ -165,15 +165,13 @@ func _on_pet_effect_finished() -> void:
 # ------------------------------------------------------------
 
 func _on_play_button_pressed() -> void:
-	if play_minigame.is_active():
-		return
-
 	var texture := PiyokoTextureManager.get_texture(
 		piyoko.growth_stage,
 		piyoko.child_type,
 		piyoko.adult_type
 	)
-	play_minigame.start(texture)
+
+	play_minigame.start(texture, get_viewport_rect().size)
 
 
 func _on_play_minigame_finished(success: bool) -> void:
