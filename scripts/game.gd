@@ -9,6 +9,7 @@ const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
 const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
 const BIRTH_BACKGROUND := preload("res://assets/backgrounds/05_birth_nursery.png")
+const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
 const PIYOKO_RUG_OFFSET_Y := 120.0
 
 var piyoko: Piyoko
@@ -20,6 +21,7 @@ var finish_care_confirm: ConfirmationDialog
 var dialog_dim: ColorRect
 var room_background: TextureRect
 var birth_message_panel: PanelContainer
+var memories_button: Button
 
 var food_effect: Node
 var pet_effect: Node
@@ -33,6 +35,7 @@ var play_minigame: Node
 func _ready() -> void:
 	_setup_background()
 	_setup_birth_ui()
+	_setup_memories_button()
 	_setup_dialog_dim()
 	_load_piyoko()
 	_connect_scene_signals()
@@ -196,6 +199,7 @@ func _apply_nature_ui_styles() -> void:
 		$PlayPanel/PlayMenu/FailureButton,
 		$PlayPanel/PlayMenu/CancelButton,
 		$GameMenuPanel/GameMenu/CollectionButton,
+		memories_button,
 		$GameMenuPanel/GameMenu/ResetButton,
 		$GameMenuPanel/GameMenu/BackToTitleButton,
 		$GameMenuPanel/GameMenu/QuitButton,
@@ -575,6 +579,19 @@ func _on_finish_care_confirmed() -> void:
 # メニュー・画面遷移
 # ------------------------------------------------------------
 
+func _setup_memories_button() -> void:
+	memories_button = Button.new()
+	memories_button.name = "MemoriesButton"
+	memories_button.text = "育成記録"
+	memories_button.pressed.connect(_on_memories_button_pressed)
+
+	var game_menu := $GameMenuPanel/GameMenu
+	game_menu.add_child(memories_button)
+	game_menu.move_child(memories_button, $GameMenuPanel/GameMenu/ResetButton.get_index())
+	$GameMenuPanel.custom_minimum_size.y = 350.0
+	$GameMenuPanel.offset_bottom = 440.0
+
+
 func _on_menu_button_pressed() -> void:
 	$GameMenuPanel.visible = not $GameMenuPanel.visible
 
@@ -595,6 +612,12 @@ func _on_quit_button_pressed() -> void:
 
 func _on_collection_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/collection.tscn")
+
+
+func _on_memories_button_pressed() -> void:
+	_save_if_started()
+	get_tree().set_meta(MEMORIES_RETURN_SCENE_META, "res://scenes/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/memories.tscn")
 
 
 func _on_reset_button_pressed() -> void:
