@@ -10,6 +10,10 @@ var finish_care_confirm: ConfirmationDialog
 var food_effect_label: Label
 var food_effect_active := false
 
+# なでる演出
+var pet_effect_label: Label
+var pet_effect_active := false
+
 # あそぶミニゲーム
 const PLAY_TARGET_COUNT := 3
 const PLAY_TIME_LIMIT := 5.0
@@ -53,6 +57,7 @@ func _ready() -> void:
 	$GrowthMessageLabel.position.y -= 110.0
 	_create_finish_care_ui()
 	_create_food_effect_ui()
+	_create_pet_effect_ui()
 	_create_play_minigame_ui()
 	_update_status_display()
 	_update_piyoko_texture()
@@ -130,6 +135,56 @@ func _finish_food_effect(food_key: String) -> void:
 	piyoko.print_status()
 	_save_game()
 
+func _create_pet_effect_ui() -> void:
+	pet_effect_label = Label.new()
+	pet_effect_label.visible = false
+	pet_effect_label.z_index = 20
+	pet_effect_label.text = "♡  なでなで  ♡"
+	pet_effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pet_effect_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	pet_effect_label.add_theme_font_size_override("font_size", 28)
+	pet_effect_label.add_theme_color_override("font_color", Color(0.88, 0.30, 0.46, 1.0))
+	pet_effect_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	pet_effect_label.add_theme_constant_override("shadow_offset_x", 2)
+	pet_effect_label.add_theme_constant_override("shadow_offset_y", 2)
+	pet_effect_label.size = Vector2(240, 60)
+	add_child(pet_effect_label)
+
+func _start_pet_effect() -> void:
+	if pet_effect_active or food_effect_active: return
+	pet_effect_active = true
+	_set_action_buttons_disabled(true)
+	var viewport_size := get_viewport_rect().size
+	pet_effect_label.position = Vector2(viewport_size.x * 0.5 - 120.0, viewport_size.y * 0.42)
+	pet_effect_label.modulate = Color(1, 1, 1, 0)
+	pet_effect_label.scale = Vector2(0.8, 0.8)
+	pet_effect_label.show()
+	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	var original_rotation := sprite.rotation
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(pet_effect_label, "modulate:a", 1.0, 0.15)
+	tween.parallel().tween_property(pet_effect_label, "scale", Vector2.ONE, 0.15)
+	tween.tween_property(sprite, "rotation", original_rotation - 0.08, 0.12)
+	tween.tween_property(sprite, "rotation", original_rotation + 0.08, 0.18)
+	tween.tween_property(sprite, "rotation", original_rotation - 0.05, 0.18)
+	tween.tween_property(sprite, "rotation", original_rotation, 0.12)
+	tween.parallel().tween_property(pet_effect_label, "position:y", pet_effect_label.position.y - 28.0, 0.35)
+	tween.parallel().tween_property(pet_effect_label, "modulate:a", 0.0, 0.35)
+	tween.tween_callback(_finish_pet_effect)
+
+func _finish_pet_effect() -> void:
+	pet_effect_label.hide()
+	pet_effect_active = false
+	piyoko.pet()
+	var grew := _check_growth()
+	_update_status_display()
+	if not grew:
+		_set_action_buttons_disabled(false)
+		$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
+	piyoko.print_status()
+	_save_game()
+
 func _create_play_minigame_ui() -> void:
 	play_minigame_panel = Control.new()
 	play_minigame_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -198,10 +253,7 @@ func _on_finish_care_confirmed() -> void:
 	if not PiyokoSaveManager.delete_save(): push_error("育成完了後のセーブデータ削除に失敗しました"); return
 	get_tree().reload_current_scene()
 func _on_food_button_pressed() -> void: $FoodPanel.show()
-func _on_pet_button_pressed() -> void:
-	piyoko.pet(); var grew := _check_growth(); _update_status_display()
-	if not grew: $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
-	piyoko.print_status(); _save_game()
+func _on_pet_button_pressed() -> void: _start_pet_effect()
 func _on_play_button_pressed() -> void: _start_play_minigame()
 func _start_play_minigame() -> void:
 	if play_minigame_active or not play_result_timer.is_stopped(): return
