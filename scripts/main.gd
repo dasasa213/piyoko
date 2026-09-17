@@ -83,7 +83,8 @@ func _style_options_panel() -> void:
 	]
 
 	for button in option_buttons:
-		button.add_theme_font_size_override("font_size", 14)
+		button.custom_minimum_size.y = 52.0
+		button.add_theme_font_size_override("font_size", 17)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -206,7 +207,7 @@ func _on_fullscreen_toggled(enabled: bool) -> void:
 
 func _apply_fullscreen(enabled: bool) -> void:
 	get_window().mode = (
-		Window.MODE_EXCLUSIVE_FULLSCREEN
+		Window.MODE_FULLSCREEN
 		if enabled
 		else Window.MODE_WINDOWED
 	)
