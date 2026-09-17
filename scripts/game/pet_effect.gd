@@ -3,6 +3,7 @@ extends Node
 
 ## 「なでる」演出を担当するコンポーネント。
 ## 操作はボタンを押すだけで、ピヨコへの直接ドラッグ操作は行わない。
+## PiyokoSprite は TextureRect のため、演出対象は Control として受け取る。
 
 signal finished
 
@@ -30,7 +31,7 @@ func is_active() -> bool:
 	return _active
 
 
-func play(sprite: Node2D, viewport_size: Vector2) -> void:
+func play(sprite: Control, viewport_size: Vector2) -> void:
 	if _active:
 		return
 
@@ -40,8 +41,8 @@ func play(sprite: Node2D, viewport_size: Vector2) -> void:
 	_label.scale = Vector2(0.8, 0.8)
 	_label.show()
 
-	# 型を明示し、Godotの型推論エラーを避ける。
-	var original_rotation: float = float(sprite.rotation)
+	# TextureRect(Control) の回転を軽く揺らして、なでられている反応を表現する。
+	var original_rotation: float = sprite.rotation
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
