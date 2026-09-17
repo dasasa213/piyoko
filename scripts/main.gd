@@ -149,6 +149,11 @@ func _setup_options_controls() -> void:
 	fullscreen_toggle.custom_minimum_size.y = 48.0
 	fullscreen_toggle.add_theme_font_size_override("font_size", 18)
 	fullscreen_toggle.add_theme_color_override("font_color", Color("492d16"))
+	fullscreen_toggle.add_theme_color_override("font_hover_color", Color("492d16"))
+	fullscreen_toggle.add_theme_color_override("font_pressed_color", Color("492d16"))
+	fullscreen_toggle.add_theme_color_override("font_hover_pressed_color", Color("492d16"))
+	fullscreen_toggle.add_theme_color_override("font_focus_color", Color("492d16"))
+	fullscreen_toggle.add_theme_color_override("font_disabled_color", Color("75654e"))
 	fullscreen_toggle.toggled.connect(_on_fullscreen_toggled)
 	options_menu.add_child(fullscreen_toggle)
 	options_menu.move_child(fullscreen_toggle, data_title.get_index())
