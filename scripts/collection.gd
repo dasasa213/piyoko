@@ -33,6 +33,7 @@ var evolution_lines: Control
 
 func _ready() -> void:
 	_setup_tree_layout()
+	_align_evolution_columns()
 	_setup_card_frames()
 	_setup_stage_labels()
 	_setup_evolution_lines()
@@ -57,6 +58,19 @@ func _setup_tree_layout() -> void:
 		future_space.hide()
 	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+
+## 進化元と進化先を同じ列にそろえる。
+## ごはん→すいーつ / やんちゃ→ちゃんぷ / あまえ→らぶ / へいきん→ふぁいと。
+## ノード名や図鑑IDは変更せず、表示順だけを入れ替える。
+func _align_evolution_columns() -> void:
+	var ordered_adults: Array[Control] = [
+		adult_row.get_node("SweetsAdultCard"),
+		adult_row.get_node("ChampionAdultCard"),
+		adult_row.get_node("LoveAdultCard"),
+		adult_row.get_node("ChallengerAdultCard")
+	]
+	for i in ordered_adults.size():
+		adult_row.move_child(ordered_adults[i], i)
 
 func _setup_card_frames() -> void:
 	_setup_card(chibi_row.get_node("ChibiCard"), chibi_row.get_node("ChibiCard/Frame"), chibi_row.get_node("ChibiCard/ChibiTexture"), chibi_row.get_node("ChibiCard/ChibiName"))
@@ -110,14 +124,10 @@ func _add_stage_label(text_value: String, before_row: Control) -> void:
 	evolution_tree.add_child(label)
 	evolution_tree.move_child(label, before_row.get_index())
 
-## 系統線はカードの実座標から毎回描画する。
-## EvolutionLines はカードより手前に置くが、線の端点をカード境界にしているためカード内部には入らない。
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
 	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# z_index = -1 だと親の描画より後ろに回り、背景に隠れて線が見えない。
-	# カード枠より前に描画して、確実に系統線を表示する。
 	evolution_lines.z_index = 10
 	evolution_lines.draw.connect(_draw_evolution_lines)
 	evolution_tree.add_child(evolution_lines)
@@ -126,7 +136,6 @@ func _setup_evolution_lines() -> void:
 func _refresh_evolution_lines() -> void:
 	if evolution_lines == null:
 		return
-	# VBoxContainer のレイアウト対象にしないため、系統図と同じグローバル矩形へ手動で重ねる。
 	evolution_lines.global_position = evolution_tree.global_position
 	evolution_lines.size = evolution_tree.size
 	evolution_lines.queue_redraw()
@@ -148,6 +157,7 @@ func _draw_evolution_lines() -> void:
 		adult_row.get_node("ChallengerAdultCard")
 	]
 
+	# ちび → こども4種。中央の幹から左右へ分岐する。
 	var start := _bottom_center(chibi_card)
 	var child_tops: Array[Vector2] = []
 	for card in child_cards:
@@ -158,6 +168,8 @@ func _draw_evolution_lines() -> void:
 	for target in child_tops:
 		_draw_arrow_path(Vector2(target.x, branch_y), target)
 
+	# こども → おとなは同じ列へ一直線につなぐ。
+	# 表示順もこの対応に合わせているため、進化線は交差しない。
 	for i in child_cards.size():
 		_draw_arrow_path(_bottom_center(child_cards[i]), _top_center(adult_cards[i]))
 
