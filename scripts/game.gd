@@ -599,7 +599,7 @@ func _on_finish_care_confirmed() -> void:
 func _setup_memories_button() -> void:
 	memories_button = Button.new()
 	memories_button.name = "MemoriesButton"
-	memories_button.text = "育成記録"
+	memories_button.text = "おもいで"
 	memories_button.pressed.connect(_on_memories_button_pressed)
 
 	var game_menu := $GameMenuPanel/GameMenu
