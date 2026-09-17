@@ -2,14 +2,14 @@
 
 [ext_resource type="Script" uid="uid://dblo8atp7t0ri" path="res://scripts/main.gd" id="1_o5qli"]
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" unique_id=56258290]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 script = ExtResource("1_o5qli")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=1024373440]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +18,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 0.972549, 0.9098039, 1)
 
-[node name="TitleCenter" type="CenterContainer" parent="."]
+[node name="TitleCenter" type="CenterContainer" parent="." unique_id=187539962]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,43 +26,44 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TitleMenu" type="VBoxContainer" parent="TitleCenter"]
+[node name="TitleMenu" type="VBoxContainer" parent="TitleCenter" unique_id=1280156614]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="TitleCenter/TitleMenu"]
+[node name="TitleLabel" type="Label" parent="TitleCenter/TitleMenu" unique_id=512032907]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.41960785, 0.30980393, 0.22745098, 1)
 theme_override_font_sizes/font_size = 48
 text = "Piyoko"
 horizontal_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="TitleCenter/TitleMenu"]
+[node name="SubtitleLabel" type="Label" parent="TitleCenter/TitleMenu" unique_id=1405652701]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5411765, 0.45490196, 0.3882353, 1)
 text = "小さないのちと、やさしい毎日を。"
 horizontal_alignment = 1
 
-[node name="StartButton" type="Button" parent="TitleCenter/TitleMenu"]
+[node name="StartButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=2123074756]
 layout_mode = 2
 text = "はじめる"
 
-[node name="ContinueButton" type="Button" parent="TitleCenter/TitleMenu"]
+[node name="ContinueButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=472335182]
 layout_mode = 2
 text = "つづきから"
 
-[node name="NewGameButton" type="Button" parent="TitleCenter/TitleMenu"]
+[node name="NewGameButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1034704796]
 layout_mode = 2
 text = "はじめから"
 
-[node name="OptionsButton" type="Button" parent="TitleCenter/TitleMenu"]
+[node name="OptionsButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=1104487341]
 layout_mode = 2
 text = "おぷしょん"
 
-[node name="QuitButton" type="Button" parent="TitleCenter/TitleMenu"]
+[node name="QuitButton" type="Button" parent="TitleCenter/TitleMenu" unique_id=209039756]
 layout_mode = 2
 text = "ゲームをおわる"
 
-[node name="OptionsPanel" type="CenterContainer" parent="."]
+[node name="OptionsPanel" type="CenterContainer" parent="." unique_id=1252827917]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,55 +71,61 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="OptionsMenu" type="VBoxContainer" parent="OptionsPanel"]
+[node name="OptionsMenu" type="VBoxContainer" parent="OptionsPanel" unique_id=332333145]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 
-[node name="OptionsTitle" type="Label" parent="OptionsPanel/OptionsMenu"]
+[node name="OptionsTitle" type="Label" parent="OptionsPanel/OptionsMenu" unique_id=811745154]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.41960785, 0.30980393, 0.22745098, 1)
 theme_override_font_sizes/font_size = 32
 text = "おぷしょん"
 horizontal_alignment = 1
 
-[node name="DataTitle" type="Label" parent="OptionsPanel/OptionsMenu"]
+[node name="DataTitle" type="Label" parent="OptionsPanel/OptionsMenu" unique_id=1369266520]
 layout_mode = 2
 text = "データ"
 horizontal_alignment = 1
 
-[node name="FullResetButton" type="Button" parent="OptionsPanel/OptionsMenu"]
+[node name="FullResetButton" type="Button" parent="OptionsPanel/OptionsMenu" unique_id=2113795158]
 layout_mode = 2
 text = "セーブデータを完全初期化"
 
-[node name="ResetGuide" type="Label" parent="OptionsPanel/OptionsMenu"]
+[node name="ResetGuide" type="Label" parent="OptionsPanel/OptionsMenu" unique_id=1526144718]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5411765, 0.45490196, 0.3882353, 1)
 text = "育成データと図鑑の発見記録をすべて削除します"
 horizontal_alignment = 1
 
-[node name="BackButton" type="Button" parent="OptionsPanel/OptionsMenu"]
+[node name="BackButton" type="Button" parent="OptionsPanel/OptionsMenu" unique_id=1099272910]
 layout_mode = 2
 text = "戻る"
 
-[node name="NewGameConfirm" type="ConfirmationDialog" parent="."]
+[node name="NewGameConfirm" type="ConfirmationDialog" parent="." unique_id=1509959718]
 oversampling_override = 1.0
 title = "確認"
 size = Vector2i(222, 106)
 ok_button_text = "はじめから"
-dialog_text = "今の育成データが消えます。\n図鑑の発見記録は残ります。\nはじめから遊びますか？"
+dialog_text = "今の育成データが消えます。
+図鑑の発見記録は残ります。
+はじめから遊びますか？"
 cancel_button_text = "キャンセル"
 
-[node name="FullResetConfirm" type="ConfirmationDialog" parent="."]
+[node name="FullResetConfirm" type="ConfirmationDialog" parent="." unique_id=965002594]
 oversampling_override = 1.0
 title = "完全初期化の確認"
 size = Vector2i(360, 150)
 ok_button_text = "完全初期化する"
-dialog_text = "すべてのデータを初期化しますか？\n\n育成中のピヨコと図鑑の発見記録が\nすべて削除されます。\nこの操作は元に戻せません。"
+dialog_text = "すべてのデータを初期化しますか？
+
+育成中のピヨコと図鑑の発見記録が
+すべて削除されます。
+この操作は元に戻せません。"
 cancel_button_text = "キャンセル"
 
-[node name="FullResetComplete" type="AcceptDialog" parent="."]
+[node name="FullResetComplete" type="AcceptDialog" parent="." unique_id=136835947]
 oversampling_override = 1.0
 title = "初期化完了"
 size = Vector2i(300, 100)
-dialog_text = "すべてのセーブデータを初期化しました。"
 ok_button_text = "OK"
+dialog_text = "すべてのセーブデータを初期化しました。"
