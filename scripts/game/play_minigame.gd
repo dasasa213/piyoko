@@ -8,7 +8,7 @@ signal completed(success: bool)
 
 const TARGET_COUNT := 3
 const TIME_LIMIT := 5.0
-const RESULT_TIME := 1.2
+const RESULT_TIME := 1.5
 
 var _panel: Control
 var _target: TextureButton
@@ -127,24 +127,28 @@ func _create_panel(host: Control) -> void:
 	_result_effect.anchor_top = 0.5
 	_result_effect.anchor_right = 0.5
 	_result_effect.anchor_bottom = 0.5
-	_result_effect.offset_left = -220.0
-	_result_effect.offset_top = -220.0
-	_result_effect.offset_right = 220.0
-	_result_effect.offset_bottom = 220.0
-	_result_effect.pivot_offset = Vector2(220, 220)
+	# 演出は文字と重ならないよう中央より少し上へ配置する。
+	_result_effect.offset_left = -170.0
+	_result_effect.offset_top = -210.0
+	_result_effect.offset_right = 170.0
+	_result_effect.offset_bottom = 130.0
+	_result_effect.pivot_offset = Vector2(170, 170)
 	_panel.add_child(_result_effect)
 
 	_result_label = Label.new()
 	_result_label.visible = false
 	_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_result_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_result_label.add_theme_font_size_override("font_size", 52)
+	_result_label.add_theme_font_size_override("font_size", 40)
 	_result_label.add_theme_color_override("font_shadow_color", Color(1, 1, 1, 0.95))
+	_result_label.add_theme_color_override("font_outline_color", Color("fff8df"))
+	_result_label.add_theme_constant_override("outline_size", 7)
 	_result_label.anchor_top = 0.5
 	_result_label.anchor_right = 1.0
 	_result_label.anchor_bottom = 0.5
-	_result_label.offset_top = -55.0
-	_result_label.offset_bottom = 55.0
+	# 結果文字は演出の下へ分け、双方が読める構成にする。
+	_result_label.offset_top = 125.0
+	_result_label.offset_bottom = 225.0
 	_panel.add_child(_result_label)
 
 	_target = TextureButton.new()
@@ -266,7 +270,7 @@ func _show_result(success: bool) -> void:
 	if _result_effect.texture != null:
 		_result_effect.show()
 		_result_effect.modulate = Color(1, 1, 1, 0)
-		_result_effect.scale = Vector2(0.68, 0.68)
+		_result_effect.scale = Vector2(0.82, 0.82)
 		if is_instance_valid(_result_tween):
 			_result_tween.kill()
 		_result_tween = create_tween().set_parallel(true)
