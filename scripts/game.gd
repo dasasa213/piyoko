@@ -135,7 +135,7 @@ func _start_food_effect(food_key: String, display_name: String) -> void:
 
 	$FoodPanel.hide()
 	_set_action_buttons_disabled(true)
-	food_effect.play(food_key, display_name)
+	food_effect.play(food_key, display_name, get_viewport_rect().size)
 
 
 func _on_food_effect_finished(food_key: String) -> void:
@@ -152,7 +152,8 @@ func _on_pet_button_pressed() -> void:
 		return
 
 	_set_action_buttons_disabled(true)
-	pet_effect.play()
+	var sprite := $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	pet_effect.play(sprite, get_viewport_rect().size)
 
 
 func _on_pet_effect_finished() -> void:
