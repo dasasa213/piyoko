@@ -3,16 +3,22 @@ extends Control
 const COLLECTION_RETURN_SCENE_META := "collection_return_scene"
 const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
 const TITLE_SCENE := "res://scenes/main.tscn"
+const SETTINGS_PATH := "user://piyoko_settings.cfg"
 
 var collection_button: Button
 var memories_button: Button
 var dialog_dim: ColorRect
+var volume_slider: HSlider
+var volume_value_label: Label
+var fullscreen_toggle: CheckButton
 
 
 func _ready() -> void:
 	_setup_dialog_dim()
 	_setup_collection_button()
 	_setup_memories_button()
+	_setup_options_controls()
+	_load_settings()
 	_update_start_buttons()
 	$OptionsPanel.hide()
 
@@ -58,7 +64,18 @@ func _style_title_dialogs() -> void:
 
 
 func _style_options_panel() -> void:
-	$OptionsPanel/OptionsBackground.custom_minimum_size = Vector2(540, 390)
+	$OptionsPanel/OptionsBackground.custom_minimum_size = Vector2(620, 560)
+	var options_style := $OptionsPanel/OptionsBackground.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+	options_style.content_margin_left = 34.0
+	options_style.content_margin_top = 24.0
+	options_style.content_margin_right = 34.0
+	options_style.content_margin_bottom = 24.0
+	$OptionsPanel/OptionsBackground.add_theme_stylebox_override("panel", options_style)
+
+	$OptionsPanel/OptionsBackground/OptionsMenu.add_theme_constant_override("separation", 11)
+	$OptionsPanel/OptionsBackground/OptionsMenu/OptionsTitle.add_theme_font_size_override("font_size", 30)
+	$OptionsPanel/OptionsBackground/OptionsMenu/DataTitle.add_theme_font_size_override("font_size", 20)
+
 	var style_source: Button = $TitleCenter/TitleMenu/OptionsButton
 	var option_buttons: Array[Button] = [
 		$OptionsPanel/OptionsBackground/OptionsMenu/FullResetButton,
@@ -79,6 +96,120 @@ func _style_options_panel() -> void:
 			var source_style := style_source.get_theme_stylebox(style_name)
 			if source_style != null:
 				button.add_theme_stylebox_override(style_name, source_style.duplicate())
+
+
+func _setup_options_controls() -> void:
+	var options_menu := $OptionsPanel/OptionsBackground/OptionsMenu
+	var data_title := $OptionsPanel/OptionsBackground/OptionsMenu/DataTitle
+
+	var sound_title := _make_option_heading("サウンド")
+	options_menu.add_child(sound_title)
+	options_menu.move_child(sound_title, data_title.get_index())
+
+	var volume_row := HBoxContainer.new()
+	volume_row.custom_minimum_size.y = 52.0
+	volume_row.add_theme_constant_override("separation", 18)
+	options_menu.add_child(volume_row)
+	options_menu.move_child(volume_row, data_title.get_index())
+
+	var volume_name := Label.new()
+	volume_name.text = "全体音量"
+	volume_name.custom_minimum_size.x = 130.0
+	volume_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	volume_name.add_theme_font_size_override("font_size", 18)
+	volume_name.add_theme_color_override("font_color", Color("492d16"))
+	volume_row.add_child(volume_name)
+
+	volume_slider = HSlider.new()
+	volume_slider.min_value = 0.0
+	volume_slider.max_value = 100.0
+	volume_slider.step = 5.0
+	volume_slider.value = 80.0
+	volume_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	volume_slider.custom_minimum_size = Vector2(300, 42)
+	volume_slider.value_changed.connect(_on_volume_changed)
+	volume_row.add_child(volume_slider)
+
+	volume_value_label = Label.new()
+	volume_value_label.text = "80%"
+	volume_value_label.custom_minimum_size.x = 62.0
+	volume_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	volume_value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	volume_value_label.add_theme_font_size_override("font_size", 18)
+	volume_value_label.add_theme_color_override("font_color", Color("492d16"))
+	volume_row.add_child(volume_value_label)
+
+	var display_title := _make_option_heading("画面")
+	options_menu.add_child(display_title)
+	options_menu.move_child(display_title, data_title.get_index())
+
+	fullscreen_toggle = CheckButton.new()
+	fullscreen_toggle.text = "フルスクリーンで表示"
+	fullscreen_toggle.custom_minimum_size.y = 48.0
+	fullscreen_toggle.add_theme_font_size_override("font_size", 18)
+	fullscreen_toggle.add_theme_color_override("font_color", Color("492d16"))
+	fullscreen_toggle.toggled.connect(_on_fullscreen_toggled)
+	options_menu.add_child(fullscreen_toggle)
+	options_menu.move_child(fullscreen_toggle, data_title.get_index())
+
+
+func _make_option_heading(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 20)
+	label.add_theme_color_override("font_color", Color("6b4f3a"))
+	return label
+
+
+func _load_settings() -> void:
+	var config := ConfigFile.new()
+	var load_result := config.load(SETTINGS_PATH)
+	var volume := 80.0
+	var fullscreen := false
+
+	if load_result == OK:
+		volume = float(config.get_value("audio", "master_volume", 80.0))
+		fullscreen = bool(config.get_value("display", "fullscreen", false))
+
+	volume_slider.set_value_no_signal(clamp(volume, 0.0, 100.0))
+	fullscreen_toggle.set_pressed_no_signal(fullscreen)
+	_apply_master_volume(volume_slider.value)
+	_apply_fullscreen(fullscreen)
+
+
+func _save_settings() -> void:
+	var config := ConfigFile.new()
+	config.set_value("audio", "master_volume", volume_slider.value)
+	config.set_value("display", "fullscreen", fullscreen_toggle.button_pressed)
+	var error := config.save(SETTINGS_PATH)
+	if error != OK:
+		push_error("設定の保存に失敗しました")
+
+
+func _on_volume_changed(value: float) -> void:
+	_apply_master_volume(value)
+	_save_settings()
+
+
+func _apply_master_volume(value: float) -> void:
+	volume_value_label.text = "%d%%" % int(round(value))
+	AudioServer.set_bus_mute(0, value <= 0.0)
+	if value > 0.0:
+		AudioServer.set_bus_volume_db(0, linear_to_db(value / 100.0))
+
+
+func _on_fullscreen_toggled(enabled: bool) -> void:
+	_apply_fullscreen(enabled)
+	_save_settings()
+
+
+func _apply_fullscreen(enabled: bool) -> void:
+	get_window().mode = (
+		Window.MODE_EXCLUSIVE_FULLSCREEN
+		if enabled
+		else Window.MODE_WINDOWED
+	)
 
 
 func _apply_dialog_style(dialog: AcceptDialog, style_source: Button, minimum_size: Vector2i) -> void:
