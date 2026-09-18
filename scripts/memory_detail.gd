@@ -3,7 +3,7 @@ extends Control
 const SELECTED_MEMORY_META := "selected_memory_number"
 
 var record: Dictionary
-var favorite_button: CheckButton
+var favorite_button: Button
 
 
 func _ready() -> void:
@@ -25,13 +25,13 @@ func _build_screen() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", 40)
-	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_top", 12)
 	margin.add_theme_constant_override("margin_right", 40)
-	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.add_theme_constant_override("margin_bottom", 12)
 	add_child(margin)
 
 	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 10)
+	layout.add_theme_constant_override("separation", 7)
 	margin.add_child(layout)
 
 	var header := HBoxContainer.new()
@@ -52,13 +52,12 @@ func _build_screen() -> void:
 	title.add_theme_constant_override("shadow_offset_y", 3)
 	header.add_child(title)
 
-	favorite_button = CheckButton.new()
-	favorite_button.text = "★ お気に入り"
-	favorite_button.custom_minimum_size.x = 180
+	favorite_button = Button.new()
+	favorite_button.toggle_mode = true
+	favorite_button.custom_minimum_size = Vector2(220, 44)
 	favorite_button.button_pressed = bool(record.get("favorite", false))
-	favorite_button.add_theme_font_size_override("font_size", 17)
-	favorite_button.add_theme_color_override("font_color", Color("fff1b8"))
-	favorite_button.add_theme_color_override("font_pressed_color", Color("ffd34f"))
+	_style_favorite_button(favorite_button)
+	_refresh_favorite_button()
 	favorite_button.toggled.connect(_on_favorite_toggled)
 	header.add_child(favorite_button)
 
@@ -69,13 +68,13 @@ func _build_screen() -> void:
 
 	var panel_margin := MarginContainer.new()
 	panel_margin.add_theme_constant_override("margin_left", 24)
-	panel_margin.add_theme_constant_override("margin_top", 18)
+	panel_margin.add_theme_constant_override("margin_top", 12)
 	panel_margin.add_theme_constant_override("margin_right", 24)
-	panel_margin.add_theme_constant_override("margin_bottom", 18)
+	panel_margin.add_theme_constant_override("margin_bottom", 12)
 	detail_panel.add_child(panel_margin)
 
 	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 12)
+	content.add_theme_constant_override("separation", 8)
 	panel_margin.add_child(content)
 
 	var columns := HBoxContainer.new()
@@ -90,7 +89,7 @@ func _build_screen() -> void:
 	_build_lineage(columns)
 
 	var feature_panel := PanelContainer.new()
-	feature_panel.custom_minimum_size.y = 92
+	feature_panel.custom_minimum_size.y = 76
 	feature_panel.add_theme_stylebox_override("panel", _make_feature_style())
 	content.add_child(feature_panel)
 
@@ -129,7 +128,7 @@ func _build_profile(parent: HBoxContainer) -> void:
 	column.add_child(_make_section_title("育てたピヨコ"))
 
 	var portrait := TextureRect.new()
-	portrait.custom_minimum_size = Vector2(230, 210)
+	portrait.custom_minimum_size = Vector2(210, 166)
 	portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(adult_type, PiyokoTextureManager.CHIBI_TEXTURE)
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -178,7 +177,7 @@ func _build_lineage(parent: HBoxContainer) -> void:
 	var column := VBoxContainer.new()
 	column.custom_minimum_size = Vector2(250, 0)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_theme_constant_override("separation", 2)
+	column.add_theme_constant_override("separation", 0)
 	parent.add_child(column)
 	column.add_child(_make_section_title("進化のながれ"))
 
@@ -189,7 +188,7 @@ func _build_lineage(parent: HBoxContainer) -> void:
 		var form_id: String = str(lineage[index])
 		var form: Dictionary = PiyokoCollectionCatalog.get_form(form_id)
 		var texture := TextureRect.new()
-		texture.custom_minimum_size = Vector2(120, 78)
+		texture.custom_minimum_size = Vector2(110, 58)
 		texture.texture = form.get("texture", PiyokoTextureManager.CHIBI_TEXTURE) as Texture2D
 		texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -206,7 +205,7 @@ func _build_lineage(parent: HBoxContainer) -> void:
 			var arrow := Label.new()
 			arrow.text = "▼"
 			arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			arrow.add_theme_font_size_override("font_size", 18)
+			arrow.add_theme_font_size_override("font_size", 15)
 			arrow.add_theme_color_override("font_color", Color("76502c"))
 			column.add_child(arrow)
 
@@ -266,8 +265,15 @@ func _add_vertical_divider(parent: HBoxContainer) -> void:
 func _on_favorite_toggled(enabled: bool) -> void:
 	if PiyokoMemoryManager.set_favorite(int(record.get("育成No", 0)), enabled):
 		record["favorite"] = enabled
+		_refresh_favorite_button()
 	else:
 		favorite_button.set_pressed_no_signal(not enabled)
+
+
+func _refresh_favorite_button() -> void:
+	var enabled: bool = favorite_button.button_pressed
+	favorite_button.text = "★ お気に入り登録済み" if enabled else "☆ お気に入りに登録"
+	favorite_button.tooltip_text = "クリックしてお気に入りを解除" if enabled else "クリックしてお気に入りに登録"
 
 
 func _on_back_pressed() -> void:
@@ -317,6 +323,30 @@ func _style_button(button: Button) -> void:
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = Color("ffe38a")
 	hover.border_color = Color("6b9140")
+	hover.set_border_width_all(3)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+
+
+func _style_favorite_button(button: Button) -> void:
+	button.add_theme_font_size_override("font_size", 17)
+	button.add_theme_color_override("font_color", Color("492d16"))
+	button.add_theme_color_override("font_hover_color", Color("384514"))
+	button.add_theme_color_override("font_pressed_color", Color("8b6500"))
+
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(1.0, 0.97, 0.84, 0.96)
+	normal.border_color = Color("c6a15b")
+	normal.set_border_width_all(2)
+	normal.set_corner_radius_all(16)
+	normal.shadow_color = Color(0.18, 0.12, 0.05, 0.25)
+	normal.shadow_size = 4
+	normal.shadow_offset = Vector2(0, 2)
+	button.add_theme_stylebox_override("normal", normal)
+
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color("fff0aa")
+	hover.border_color = Color("d89d00")
 	hover.set_border_width_all(3)
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("pressed", hover)
