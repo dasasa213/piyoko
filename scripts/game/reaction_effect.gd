@@ -21,6 +21,7 @@ var _growth: TextureRect
 var _growth_tween: Tween
 var _emotion_icon: TextureRect
 var _emotion_tween: Tween
+var _anchor_center := Vector2.ZERO
 
 
 func setup(host: Control) -> void:
@@ -47,7 +48,7 @@ func setup(host: Control) -> void:
 
 func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 	var has_piyoko := growth_stage >= 0
-	_rain_center = piyoko_center
+	update_anchor(piyoko_center)
 	_rain_active = has_piyoko and mood <= LOW_MOOD_THRESHOLD
 
 	for drop in _rain_drops:
@@ -57,6 +58,14 @@ func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 	if is_instance_valid(_mood_heart):
 		_position_on_piyoko(_mood_heart, piyoko_center, Vector2(-60, -78))
 		_mood_heart.visible = _mood_happy_active and not _emotion_icon.visible
+
+
+func update_anchor(piyoko_center: Vector2) -> void:
+	_anchor_center = piyoko_center
+	_rain_center = piyoko_center
+
+	if is_instance_valid(_mood_heart):
+		_position_on_piyoko(_mood_heart, piyoko_center, Vector2(-60, -78))
 
 
 func _process(delta: float) -> void:
