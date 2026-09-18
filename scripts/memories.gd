@@ -159,7 +159,7 @@ func _reload_records() -> void:
 	records = PiyokoMemoryManager.load_memories()
 	_sort_records()
 	var page_count: int = _page_count()
-	current_page = clamp(current_page, 0, max(0, page_count - 1))
+	current_page = clampi(current_page, 0, maxi(0, page_count - 1))
 	_refresh_cards()
 
 
