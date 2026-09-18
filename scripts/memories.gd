@@ -7,8 +7,8 @@ const PAGE_SIZE := 12
 const GRID_COLUMNS := 6
 
 var records: Array[Dictionary] = []
-var current_page := 0
-var sort_mode := 0
+var current_page: int = 0
+var sort_mode: int = 0
 
 var count_label: Label
 var sort_option: OptionButton
@@ -158,7 +158,7 @@ func _build_screen() -> void:
 func _reload_records() -> void:
 	records = PiyokoMemoryManager.load_memories()
 	_sort_records()
-	var page_count := _page_count()
+	var page_count: int = _page_count()
 	current_page = clamp(current_page, 0, max(0, page_count - 1))
 	_refresh_cards()
 
@@ -175,8 +175,8 @@ func _sort_records() -> void:
 			)
 		2:
 			records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-				var a_name := _adult_name(str(a.get("adult_type", "")))
-				var b_name := _adult_name(str(b.get("adult_type", "")))
+				var a_name: String = _adult_name(str(a.get("adult_type", "")))
+				var b_name: String = _adult_name(str(b.get("adult_type", "")))
 				if a_name == b_name:
 					return int(a.get("育成No", 0)) < int(b.get("育成No", 0))
 				return a_name < b_name
@@ -191,20 +191,20 @@ func _refresh_cards() -> void:
 	empty_panel.visible = records.is_empty()
 	cards_grid.visible = not records.is_empty()
 
-	var page_count := _page_count()
-	page_label.text = "%d / %d" % [current_page + 1, max(1, page_count)]
+	var page_count: int = _page_count()
+	page_label.text = "%d / %d" % [current_page + 1, maxi(1, page_count)]
 	previous_button.disabled = current_page <= 0
 	next_button.disabled = current_page + 1 >= page_count
 
-	var start_index := current_page * PAGE_SIZE
-	var end_index := min(start_index + PAGE_SIZE, records.size())
+	var start_index: int = current_page * PAGE_SIZE
+	var end_index: int = mini(start_index + PAGE_SIZE, records.size())
 	for index in range(start_index, end_index):
 		cards_grid.add_child(_create_memory_card(records[index]))
 
 
 func _create_memory_card(record: Dictionary) -> Button:
-	var memory_number := int(record.get("育成No", 0))
-	var adult_type := str(record.get("adult_type", ""))
+	var memory_number: int = int(record.get("育成No", 0))
+	var adult_type: String = str(record.get("adult_type", ""))
 
 	var card := Button.new()
 	card.custom_minimum_size = Vector2(158, 202)
@@ -285,12 +285,12 @@ func _create_memory_card(record: Dictionary) -> Button:
 
 
 func _adult_name(adult_type: String) -> String:
-	var form := PiyokoCollectionCatalog.get_form("adult_" + adult_type)
+	var form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + adult_type)
 	return str(form.get("name", "大人ぴよこ"))
 
 
 func _child_short_name(child_type: String) -> String:
-	var form := PiyokoCollectionCatalog.get_form("child_" + child_type)
+	var form: Dictionary = PiyokoCollectionCatalog.get_form("child_" + child_type)
 	return str(form.get("name", "子ぴよこ")).trim_suffix("ぴよこ")
 
 
@@ -337,7 +337,7 @@ func _on_next_page() -> void:
 
 
 func _on_back_pressed() -> void:
-	var return_scene := TITLE_SCENE
+	var return_scene: String = TITLE_SCENE
 	if get_tree().has_meta(MEMORIES_RETURN_SCENE_META):
 		return_scene = str(get_tree().get_meta(MEMORIES_RETURN_SCENE_META))
 		get_tree().remove_meta(MEMORIES_RETURN_SCENE_META)
