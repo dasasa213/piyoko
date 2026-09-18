@@ -23,6 +23,7 @@ var dialog_dim: ColorRect
 var room_background: TextureRect
 var birth_message_panel: PanelContainer
 var memories_button: Button
+var food_close_button: Button
 
 var food_effect: Node
 var pet_effect: Node
@@ -178,6 +179,7 @@ func _connect_scene_signals() -> void:
 func _setup_components() -> void:
 	_create_finish_care_ui()
 	_setup_status_bars()
+	_setup_food_menu_ui()
 
 	food_effect = FoodEffectScript.new()
 	add_child(food_effect)
@@ -197,6 +199,24 @@ func _setup_components() -> void:
 	reaction_effect = ReactionEffectScript.new()
 	add_child(reaction_effect)
 	reaction_effect.setup(self)
+
+
+func _setup_food_menu_ui() -> void:
+	# 動的リアクションより各メニューを前面へ固定する。
+	$FoodPanel.z_index = 40
+	$GameMenuPanel.z_index = 40
+	$MenuButton.z_index = 41
+
+	$FoodPanel.custom_minimum_size.y = 320.0
+	$FoodPanel.offset_top = -160.0
+	$FoodPanel.offset_bottom = 160.0
+
+	food_close_button = Button.new()
+	food_close_button.name = "CloseFoodButton"
+	food_close_button.text = "とじる"
+	food_close_button.custom_minimum_size.y = 46.0
+	food_close_button.pressed.connect(_on_food_close_button_pressed)
+	$FoodPanel/FoodMenu.add_child(food_close_button)
 
 
 func _setup_status_bars() -> void:
@@ -257,6 +277,7 @@ func _apply_nature_ui_styles() -> void:
 		$FoodPanel/FoodMenu/ShortcakeButton,
 		$FoodPanel/FoodMenu/OnigiriButton,
 		$FoodPanel/FoodMenu/BroccoliButton,
+		food_close_button,
 		$PlayPanel/PlayMenu/SuccessButton,
 		$PlayPanel/PlayMenu/FailureButton,
 		$PlayPanel/PlayMenu/CancelButton,
@@ -319,7 +340,11 @@ func _position_piyoko_on_rug() -> void:
 # ------------------------------------------------------------
 
 func _on_food_button_pressed() -> void:
-	$FoodPanel.show()
+	$FoodPanel.visible = not $FoodPanel.visible
+
+
+func _on_food_close_button_pressed() -> void:
+	$FoodPanel.hide()
 
 
 func _on_shortcake_button_pressed() -> void:
