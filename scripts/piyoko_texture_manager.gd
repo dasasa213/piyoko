@@ -19,6 +19,18 @@ const CHIBI_TEXTURE := preload(
 	"res://assets/characters/piyoko/forms/01_chibi_piyoko.png"
 )
 
+const CHIBI_REACTION_TEXTURES := {
+	"happy": preload(
+		"res://assets/characters/piyoko/reactions/chibi_happy.png"
+	),
+	"sad": preload(
+		"res://assets/characters/piyoko/reactions/chibi_sad.png"
+	),
+	"eat": preload(
+		"res://assets/characters/piyoko/reactions/chibi_eat.png"
+	),
+}
+
 
 # ========================================
 # 子ぴよこ
@@ -91,6 +103,13 @@ const EXTRA_TEXTURES := {
 		"res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"
 	)
 }
+
+
+static func get_reaction_texture(reaction_name: String, growth_stage: int) -> Texture2D:
+	# 現段階では、動作確認済みのちびピヨコだけ表情を切り替える。
+	if growth_stage != 0:
+		return null
+	return CHIBI_REACTION_TEXTURES.get(reaction_name)
 
 
 static func get_texture(
