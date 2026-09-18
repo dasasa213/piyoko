@@ -32,6 +32,30 @@ const CHIBI_REACTION_TEXTURES := {
 }
 
 
+const CHILD_REACTION_TEXTURES := {
+	"food": {
+		"happy": preload("res://assets/characters/piyoko/reactions/child_food_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/child_food_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/child_food_eat.png"),
+	},
+	"play": {
+		"happy": preload("res://assets/characters/piyoko/reactions/child_play_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/child_play_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/child_play_eat.png"),
+	},
+	"pet": {
+		"happy": preload("res://assets/characters/piyoko/reactions/child_pet_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/child_pet_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/child_pet_eat.png"),
+	},
+	"balance": {
+		"happy": preload("res://assets/characters/piyoko/reactions/child_balance_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/child_balance_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/child_balance_eat.png"),
+	},
+}
+
+
 # ========================================
 # 子ぴよこ
 # ========================================
@@ -105,11 +129,18 @@ const EXTRA_TEXTURES := {
 }
 
 
-static func get_reaction_texture(reaction_name: String, growth_stage: int) -> Texture2D:
-	# 現段階では、動作確認済みのちびピヨコだけ表情を切り替える。
-	if growth_stage != 0:
-		return null
-	return CHIBI_REACTION_TEXTURES.get(reaction_name)
+static func get_reaction_texture(
+	reaction_name: String,
+	growth_stage: int,
+	child_type: String = ""
+) -> Texture2D:
+	match growth_stage:
+		0:
+			return CHIBI_REACTION_TEXTURES.get(reaction_name)
+		1:
+			var child_reactions: Dictionary = CHILD_REACTION_TEXTURES.get(child_type, {})
+			return child_reactions.get(reaction_name)
+	return null
 
 
 static func get_texture(
