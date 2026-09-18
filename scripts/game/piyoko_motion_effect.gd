@@ -1,6 +1,8 @@
 class_name PiyokoMotionEffect
 extends Node
 
+signal finished
+
 ## ピヨコ本体の一時的なリアクションを担当する。
 ## 通常の idle / happy アニメーションとは別に位置だけを動かすことで、
 ## 既存の AnimationPlayer と競合せず「浮く・震える」を追加する。
@@ -88,3 +90,4 @@ func _finish_motion() -> void:
 	if is_instance_valid(_sprite):
 		_sprite.position = _base_position
 	_motion_tween = null
+	finished.emit()
