@@ -9,9 +9,12 @@ const GRID_COLUMNS := 6
 var records: Array[Dictionary] = []
 var current_page: int = 0
 var sort_mode: int = 0
+var filter_mode: int = 0
+var all_records: Array[Dictionary] = []
 
 var count_label: Label
 var sort_option: OptionButton
+var filter_option: OptionButton
 var cards_grid: GridContainer
 var empty_panel: PanelContainer
 var page_label: Label
@@ -82,10 +85,27 @@ func _build_screen() -> void:
 	sort_option.add_item("新しい順", 0)
 	sort_option.add_item("古い順", 1)
 	sort_option.add_item("ピヨコの種類", 2)
+	sort_option.add_item("お気に入り優先", 3)
 	sort_option.add_theme_font_size_override("font_size", 16)
 	_style_select(sort_option)
 	sort_option.item_selected.connect(_on_sort_selected)
 	toolbar.add_child(sort_option)
+
+	var filter_label := Label.new()
+	filter_label.text = "表示"
+	filter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	filter_label.add_theme_font_size_override("font_size", 17)
+	filter_label.add_theme_color_override("font_color", Color("492d16"))
+	toolbar.add_child(filter_label)
+
+	filter_option = OptionButton.new()
+	filter_option.custom_minimum_size = Vector2(170, 44)
+	filter_option.add_item("すべて", 0)
+	filter_option.add_item("お気に入りのみ", 1)
+	filter_option.add_theme_font_size_override("font_size", 16)
+	_style_select(filter_option)
+	filter_option.item_selected.connect(_on_filter_selected)
+	toolbar.add_child(filter_option)
 
 	var album_panel := PanelContainer.new()
 	album_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -163,11 +183,19 @@ func _build_screen() -> void:
 
 
 func _reload_records() -> void:
-	records = PiyokoMemoryManager.load_memories()
+	all_records = PiyokoMemoryManager.load_memories()
+	_apply_filter()
 	_sort_records()
 	var page_count: int = _page_count()
 	current_page = clampi(current_page, 0, maxi(0, page_count - 1))
 	_refresh_cards()
+
+
+func _apply_filter() -> void:
+	records.clear()
+	for record in all_records:
+		if filter_mode == 0 or bool(record.get("favorite", false)):
+			records.append(record)
 
 
 func _sort_records() -> void:
@@ -188,13 +216,21 @@ func _sort_records() -> void:
 					return int(a.get("育成No", 0)) < int(b.get("育成No", 0))
 				return a_name < b_name
 			)
+		3:
+			records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+				var a_favorite: bool = bool(a.get("favorite", false))
+				var b_favorite: bool = bool(b.get("favorite", false))
+				if a_favorite != b_favorite:
+					return a_favorite and not b_favorite
+				return str(a.get("completed_at", "")) > str(b.get("completed_at", ""))
+			)
 
 
 func _refresh_cards() -> void:
 	for child in cards_grid.get_children():
 		child.queue_free()
 
-	count_label.text = "育てたピヨコの数：%d羽" % records.size()
+	count_label.text = "育てたピヨコの数：%d羽" % all_records.size()
 	empty_panel.visible = records.is_empty()
 	cards_grid.visible = not records.is_empty()
 
@@ -318,6 +354,14 @@ func _on_sort_selected(index: int) -> void:
 	_refresh_cards()
 
 
+func _on_filter_selected(index: int) -> void:
+	filter_mode = index
+	current_page = 0
+	_apply_filter()
+	_sort_records()
+	_refresh_cards()
+
+
 func _on_card_pressed(memory_number: int) -> void:
 	get_tree().set_meta(SELECTED_MEMORY_META, memory_number)
 	get_tree().change_scene_to_file("res://scenes/memory_detail.tscn")
@@ -327,10 +371,15 @@ func _on_favorite_toggled(enabled: bool, memory_number: int, button: Button) -> 
 	if PiyokoMemoryManager.set_favorite(memory_number, enabled):
 		button.text = "★" if enabled else "☆"
 		button.tooltip_text = "お気に入りを解除" if enabled else "お気に入りに登録"
-		for record in records:
+		for record in all_records:
 			if int(record.get("育成No", 0)) == memory_number:
 				record["favorite"] = enabled
 				break
+		if sort_mode == 3 or filter_mode == 1:
+			_apply_filter()
+			_sort_records()
+			current_page = clampi(current_page, 0, maxi(0, _page_count() - 1))
+			_refresh_cards()
 	else:
 		button.set_pressed_no_signal(not enabled)
 
