@@ -4,6 +4,8 @@ extends Node
 ## シーン変更時のBGM切替と、通常Buttonの操作音もここで扱う。
 
 const SETTINGS_PATH := "user://piyoko_settings.cfg"
+const BGM_VOLUME_DB := -20.0
+const SE_VOLUME_DB := -20.0
 
 const TITLE_BGM := preload("res://audio/bgm/title_bgm.mp3")
 const CARE_BGM := preload("res://audio/bgm/care_bgm.mp3")
@@ -42,12 +44,14 @@ func _ready() -> void:
 func _create_players() -> void:
 	_bgm_player = AudioStreamPlayer.new()
 	_bgm_player.name = "BGMPlayer"
+	_bgm_player.volume_db = BGM_VOLUME_DB
 	add_child(_bgm_player)
 
 	# 同時に鳴る操作音を途切れさせないよう、小さな再生プールを用意する。
 	for index in 6:
 		var player := AudioStreamPlayer.new()
 		player.name = "SEPlayer%d" % (index + 1)
+		player.volume_db = SE_VOLUME_DB
 		add_child(player)
 		_se_players.append(player)
 
@@ -76,9 +80,17 @@ func _refresh_bgm() -> void:
 
 	var scene_path := scene.scene_file_path
 	if scene_path == "res://scenes/game.tscn":
-		_play_bgm("care", CARE_BGM)
+		play_care_bgm()
 	else:
-		_play_bgm("title", TITLE_BGM)
+		play_title_bgm()
+
+
+func play_title_bgm() -> void:
+	_play_bgm("title", TITLE_BGM)
+
+
+func play_care_bgm() -> void:
+	_play_bgm("care", CARE_BGM)
 
 
 func _play_bgm(key: String, stream: AudioStreamMP3) -> void:
@@ -87,6 +99,7 @@ func _play_bgm(key: String, stream: AudioStreamMP3) -> void:
 
 	stream.loop = true
 	_current_bgm = key
+	_bgm_player.stop()
 	_bgm_player.stream = stream
 	_bgm_player.play()
 
