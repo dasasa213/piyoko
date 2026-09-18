@@ -19,6 +19,10 @@ var is_hatching := false
 
 var finish_care_button: Button
 var finish_care_confirm: ConfirmationDialog
+var finish_result_overlay: Control
+var finish_result_portrait: TextureRect
+var finish_result_name_label: Label
+var finish_result_number_label: Label
 var dialog_dim: ColorRect
 var room_background: TextureRect
 var birth_message_panel: PanelContainer
@@ -636,13 +640,14 @@ func _create_finish_care_ui() -> void:
 
 	finish_care_confirm = ConfirmationDialog.new()
 	finish_care_confirm.title = "育成をおえる"
-	finish_care_confirm.dialog_text = "このピヨコの育成をおえますか？\n\n図鑑とおもいでの記録は残り、\n新しいたまごから育成を始められます。"
-	finish_care_confirm.ok_button_text = "育成をおえる"
-	finish_care_confirm.cancel_button_text = "一緒にいる"
+	finish_care_confirm.dialog_text = "このピヨコとの育成をおえ、\n次のたまごへ進みますか？\n\n育成結果は「おもいで」に保存されます。"
+	finish_care_confirm.ok_button_text = "おもいでを残して進む"
+	finish_care_confirm.cancel_button_text = "まだ一緒にいる"
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	finish_care_confirm.visibility_changed.connect(_refresh_dialog_dim)
 	add_child(finish_care_confirm)
-	_apply_dialog_style(finish_care_confirm, Vector2i(640, 310))
+	_apply_dialog_style(finish_care_confirm, Vector2i(680, 330))
+	_create_finish_result_ui()
 
 
 func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
@@ -706,17 +711,189 @@ func _on_finish_care_button_pressed() -> void:
 
 func _on_finish_care_confirmed() -> void:
 	finish_care_button.disabled = true
+	_set_action_buttons_disabled(true)
+
 	# 育成データを削除する前に、現在のカウンターを1羽分のおもいでとして保存する。
 	# Manager側でも育成IDを確認し、同じ個体の重複登録を防止する。
 	if not PiyokoMemoryManager.add_completed_piyoko(piyoko):
 		finish_care_button.disabled = false
+		_set_action_buttons_disabled(false)
 		push_error("おもいでの保存に失敗しました")
 		return
+
+	var memory_number: int = _find_completed_memory_number()
 	if not PiyokoSaveManager.delete_save():
 		finish_care_button.disabled = false
+		_set_action_buttons_disabled(false)
 		push_error("育成完了後のセーブデータ削除に失敗しました")
 		return
+
+	_show_finish_result(memory_number)
+
+
+# 育成結果の保存成功後だけ表示する完了画面。
+# 即座に次のたまごへ切り替えず、プレイヤー自身が次の行き先を選ぶ。
+func _create_finish_result_ui() -> void:
+	finish_result_overlay = Control.new()
+	finish_result_overlay.name = "FinishResultOverlay"
+	finish_result_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	finish_result_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	finish_result_overlay.z_index = 100
+	finish_result_overlay.hide()
+	add_child(finish_result_overlay)
+
+	var dim := ColorRect.new()
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.08, 0.12, 0.06, 0.58)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	finish_result_overlay.add_child(dim)
+
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	finish_result_overlay.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(680, 540)
+	panel.add_theme_stylebox_override("panel", _make_finish_result_panel_style())
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 38)
+	margin.add_theme_constant_override("margin_top", 26)
+	margin.add_theme_constant_override("margin_right", 38)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	panel.add_child(margin)
+
+	var content := VBoxContainer.new()
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.add_theme_constant_override("separation", 10)
+	margin.add_child(content)
+
+	var title := Label.new()
+	title.text = "育成おつかれさまでした"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_color_override("font_color", Color("492d16"))
+	content.add_child(title)
+
+	var message := Label.new()
+	message.text = "この子との毎日を「おもいで」に保存しました。"
+	message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message.add_theme_font_size_override("font_size", 18)
+	message.add_theme_color_override("font_color", Color("58743b"))
+	content.add_child(message)
+
+	finish_result_portrait = TextureRect.new()
+	finish_result_portrait.custom_minimum_size = Vector2(260, 210)
+	finish_result_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	finish_result_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	content.add_child(finish_result_portrait)
+
+	finish_result_name_label = Label.new()
+	finish_result_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	finish_result_name_label.add_theme_font_size_override("font_size", 27)
+	finish_result_name_label.add_theme_color_override("font_color", Color("492d16"))
+	content.add_child(finish_result_name_label)
+
+	finish_result_number_label = Label.new()
+	finish_result_number_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	finish_result_number_label.add_theme_font_size_override("font_size", 17)
+	finish_result_number_label.add_theme_color_override("font_color", Color("76502c"))
+	content.add_child(finish_result_number_label)
+
+	var guide := Label.new()
+	guide.text = "また会いたくなったら、いつでも「おもいで」から見られます。"
+	guide.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	guide.add_theme_font_size_override("font_size", 16)
+	guide.add_theme_color_override("font_color", Color("58743b"))
+	content.add_child(guide)
+
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 18)
+	content.add_child(buttons)
+
+	var memories_result_button := Button.new()
+	memories_result_button.text = "おもいでを見る"
+	_style_finish_result_button(memories_result_button)
+	memories_result_button.pressed.connect(_on_finish_result_memories_pressed)
+	buttons.add_child(memories_result_button)
+
+	var next_egg_button := Button.new()
+	next_egg_button.text = "次のたまごを育てる"
+	_style_finish_result_button(next_egg_button)
+	next_egg_button.pressed.connect(_on_finish_result_next_egg_pressed)
+	buttons.add_child(next_egg_button)
+
+
+func _show_finish_result(memory_number: int) -> void:
+	var adult_type: String = piyoko.adult_type
+	var adult_form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + adult_type)
+	finish_result_portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(
+		adult_type,
+		PiyokoTextureManager.CHIBI_TEXTURE
+	) as Texture2D
+	finish_result_name_label.text = str(adult_form.get("name", "大人ぴよこ"))
+	finish_result_number_label.text = "おもいで　No.%03d" % memory_number if memory_number > 0 else "おもいでに保存しました"
+
+	$GameMenuPanel.hide()
+	$FoodPanel.hide()
+	finish_result_overlay.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	finish_result_overlay.show()
+
+	finish_result_portrait.pivot_offset = finish_result_portrait.size * 0.5
+	finish_result_portrait.scale = Vector2(0.90, 0.90)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(finish_result_overlay, "modulate:a", 1.0, 0.28).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(finish_result_portrait, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _find_completed_memory_number() -> int:
+	for record in PiyokoMemoryManager.load_memories():
+		if str(record.get("source_session_id", "")) == piyoko.session_id:
+			return int(record.get("育成No", 0))
+	return 0
+
+
+func _on_finish_result_memories_pressed() -> void:
+	get_tree().set_meta(MEMORIES_RETURN_SCENE_META, "res://scenes/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/memories.tscn")
+
+
+func _on_finish_result_next_egg_pressed() -> void:
 	get_tree().reload_current_scene()
+
+
+func _make_finish_result_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.97, 0.84, 0.98)
+	style.border_color = Color("6b9140")
+	style.set_border_width_all(4)
+	style.set_corner_radius_all(26)
+	style.shadow_color = Color(0.12, 0.20, 0.08, 0.42)
+	style.shadow_size = 12
+	style.content_margin_left = 8
+	style.content_margin_top = 8
+	style.content_margin_right = 8
+	style.content_margin_bottom = 8
+	return style
+
+
+func _style_finish_result_button(button: Button) -> void:
+	button.custom_minimum_size = Vector2(270, 58)
+	button.add_theme_font_size_override("font_size", 18)
+	button.add_theme_color_override("font_color", Color("492d16"))
+	button.add_theme_color_override("font_hover_color", Color("384514"))
+	button.add_theme_color_override("font_pressed_color", Color("492d16"))
+
+	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
+	for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
+		button.add_theme_stylebox_override(
+			style_name,
+			style_source.get_theme_stylebox(style_name).duplicate()
+		)
 
 
 # ------------------------------------------------------------
