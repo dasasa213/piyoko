@@ -8,11 +8,29 @@ extends Node
 var _sprite: Control
 var _base_position := Vector2.ZERO
 var _motion_tween: Tween
+var _motion_active := false
+var _idle_elapsed := 0.0
 
 
 func setup(sprite: Control) -> void:
 	_sprite = sprite
 	_base_position = sprite.position
+	set_process(true)
+
+
+func sync_base_position() -> void:
+	if not is_instance_valid(_sprite):
+		return
+	_base_position = _sprite.position
+
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(_sprite) or _motion_active:
+		return
+
+	_idle_elapsed += delta
+	# 既存のidleアニメーション（伸縮）に、ゆるい上下移動だけを重ねる。
+	_sprite.position = _base_position + Vector2(0.0, sin(_idle_elapsed * 2.4) * 5.0)
 
 
 func play_happy() -> void:
@@ -20,6 +38,7 @@ func play_happy() -> void:
 		return
 
 	_reset_running_motion()
+	_motion_active = true
 	_sprite.position = _base_position
 
 	_motion_tween = create_tween()
@@ -39,6 +58,7 @@ func play_sad() -> void:
 		return
 
 	_reset_running_motion()
+	_motion_active = true
 	_sprite.position = _base_position
 
 	_motion_tween = create_tween()
@@ -53,6 +73,7 @@ func play_sad() -> void:
 
 func reset() -> void:
 	_reset_running_motion()
+	_motion_active = false
 	if is_instance_valid(_sprite):
 		_sprite.position = _base_position
 
@@ -63,6 +84,7 @@ func _reset_running_motion() -> void:
 
 
 func _finish_motion() -> void:
+	_motion_active = false
 	if is_instance_valid(_sprite):
 		_sprite.position = _base_position
 	_motion_tween = null
