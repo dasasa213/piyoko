@@ -1,10 +1,10 @@
 extends Control
 
 ## ピヨコ図鑑画面。
-## たまご1種 → ちびぴよこ1種 → 子ぴよこ4種 → 大人ぴよこ8種を、
+## たまご1種 → ちびぴよこ1種 → 子ぴよこ4種 → 大人ぴよこ9種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
-const TOTAL_COLLECTION_COUNT := 14
+const TOTAL_COLLECTION_COUNT := 15
 const UNDISCOVERED_NAME := "？？？"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
@@ -20,15 +20,15 @@ const CARD_NAME_POSITION := Vector2(5.0, 96.0)
 const CARD_NAME_SIZE := Vector2(155.0, 29.0)
 const CARD_NAME_FONT_SIZE := 14
 
-# 1280x720の画面内で14形態を確認できるサイズ。
-const DIAGRAM_SIZE := Vector2(1570.0, 720.0)
-const CENTER_CARD_X := 702.5
+# 15形態を矢印ごと崩さず確認できる横長キャンバス。
+const DIAGRAM_SIZE := Vector2(1770.0, 720.0)
+const CENTER_CARD_X := 802.5
 const EGG_Y := 0.0
 const CHIBI_Y := 190.0
 const CHILD_Y := 380.0
 const ADULT_Y := 570.0
-const CHILD_X := [210.0, 570.0, 930.0, 1290.0]
-const ADULT_X := [120.0, 300.0, 480.0, 660.0, 840.0, 1020.0, 1200.0, 1380.0]
+const CHILD_X := [170.0, 530.0, 980.0, 1430.0]
+const ADULT_X := [80.0, 260.0, 440.0, 620.0, 800.0, 980.0, 1160.0, 1340.0, 1520.0]
 const STAGE_LABEL_X := 2.0
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
@@ -50,6 +50,7 @@ const FORM_DATA := [
 	{"id": "adult_challenger", "name": "ふぁいとぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["challenger"]},
 	{"id": "adult_love", "name": "らぶぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["love"]},
 	{"id": "adult_nap", "name": "おひるねぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"]},
+	{"id": "adult_yankee", "name": "やんきーぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["yankee"]},
 	{"id": "adult_rainbow", "name": "にじいろぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"]},
 	{"id": "adult_oshimotif", "name": "おしモチーフぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
 ]
@@ -146,7 +147,7 @@ func _build_diagram_canvas() -> void:
 	for i in 4:
 		_create_card(FORM_DATA[i + 2], Vector2(CHILD_X[i], CHILD_Y))
 
-	for i in 8:
+	for i in 9:
 		_create_card(FORM_DATA[i + 6], Vector2(ADULT_X[i], ADULT_Y))
 
 
@@ -271,10 +272,10 @@ func _draw_evolution_lines() -> void:
 		[cards["child_food"], cards["child_play"], cards["child_pet"], cards["child_balance"]]
 	)
 
-	# 子ぴよこごとに、大人ぴよこ2種へ分岐する。
+	# 子ぴよこごとに大人形態へ分岐。あまえ系のみ、きげんに応じた3分岐。
 	_draw_branch(cards["child_food"], [cards["adult_sweets"], cards["adult_gourmet"]])
 	_draw_branch(cards["child_play"], [cards["adult_champion"], cards["adult_challenger"]])
-	_draw_branch(cards["child_pet"], [cards["adult_love"], cards["adult_nap"]])
+	_draw_branch(cards["child_pet"], [cards["adult_love"], cards["adult_nap"], cards["adult_yankee"]])
 	_draw_branch(cards["child_balance"], [cards["adult_rainbow"], cards["adult_oshimotif"]])
 
 
