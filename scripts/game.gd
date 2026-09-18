@@ -646,7 +646,7 @@ func _create_finish_care_ui() -> void:
 	finish_care_confirm.confirmed.connect(_on_finish_care_confirmed)
 	finish_care_confirm.visibility_changed.connect(_refresh_dialog_dim)
 	add_child(finish_care_confirm)
-	_apply_dialog_style(finish_care_confirm, Vector2i(680, 330))
+	_apply_dialog_style(finish_care_confirm, Vector2i(820, 350))
 	_create_finish_result_ui()
 
 
@@ -684,8 +684,8 @@ func _apply_dialog_style(dialog: ConfirmationDialog, minimum_size: Vector2i) -> 
 
 	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
 	for button in [dialog.get_ok_button(), dialog.get_cancel_button()]:
-		button.custom_minimum_size = Vector2(260, 60)
-		button.add_theme_font_size_override("font_size", 16)
+		button.custom_minimum_size = Vector2(330, 66)
+		button.add_theme_font_size_override("font_size", 18)
 		button.clip_text = false
 		button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -754,7 +754,7 @@ func _create_finish_result_ui() -> void:
 	finish_result_overlay.add_child(center)
 
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(680, 540)
+	panel.custom_minimum_size = Vector2(820, 540)
 	panel.add_theme_stylebox_override("panel", _make_finish_result_panel_style())
 	center.add_child(panel)
 
@@ -811,7 +811,7 @@ func _create_finish_result_ui() -> void:
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 18)
+	buttons.add_theme_constant_override("separation", 22)
 	content.add_child(buttons)
 
 	var memories_result_button := Button.new()
@@ -882,8 +882,10 @@ func _make_finish_result_panel_style() -> StyleBoxFlat:
 
 
 func _style_finish_result_button(button: Button) -> void:
-	button.custom_minimum_size = Vector2(270, 58)
-	button.add_theme_font_size_override("font_size", 18)
+	button.custom_minimum_size = Vector2(340, 66)
+	button.clip_text = false
+	button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	button.add_theme_font_size_override("font_size", 19)
 	button.add_theme_color_override("font_color", Color("492d16"))
 	button.add_theme_color_override("font_hover_color", Color("384514"))
 	button.add_theme_color_override("font_pressed_color", Color("492d16"))
