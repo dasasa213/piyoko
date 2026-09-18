@@ -754,7 +754,7 @@ func _create_finish_result_ui() -> void:
 	finish_result_overlay.add_child(center)
 
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(820, 540)
+	panel.custom_minimum_size = Vector2(1000, 540)
 	panel.add_theme_stylebox_override("panel", _make_finish_result_panel_style())
 	center.add_child(panel)
 
@@ -811,7 +811,7 @@ func _create_finish_result_ui() -> void:
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 22)
+	buttons.add_theme_constant_override("separation", 30)
 	content.add_child(buttons)
 
 	var memories_result_button := Button.new()
@@ -882,7 +882,7 @@ func _make_finish_result_panel_style() -> StyleBoxFlat:
 
 
 func _style_finish_result_button(button: Button) -> void:
-	button.custom_minimum_size = Vector2(340, 66)
+	button.custom_minimum_size = Vector2(410, 72)
 	button.clip_text = false
 	button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	button.add_theme_font_size_override("font_size", 19)
