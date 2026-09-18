@@ -12,17 +12,17 @@ static func add_completed_piyoko(piyoko: Piyoko) -> bool:
 		push_error("大人ぴよこ以外はおもいでへ登録できません")
 		return false
 
-	var records := load_memories()
+	var records: Array[Dictionary] = load_memories()
 	for record in records:
 		if str(record.get("source_session_id", "")) == piyoko.session_id:
 			# 同じ育成IDは一度だけ保存し、連打や再実行による重複を防ぐ。
 			return true
 
-	var next_number := 1
+	var next_number: int = 1
 	for record in records:
-		next_number = max(next_number, int(record.get("育成No", 0)) + 1)
+		next_number = maxi(next_number, int(record.get("育成No", 0)) + 1)
 
-	var completed_at := Time.get_datetime_string_from_system(false, true)
+	var completed_at: String = Time.get_datetime_string_from_system(false, true)
 	records.append({
 		"memory_version": DATA_VERSION,
 		"育成No": next_number,
@@ -51,13 +51,13 @@ static func load_memories() -> Array[Dictionary]:
 	if not FileAccess.file_exists(MEMORIES_PATH):
 		return records
 
-	var file := FileAccess.open(MEMORIES_PATH, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(MEMORIES_PATH, FileAccess.READ)
 	if file == null:
 		push_error("おもいでデータを読み込めませんでした")
 		return records
 
-	var json := JSON.new()
-	var error := json.parse(file.get_as_text())
+	var json: JSON = JSON.new()
+	var error: Error = json.parse(file.get_as_text())
 	file.close()
 	if error != OK or typeof(json.data) != TYPE_DICTIONARY:
 		push_error("おもいでデータの形式が不正です")
@@ -82,8 +82,8 @@ static func get_memory(memory_number: int) -> Dictionary:
 
 
 static func set_favorite(memory_number: int, favorite: bool) -> bool:
-	var records := load_memories()
-	var found := false
+	var records: Array[Dictionary] = load_memories()
+	var found: bool = false
 	for record in records:
 		if int(record.get("育成No", 0)) == memory_number:
 			record["favorite"] = favorite
@@ -97,7 +97,7 @@ static func set_favorite(memory_number: int, favorite: bool) -> bool:
 static func delete_all() -> bool:
 	if not FileAccess.file_exists(MEMORIES_PATH):
 		return true
-	var error := DirAccess.remove_absolute(ProjectSettings.globalize_path(MEMORIES_PATH))
+	var error: Error = DirAccess.remove_absolute(ProjectSettings.globalize_path(MEMORIES_PATH))
 	if error != OK:
 		push_error("おもいでデータの削除に失敗しました")
 		return false
@@ -105,7 +105,7 @@ static func delete_all() -> bool:
 
 
 static func _save_memories(records: Array[Dictionary]) -> bool:
-	var file := FileAccess.open(MEMORIES_PATH, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(MEMORIES_PATH, FileAccess.WRITE)
 	if file == null:
 		push_error("おもいでデータを保存できませんでした")
 		return false
