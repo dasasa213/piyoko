@@ -412,6 +412,18 @@ func _style_select(option: OptionButton) -> void:
 	option.add_theme_stylebox_override("hover", _make_card_style(Color("ffe38a"), Color("6b9140"), 3))
 	option.add_theme_stylebox_override("pressed", _make_card_style(Color("f5ce63"), Color("567a31"), 3))
 
+	var popup: PopupMenu = option.get_popup()
+	popup.add_theme_font_size_override("font_size", 16)
+	popup.add_theme_color_override("font_color", Color("492d16"))
+	popup.add_theme_color_override("font_hover_color", Color("384514"))
+	popup.add_theme_color_override("font_checked_color", Color("6b9140"))
+	popup.add_theme_color_override("font_separator_color", Color("76502c"))
+	popup.add_theme_constant_override("item_start_padding", 12)
+	popup.add_theme_constant_override("item_end_padding", 12)
+	popup.add_theme_constant_override("v_separation", 8)
+	popup.add_theme_stylebox_override("panel", _make_popup_panel_style())
+	popup.add_theme_stylebox_override("hover", _make_popup_hover_style())
+
 
 func _style_favorite_button(button: Button) -> void:
 	button.add_theme_color_override("font_color", Color("a67b24"))
@@ -420,3 +432,29 @@ func _style_favorite_button(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", _make_card_style(Color("fff9df"), Color("c6a15b"), 1))
 	button.add_theme_stylebox_override("hover", _make_card_style(Color("fff0aa"), Color("d89d00"), 2))
 	button.add_theme_stylebox_override("pressed", _make_card_style(Color("ffe38a"), Color("d89d00"), 2))
+
+
+
+func _make_popup_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.97, 0.84, 0.99)
+	style.border_color = Color("76502c")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 6
+	style.content_margin_top = 7
+	style.content_margin_right = 6
+	style.content_margin_bottom = 7
+	style.shadow_color = Color(0.18, 0.12, 0.05, 0.34)
+	style.shadow_size = 6
+	style.shadow_offset = Vector2(0, 3)
+	return style
+
+
+func _make_popup_hover_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("ffe38a")
+	style.border_color = Color("93aa66")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	return style
