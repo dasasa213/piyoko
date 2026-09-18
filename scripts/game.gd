@@ -209,6 +209,7 @@ func _setup_components() -> void:
 	piyoko_motion_effect = PiyokoMotionEffectScript.new()
 	add_child(piyoko_motion_effect)
 	piyoko_motion_effect.setup($MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite)
+	piyoko_motion_effect.finished.connect(_on_piyoko_motion_finished)
 
 
 # レイアウト再計算や別画面からの復帰後も、リアクションをピヨコへ追従させる。
@@ -390,6 +391,7 @@ func _start_food_effect(food_key: String, display_name: String) -> void:
 
 	$FoodPanel.hide()
 	_set_action_buttons_disabled(true)
+	_set_reaction_texture("eat")
 	food_effect.play(food_key, display_name, get_viewport_rect().size)
 
 
@@ -444,6 +446,7 @@ func _on_play_minigame_finished(success: bool) -> void:
 
 
 func _play_sad_reaction() -> void:
+	_set_reaction_texture("sad")
 	if is_instance_valid(piyoko_motion_effect):
 		piyoko_motion_effect.play_sad()
 
@@ -474,6 +477,7 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 	if not grew:
 		_set_action_buttons_disabled(false)
 		if play_happy_animation:
+			_set_reaction_texture("happy")
 			$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
 			if is_instance_valid(piyoko_motion_effect):
 				piyoko_motion_effect.play_happy()
@@ -481,6 +485,23 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 
 	piyoko.print_status()
 	_save_game()
+
+
+func _set_reaction_texture(reaction_name: String) -> void:
+	var reaction_texture := PiyokoTextureManager.get_reaction_texture(
+		reaction_name,
+		piyoko.growth_stage
+	)
+	if reaction_texture == null:
+		return
+
+	var sprite: TextureRect = $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	sprite.texture = reaction_texture
+
+
+func _on_piyoko_motion_finished() -> void:
+	# 一時リアクションの終了後は、現在の成長形態の通常画像へ戻す。
+	_update_piyoko_texture()
 
 
 # ------------------------------------------------------------
