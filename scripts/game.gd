@@ -28,6 +28,7 @@ var food_effect: Node
 var pet_effect: Node
 var play_minigame: Node
 var reaction_effect: Node
+var sad_reaction_tween: Tween
 
 
 # ------------------------------------------------------------
@@ -326,6 +327,25 @@ func _on_play_button_pressed() -> void:
 func _on_play_minigame_finished(success: bool) -> void:
 	piyoko.play(success)
 	_finish_care_action(success)
+	if not success and not is_growing:
+		_play_sad_reaction()
+
+
+func _play_sad_reaction() -> void:
+	var sprite: Control = $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
+	sprite.pivot_offset = sprite.size * 0.5
+
+	if is_instance_valid(sad_reaction_tween):
+		sad_reaction_tween.kill()
+
+	sad_reaction_tween = create_tween()
+	sad_reaction_tween.tween_property(sprite, "rotation_degrees", -5.0, 0.20).set_trans(Tween.TRANS_SINE)
+	sad_reaction_tween.parallel().tween_property(sprite, "scale", Vector2(0.92, 0.88), 0.20).set_trans(Tween.TRANS_SINE)
+	sad_reaction_tween.parallel().tween_property(sprite, "modulate", Color(0.76, 0.86, 1.0, 1.0), 0.20)
+	sad_reaction_tween.tween_interval(0.38)
+	sad_reaction_tween.tween_property(sprite, "rotation_degrees", 0.0, 0.28).set_trans(Tween.TRANS_SINE)
+	sad_reaction_tween.parallel().tween_property(sprite, "scale", Vector2.ONE, 0.28).set_trans(Tween.TRANS_SINE)
+	sad_reaction_tween.parallel().tween_property(sprite, "modulate", Color.WHITE, 0.28)
 
 
 # ------------------------------------------------------------
