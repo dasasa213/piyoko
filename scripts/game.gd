@@ -490,7 +490,8 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 func _set_reaction_texture(reaction_name: String) -> void:
 	var reaction_texture := PiyokoTextureManager.get_reaction_texture(
 		reaction_name,
-		piyoko.growth_stage
+		piyoko.growth_stage,
+		piyoko.child_type
 	)
 	if reaction_texture == null:
 		return
