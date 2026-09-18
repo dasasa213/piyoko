@@ -45,6 +45,7 @@ var status_titles: Dictionary = {}
 # ------------------------------------------------------------
 
 func _ready() -> void:
+	AudioManager.play_care_bgm()
 	_setup_background()
 	_setup_birth_ui()
 	_setup_memories_button()
