@@ -8,6 +8,7 @@ const FoodEffectScript = preload("res://scripts/game/food_effect.gd")
 const PetEffectScript = preload("res://scripts/game/pet_effect.gd")
 const PlayMinigameScript = preload("res://scripts/game/play_minigame.gd")
 const ReactionEffectScript = preload("res://scripts/game/reaction_effect.gd")
+const PiyokoMotionEffectScript = preload("res://scripts/game/piyoko_motion_effect.gd")
 const GAME_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
 const BIRTH_BACKGROUND := preload("res://assets/backgrounds/05_birth_nursery.png")
 const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
@@ -33,6 +34,7 @@ var food_effect: Node
 var pet_effect: Node
 var play_minigame: Node
 var reaction_effect: Node
+var piyoko_motion_effect: Node
 var sad_reaction_tween: Tween
 var status_bars: Dictionary = {}
 var status_titles: Dictionary = {}
@@ -203,6 +205,10 @@ func _setup_components() -> void:
 	reaction_effect = ReactionEffectScript.new()
 	add_child(reaction_effect)
 	reaction_effect.setup(self)
+
+	piyoko_motion_effect = PiyokoMotionEffectScript.new()
+	add_child(piyoko_motion_effect)
+	piyoko_motion_effect.setup($MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite)
 
 
 # レイアウト再計算や別画面からの復帰後も、リアクションをピヨコへ追従させる。
@@ -436,6 +442,9 @@ func _on_play_minigame_finished(success: bool) -> void:
 
 
 func _play_sad_reaction() -> void:
+	if is_instance_valid(piyoko_motion_effect):
+		piyoko_motion_effect.play_sad()
+
 	var sprite: Control = $MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite
 	sprite.pivot_offset = sprite.size * 0.5
 
@@ -464,6 +473,8 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 		_set_action_buttons_disabled(false)
 		if play_happy_animation:
 			$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
+			if is_instance_valid(piyoko_motion_effect):
+				piyoko_motion_effect.play_happy()
 			reaction_effect.play_happy(_get_piyoko_center())
 
 	piyoko.print_status()
