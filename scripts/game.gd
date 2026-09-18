@@ -568,6 +568,7 @@ func _check_growth() -> bool:
 		return false
 
 	is_growing = true
+	AudioManager.play_se("growth")
 	_set_action_buttons_disabled(true)
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("grow_out")
 	return true
@@ -600,6 +601,7 @@ func _on_hatch_button_pressed() -> void:
 		return
 
 	is_hatching = true
+	AudioManager.play_se("hatch")
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.hide()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.hide()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("hatch")
@@ -864,6 +866,7 @@ func _create_finish_result_ui() -> void:
 
 
 func _show_finish_result(memory_number: int) -> void:
+	AudioManager.play_se("care_complete")
 	var adult_type: String = piyoko.adult_type
 	var adult_form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + adult_type)
 	finish_result_portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(

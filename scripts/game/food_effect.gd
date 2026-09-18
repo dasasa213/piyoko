@@ -89,6 +89,7 @@ func play(food_key: String, _display_name: String, viewport_size: Vector2) -> vo
 	tween.parallel().tween_property(_food_image, "scale", Vector2.ONE, 0.34)
 	tween.parallel().tween_property(_reaction_label, "modulate:a", 1.0, 0.22)
 	tween.tween_interval(0.25)
+	tween.tween_callback(AudioManager.play_se.bind("eat"))
 	tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	tween.tween_property(_food_image, "scale", Vector2(0.12, 0.12), 0.30)
 	tween.parallel().tween_property(_food_image, "modulate:a", 0.0, 0.24)

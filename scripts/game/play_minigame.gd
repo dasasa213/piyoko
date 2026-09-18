@@ -208,6 +208,7 @@ func _on_target_pressed() -> void:
 		return
 
 	_hits += 1
+	AudioManager.play_se("play_touch")
 	_update_count()
 
 	if _hits >= TARGET_COUNT:
@@ -244,6 +245,7 @@ func _show_result(success: bool) -> void:
 
 	_active = false
 	_pending_success = success
+	AudioManager.play_se("play_success" if success else "play_failure")
 	_game_timer.stop()
 
 	_target.disabled = true

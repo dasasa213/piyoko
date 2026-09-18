@@ -39,6 +39,7 @@ func play(sprite: Control, viewport_size: Vector2) -> void:
 		return
 
 	_active = true
+	AudioManager.play_se("pet")
 	_hand.texture = hand_texture
 	_hand.position = Vector2(
 		viewport_size.x * 0.5 - 35.0,
@@ -86,6 +87,7 @@ func _load_hand_texture() -> Texture2D:
 func _play_sprite_only(sprite: Control) -> void:
 	# 万一画像が読めなくても、操作を止めず最低限のリアクションを完了させる。
 	_active = true
+	AudioManager.play_se("pet")
 	var original_rotation := sprite.rotation
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
