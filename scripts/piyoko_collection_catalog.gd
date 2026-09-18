@@ -1,7 +1,7 @@
 class_name PiyokoCollectionCatalog
 extends RefCounted
 
-## 図鑑の系統図と詳細画面で共有する、全14形態の表示情報。
+## 図鑑の系統図と詳細画面で共有する、全15形態の表示情報。
 ## 進化条件は scripts/piyoko.gd の判定と同じ内容にそろえる。
 
 const FORMS := [
@@ -19,7 +19,7 @@ const FORMS := [
 		"previous": "ちびぴよこ", "next": "ちゃんぷぴよこ／ふぁいとぴよこ"},
 	{"id": "child_pet", "name": "あまえぴよこ", "stage": "子ぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["pet"],
 		"description": "なでてもらうのが大好きな、甘え上手のピヨコ。",
-		"previous": "ちびぴよこ", "next": "らぶぴよこ／おひるねぴよこ"},
+		"previous": "ちびぴよこ", "next": "らぶぴよこ／おひるねぴよこ／やんきーぴよこ"},
 	{"id": "child_balance", "name": "へいきんぴよこ", "stage": "子ぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["balance"],
 		"description": "食事も遊びもふれあいも、バランスよく楽しむピヨコ。",
 		"previous": "ちびぴよこ", "next": "にじいろぴよこ／みこぴよこ"},
@@ -40,6 +40,9 @@ const FORMS := [
 		"previous": "あまえぴよこ", "next": "なし"},
 	{"id": "adult_nap", "name": "おひるねぴよこ", "stage": "大人ぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"],
 		"description": "静かな時間とお昼寝を愛する、のんびり屋のピヨコ。",
+		"previous": "あまえぴよこ", "next": "なし"},
+	{"id": "adult_yankee", "name": "やんきーぴよこ", "stage": "大人ぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["yankee"],
+		"description": "ちょっぴり不機嫌な日々を越えて、強がりだけど情に厚いピヨコになった。",
 		"previous": "あまえぴよこ", "next": "なし"},
 	{"id": "adult_rainbow", "name": "にじいろぴよこ", "stage": "大人ぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"],
 		"description": "さまざまなお世話を受けて、色とりどりの個性が花開いた。",
@@ -82,7 +85,9 @@ static func get_condition(piyoko_id: String) -> String:
 		"adult_love":
 			return "あまえぴよこ期の成長時に、きげんを4～5にする。"
 		"adult_nap":
-			return "あまえぴよこ期の成長時に、きげんを0～3にする。"
+			return "あまえぴよこ期の成長時に、きげんを2～3にする。"
+		"adult_yankee":
+			return "あまえぴよこ期の成長時に、きげんを0～1にする。"
 		"adult_rainbow":
 			return "へいきんぴよこ期に、通常のお世話を続ける。"
 		"adult_oshimotif":
@@ -101,7 +106,7 @@ static func get_hint(piyoko_id: String) -> String:
 			return "食べ物との過ごし方が成長の鍵になりそう。"
 		"child_play", "adult_champion", "adult_challenger":
 			return "たくさん遊んだ思い出が成長につながりそう。"
-		"child_pet", "adult_love", "adult_nap":
+		"child_pet", "adult_love", "adult_nap", "adult_yankee":
 			return "ふれあいと、きげんを大切にしてみよう。"
 		"child_balance", "adult_rainbow":
 			return "いろいろなお世話を偏らず試してみよう。"
