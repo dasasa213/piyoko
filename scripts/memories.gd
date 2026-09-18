@@ -406,6 +406,7 @@ func _make_status_style() -> StyleBoxFlat:
 
 
 func _style_select(option: OptionButton) -> void:
+	option.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	option.add_theme_color_override("font_color", Color("492d16"))
 	option.add_theme_color_override("font_hover_color", Color("384514"))
 	option.add_theme_stylebox_override("normal", _make_card_style(Color("fff7d5"), Color("76502c"), 2))
