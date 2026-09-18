@@ -6,21 +6,28 @@ extends Node
 const LOW_MOOD_THRESHOLD := 1
 const RAIN_TEXTURE_PATH := "res://assets/effects/07_rain.png"
 const GROWTH_TEXTURE_PATH := "res://assets/effects/09_growth.png"
+const HAPPY_HEART_PATH := "res://assets/effects/happy_heart.png"
+const SAD_SWEAT_PATH := "res://assets/effects/sad_sweat.png"
 
 var _rain: TextureRect
 var _growth: TextureRect
 var _growth_tween: Tween
+var _emotion_icon: TextureRect
+var _emotion_tween: Tween
 
 
 func setup(host: Control) -> void:
-	_rain = _create_effect_rect(host, Vector2(320, 280))
+	_rain = _create_effect_rect(host, Vector2(220, 193))
 	_rain.texture = _load_texture(RAIN_TEXTURE_PATH)
-	_rain.modulate = Color(1, 1, 1, 0.82)
+	_rain.modulate = Color(1, 1, 1, 0.68)
 	_rain.hide()
 
 	_growth = _create_effect_rect(host, Vector2(320, 320))
 	_growth.texture = _load_texture(GROWTH_TEXTURE_PATH)
 	_growth.hide()
+
+	_emotion_icon = _create_effect_rect(host, Vector2(72, 72))
+	_emotion_icon.hide()
 
 
 func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
@@ -28,8 +35,44 @@ func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 		return
 
 	# 素材内ですでに雲が上側へ配置されているため、追加の上方向補正は行わない。
-	_position_on_piyoko(_rain, piyoko_center, Vector2.ZERO)
+	_position_on_piyoko(_rain, piyoko_center, Vector2(0, -25))
 	_rain.visible = growth_stage >= 0 and mood <= LOW_MOOD_THRESHOLD
+
+
+func play_happy(piyoko_center: Vector2) -> void:
+	_play_emotion(HAPPY_HEART_PATH, piyoko_center, Vector2(-66, -82))
+
+
+func play_sad(piyoko_center: Vector2) -> void:
+	_play_emotion(SAD_SWEAT_PATH, piyoko_center, Vector2(68, -66))
+
+
+func _play_emotion(texture_path: String, piyoko_center: Vector2, offset: Vector2) -> void:
+	if not is_instance_valid(_emotion_icon):
+		return
+
+	var texture := _load_texture(texture_path)
+	if texture == null:
+		return
+
+	if is_instance_valid(_emotion_tween):
+		_emotion_tween.kill()
+
+	_emotion_icon.texture = texture
+	_position_on_piyoko(_emotion_icon, piyoko_center, offset)
+	var start_position := _emotion_icon.position
+	_emotion_icon.modulate = Color(1, 1, 1, 0)
+	_emotion_icon.scale = Vector2(0.78, 0.78)
+	_emotion_icon.show()
+
+	_emotion_tween = create_tween()
+	_emotion_tween.tween_property(_emotion_icon, "modulate:a", 0.92, 0.18)
+	_emotion_tween.parallel().tween_property(_emotion_icon, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_emotion_tween.parallel().tween_property(_emotion_icon, "position", start_position + Vector2(0, -7), 0.22)
+	_emotion_tween.tween_interval(0.42)
+	_emotion_tween.tween_property(_emotion_icon, "modulate:a", 0.0, 0.28)
+	_emotion_tween.parallel().tween_property(_emotion_icon, "position", start_position + Vector2(0, -13), 0.28)
+	_emotion_tween.tween_callback(_emotion_icon.hide)
 
 
 func play_growth(piyoko_center: Vector2) -> void:

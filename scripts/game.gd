@@ -329,6 +329,7 @@ func _on_play_minigame_finished(success: bool) -> void:
 	_finish_care_action(success)
 	if not success and not is_growing:
 		_play_sad_reaction()
+		reaction_effect.play_sad(_get_piyoko_center())
 
 
 func _play_sad_reaction() -> void:
@@ -360,6 +361,7 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 		_set_action_buttons_disabled(false)
 		if play_happy_animation:
 			$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.play("happy")
+			reaction_effect.play_happy(_get_piyoko_center())
 
 	piyoko.print_status()
 	_save_game()
