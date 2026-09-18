@@ -27,8 +27,8 @@ func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 	if not is_instance_valid(_rain):
 		return
 
-	# ピヨコの実座標へ追従し、雲が頭上・雨粒が周囲に来る位置へ合わせる。
-	_position_on_piyoko(_rain, piyoko_center, Vector2(0, -72))
+	# 素材内ですでに雲が上側へ配置されているため、追加の上方向補正は行わない。
+	_position_on_piyoko(_rain, piyoko_center, Vector2.ZERO)
 	_rain.visible = growth_stage >= 0 and mood <= LOW_MOOD_THRESHOLD
 
 
