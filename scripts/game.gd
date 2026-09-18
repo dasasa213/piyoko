@@ -201,6 +201,12 @@ func _setup_components() -> void:
 	reaction_effect.setup(self)
 
 
+# レイアウト再計算や別画面からの復帰後も、リアクションをピヨコへ追従させる。
+func _process(_delta: float) -> void:
+	if is_instance_valid(reaction_effect):
+		reaction_effect.update_anchor(_get_piyoko_center())
+
+
 func _setup_food_menu_ui() -> void:
 	# 動的リアクションより各メニューを前面へ固定する。
 	$FoodPanel.z_index = 40
@@ -269,6 +275,13 @@ func _setup_status_bars() -> void:
 		item.add_child(bar)
 		status_titles[definition.key] = title
 		status_bars[definition.key] = bar
+
+	# 右上のメニューボタンと「きげん」バーが重ならないための予約領域。
+	var menu_button_space := Control.new()
+	menu_button_space.name = "MenuButtonSpace"
+	menu_button_space.custom_minimum_size = Vector2(76, 0)
+	menu_button_space.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	status_container.add_child(menu_button_space)
 
 
 func _apply_nature_ui_styles() -> void:
