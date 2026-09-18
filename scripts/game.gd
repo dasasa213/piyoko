@@ -356,6 +356,8 @@ func _position_piyoko_on_rug() -> void:
 	holder.get_node("PiyokoSprite").position.y += PIYOKO_RUG_OFFSET_Y
 	holder.get_node("HatchButton").position.y += PIYOKO_RUG_OFFSET_Y
 	holder.get_node("HatchGuideLabel").position.y += PIYOKO_RUG_OFFSET_Y
+	if is_instance_valid(piyoko_motion_effect):
+		piyoko_motion_effect.sync_base_position()
 
 
 # ------------------------------------------------------------
