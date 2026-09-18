@@ -56,6 +56,51 @@ const CHILD_REACTION_TEXTURES := {
 }
 
 
+
+const ADULT_REACTION_TEXTURES := {
+	"sweets": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_sweets_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_sweets_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_sweets_eat.png"),
+	},
+	"gourmet": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_gourmet_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_gourmet_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_gourmet_eat.png"),
+	},
+	"champion": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_champion_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_champion_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_champion_eat.png"),
+	},
+	"challenger": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_challenger_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_challenger_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_challenger_eat.png"),
+	},
+	"love": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_love_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_love_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_love_eat.png"),
+	},
+	"nap": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_nap_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_nap_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_nap_eat.png"),
+	},
+	"rainbow": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_rainbow_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_rainbow_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_rainbow_eat.png"),
+	},
+	"oshimotif": {
+		"happy": preload("res://assets/characters/piyoko/reactions/adult_oshimotif_happy.png"),
+		"sad": preload("res://assets/characters/piyoko/reactions/adult_oshimotif_sad.png"),
+		"eat": preload("res://assets/characters/piyoko/reactions/adult_oshimotif_eat.png"),
+	},
+}
+
+
 # ========================================
 # 子ぴよこ
 # ========================================
@@ -132,7 +177,8 @@ const EXTRA_TEXTURES := {
 static func get_reaction_texture(
 	reaction_name: String,
 	growth_stage: int,
-	child_type: String = ""
+	child_type: String = "",
+	adult_type: String = ""
 ) -> Texture2D:
 	match growth_stage:
 		0:
@@ -140,6 +186,9 @@ static func get_reaction_texture(
 		1:
 			var child_reactions: Dictionary = CHILD_REACTION_TEXTURES.get(child_type, {})
 			return child_reactions.get(reaction_name)
+		2:
+			var adult_reactions: Dictionary = ADULT_REACTION_TEXTURES.get(adult_type, {})
+			return adult_reactions.get(reaction_name)
 	return null
 
 

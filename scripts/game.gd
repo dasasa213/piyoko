@@ -491,7 +491,8 @@ func _set_reaction_texture(reaction_name: String) -> void:
 	var reaction_texture := PiyokoTextureManager.get_reaction_texture(
 		reaction_name,
 		piyoko.growth_stage,
-		piyoko.child_type
+		piyoko.child_type,
+		piyoko.adult_type
 	)
 	if reaction_texture == null:
 		return
