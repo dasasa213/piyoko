@@ -57,12 +57,18 @@ func _build_screen() -> void:
 	toolbar.add_theme_constant_override("separation", 14)
 	layout.add_child(toolbar)
 
+	var count_panel := PanelContainer.new()
+	count_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	count_panel.add_theme_stylebox_override("panel", _make_status_style())
+	toolbar.add_child(count_panel)
+
 	count_label = Label.new()
-	count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	count_label.custom_minimum_size = Vector2(250, 42)
 	count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	count_label.add_theme_font_size_override("font_size", 19)
+	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_label.add_theme_font_size_override("font_size", 20)
 	count_label.add_theme_color_override("font_color", Color("492d16"))
-	toolbar.add_child(count_label)
+	count_panel.add_child(count_label)
 
 	var sort_label := Label.new()
 	sort_label.text = "並び替え"
@@ -77,6 +83,7 @@ func _build_screen() -> void:
 	sort_option.add_item("古い順", 1)
 	sort_option.add_item("ピヨコの種類", 2)
 	sort_option.add_theme_font_size_override("font_size", 16)
+	_style_select(sort_option)
 	sort_option.item_selected.connect(_on_sort_selected)
 	toolbar.add_child(sort_option)
 
@@ -266,20 +273,20 @@ func _create_memory_card(record: Dictionary) -> Button:
 	date_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(date_label)
 
-	var favorite := CheckButton.new()
-	favorite.text = "★"
+	var favorite := Button.new()
+	favorite.toggle_mode = true
 	favorite.button_pressed = bool(record.get("favorite", false))
-	favorite.tooltip_text = "お気に入り"
+	favorite.text = "★" if favorite.button_pressed else "☆"
+	favorite.tooltip_text = "お気に入りを解除" if favorite.button_pressed else "お気に入りに登録"
 	favorite.anchor_left = 1.0
 	favorite.anchor_right = 1.0
-	favorite.offset_left = -42
-	favorite.offset_top = 3
-	favorite.offset_right = -5
-	favorite.offset_bottom = 38
-	favorite.add_theme_font_size_override("font_size", 21)
-	favorite.add_theme_color_override("font_color", Color("c6a15b"))
-	favorite.add_theme_color_override("font_pressed_color", Color("e4a900"))
-	favorite.toggled.connect(_on_favorite_toggled.bind(memory_number))
+	favorite.offset_left = -44
+	favorite.offset_top = 6
+	favorite.offset_right = -7
+	favorite.offset_bottom = 42
+	favorite.add_theme_font_size_override("font_size", 22)
+	_style_favorite_button(favorite)
+	favorite.toggled.connect(_on_favorite_toggled.bind(memory_number, favorite))
 	card.add_child(favorite)
 	return card
 
@@ -316,12 +323,16 @@ func _on_card_pressed(memory_number: int) -> void:
 	get_tree().change_scene_to_file("res://scenes/memory_detail.tscn")
 
 
-func _on_favorite_toggled(enabled: bool, memory_number: int) -> void:
+func _on_favorite_toggled(enabled: bool, memory_number: int, button: Button) -> void:
 	if PiyokoMemoryManager.set_favorite(memory_number, enabled):
+		button.text = "★" if enabled else "☆"
+		button.tooltip_text = "お気に入りを解除" if enabled else "お気に入りに登録"
 		for record in records:
 			if int(record.get("育成No", 0)) == memory_number:
 				record["favorite"] = enabled
 				break
+	else:
+		button.set_pressed_no_signal(not enabled)
 
 
 func _on_previous_page() -> void:
@@ -381,3 +392,31 @@ func _style_button(button: Button, minimum_size: Vector2) -> void:
 	button.add_theme_stylebox_override("normal", _make_card_style(Color("fff7d5"), Color("76502c"), 2))
 	button.add_theme_stylebox_override("hover", _make_card_style(Color("ffe38a"), Color("6b9140"), 3))
 	button.add_theme_stylebox_override("pressed", _make_card_style(Color("f5ce63"), Color("567a31"), 3))
+
+
+func _make_status_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.97, 0.84, 0.94)
+	style.border_color = Color("93aa66")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(16)
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	return style
+
+
+func _style_select(option: OptionButton) -> void:
+	option.add_theme_color_override("font_color", Color("492d16"))
+	option.add_theme_color_override("font_hover_color", Color("384514"))
+	option.add_theme_stylebox_override("normal", _make_card_style(Color("fff7d5"), Color("76502c"), 2))
+	option.add_theme_stylebox_override("hover", _make_card_style(Color("ffe38a"), Color("6b9140"), 3))
+	option.add_theme_stylebox_override("pressed", _make_card_style(Color("f5ce63"), Color("567a31"), 3))
+
+
+func _style_favorite_button(button: Button) -> void:
+	button.add_theme_color_override("font_color", Color("a67b24"))
+	button.add_theme_color_override("font_hover_color", Color("d89d00"))
+	button.add_theme_color_override("font_pressed_color", Color("d89d00"))
+	button.add_theme_stylebox_override("normal", _make_card_style(Color("fff9df"), Color("c6a15b"), 1))
+	button.add_theme_stylebox_override("hover", _make_card_style(Color("fff0aa"), Color("d89d00"), 2))
+	button.add_theme_stylebox_override("pressed", _make_card_style(Color("ffe38a"), Color("d89d00"), 2))
