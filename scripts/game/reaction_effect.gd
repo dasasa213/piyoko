@@ -21,7 +21,6 @@ var _growth: TextureRect
 var _growth_tween: Tween
 var _emotion_icon: TextureRect
 var _emotion_tween: Tween
-var _anchor_center := Vector2.ZERO
 
 
 func setup(host: Control) -> void:
@@ -61,7 +60,6 @@ func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
 
 
 func update_anchor(piyoko_center: Vector2) -> void:
-	_anchor_center = piyoko_center
 	_rain_center = piyoko_center
 
 	if is_instance_valid(_mood_heart):
