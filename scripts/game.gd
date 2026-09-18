@@ -29,6 +29,8 @@ var pet_effect: Node
 var play_minigame: Node
 var reaction_effect: Node
 var sad_reaction_tween: Tween
+var status_bars: Dictionary = {}
+var status_titles: Dictionary = {}
 
 
 # ------------------------------------------------------------
@@ -175,6 +177,7 @@ func _connect_scene_signals() -> void:
 
 func _setup_components() -> void:
 	_create_finish_care_ui()
+	_setup_status_bars()
 
 	food_effect = FoodEffectScript.new()
 	add_child(food_effect)
@@ -194,6 +197,58 @@ func _setup_components() -> void:
 	reaction_effect = ReactionEffectScript.new()
 	add_child(reaction_effect)
 	reaction_effect.setup(self)
+
+
+func _setup_status_bars() -> void:
+	var status_container: HBoxContainer = $MainMargin/GameLayout/Header/StatusMargin/StatusContainer
+	var definitions := [
+		{"key": "growth", "label": "せいちょう", "color": Color("7faf4c")},
+		{"key": "hunger", "label": "おなか", "color": Color("efa85b")},
+		{"key": "friendship", "label": "なかよし", "color": Color("ef91ae")},
+		{"key": "mood", "label": "きげん", "color": Color("79bce3")},
+	]
+
+	for old_label_name in ["GrowthLabel", "HungerLabel", "FriendshipLabel", "MoodLabel"]:
+		status_container.get_node(old_label_name).hide()
+
+	for definition in definitions:
+		var item := VBoxContainer.new()
+		item.name = "%sStatus" % definition.key.capitalize()
+		item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		item.add_theme_constant_override("separation", 5)
+		status_container.add_child(item)
+
+		var title := Label.new()
+		title.text = definition.label
+		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title.add_theme_font_size_override("font_size", 16)
+		title.add_theme_color_override("font_color", Color("492d16"))
+		title.add_theme_color_override("font_outline_color", Color("fff7d5"))
+		title.add_theme_constant_override("outline_size", 3)
+		item.add_child(title)
+
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(125, 18)
+		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bar.show_percentage = false
+
+		var background_style := StyleBoxFlat.new()
+		background_style.bg_color = Color(0.88, 0.84, 0.72, 0.82)
+		background_style.border_color = Color("76502c")
+		background_style.set_border_width_all(2)
+		background_style.set_corner_radius_all(8)
+		bar.add_theme_stylebox_override("background", background_style)
+
+		var fill_style := StyleBoxFlat.new()
+		fill_style.bg_color = definition.color
+		fill_style.set_corner_radius_all(7)
+		fill_style.content_margin_left = 2.0
+		fill_style.content_margin_right = 2.0
+		bar.add_theme_stylebox_override("fill", fill_style)
+
+		item.add_child(bar)
+		status_titles[definition.key] = title
+		status_bars[definition.key] = bar
 
 
 func _apply_nature_ui_styles() -> void:
@@ -477,19 +532,20 @@ func _on_hatch_button_pressed() -> void:
 # ------------------------------------------------------------
 
 func _update_status_display() -> void:
-	var status_container := $MainMargin/GameLayout/Header/StatusMargin/StatusContainer
 	var required_growth := piyoko.get_required_growth_count()
 
-	if required_growth > 0:
-		status_container.get_node("GrowthLabel").text = "%s：%d/%d" % [
-			piyoko.get_growth_stage_name(), piyoko.growth_count, required_growth
-		]
-	else:
-		status_container.get_node("GrowthLabel").text = piyoko.get_growth_stage_name()
+	if not status_bars.is_empty():
+		status_titles["growth"].text = piyoko.get_growth_stage_name()
+		status_bars["growth"].max_value = max(1, required_growth)
+		status_bars["growth"].value = required_growth if required_growth <= 0 else piyoko.growth_count
 
-	status_container.get_node("HungerLabel").text = "おなか：%d/5" % piyoko.hunger
-	status_container.get_node("FriendshipLabel").text = "なかよし：%d/5" % piyoko.friendship
-	status_container.get_node("MoodLabel").text = "きげん：%d/5" % piyoko.mood
+		status_bars["hunger"].max_value = 5
+		status_bars["hunger"].value = piyoko.hunger
+		status_bars["friendship"].max_value = 5
+		status_bars["friendship"].value = piyoko.friendship
+		status_bars["mood"].max_value = 5
+		status_bars["mood"].value = piyoko.mood
+
 	if is_instance_valid(reaction_effect):
 		reaction_effect.update_mood(piyoko.mood, piyoko.growth_stage, _get_piyoko_center())
 
