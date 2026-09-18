@@ -38,7 +38,7 @@ func _build_screen() -> void:
 	layout.add_child(header)
 
 	var header_spacer := Control.new()
-	header_spacer.custom_minimum_size.x = 180
+	header_spacer.custom_minimum_size.x = 220
 	header.add_child(header_spacer)
 
 	var title := Label.new()
