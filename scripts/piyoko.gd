@@ -246,7 +246,12 @@ func _determine_adult_type() -> void:
 		"play":
 			adult_type = "champion" if adult_play_success_count > adult_play_failure_count else "challenger"
 		"pet":
-			adult_type = "love" if mood >= 4 else "nap"
+			if mood >= 4:
+				adult_type = "love"
+			elif mood <= 1:
+				adult_type = "yankee"
+			else:
+				adult_type = "nap"
 		"balance":
 			adult_type = "oshimotif" if oshimotif_sequence_progress >= 9 else "rainbow"
 		_:
@@ -302,6 +307,8 @@ func get_adult_type_name() -> String:
 			return "ぐるめぴよこ"
 		"nap":
 			return "おひるねぴよこ"
+		"yankee":
+			return "やんきーぴよこ"
 		"rainbow":
 			return "にじいろぴよこ"
 		"oshimotif":
