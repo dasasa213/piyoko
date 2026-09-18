@@ -7,7 +7,7 @@ var favorite_button: CheckButton
 
 
 func _ready() -> void:
-	var memory_number := int(get_tree().get_meta(SELECTED_MEMORY_META, 0))
+	var memory_number: int = int(get_tree().get_meta(SELECTED_MEMORY_META, 0))
 	record = PiyokoMemoryManager.get_memory(memory_number)
 	if record.is_empty():
 		get_tree().change_scene_to_file("res://scenes/memories.tscn")
@@ -99,7 +99,7 @@ func _build_screen() -> void:
 	feature_panel.add_child(feature_box)
 	feature_box.add_child(_make_section_title("この子の特徴"))
 
-	var adult_form := PiyokoCollectionCatalog.get_form("adult_" + str(record.get("adult_type", "")))
+	var adult_form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + str(record.get("adult_type", "")))
 	var feature := Label.new()
 	feature.text = str(adult_form.get("description", "大切に育てられたピヨコです。"))
 	feature.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -117,8 +117,8 @@ func _build_screen() -> void:
 
 
 func _build_profile(parent: HBoxContainer) -> void:
-	var adult_type := str(record.get("adult_type", ""))
-	var adult_form := PiyokoCollectionCatalog.get_form("adult_" + adult_type)
+	var adult_type: String = str(record.get("adult_type", ""))
+	var adult_form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + adult_type)
 
 	var column := VBoxContainer.new()
 	column.custom_minimum_size = Vector2(270, 0)
@@ -142,7 +142,7 @@ func _build_profile(parent: HBoxContainer) -> void:
 	name_label.add_theme_color_override("font_color", Color("492d16"))
 	column.add_child(name_label)
 
-	var child_form := PiyokoCollectionCatalog.get_form("child_" + str(record.get("child_type", "")))
+	var child_form: Dictionary = PiyokoCollectionCatalog.get_form("child_" + str(record.get("child_type", "")))
 	_add_center_info(column, "子ども形態：%s" % str(child_form.get("name", "子ぴよこ")))
 	_add_center_info(column, "育成開始：%s" % _format_datetime(str(record.get("started_at", ""))))
 	_add_center_info(column, "育成完了：%s" % _format_datetime(str(record.get("completed_at", ""))))
@@ -182,12 +182,12 @@ func _build_lineage(parent: HBoxContainer) -> void:
 	parent.add_child(column)
 	column.add_child(_make_section_title("進化のながれ"))
 
-	var lineage = record.get("lineage", [])
+	var lineage: Array = record.get("lineage", []) as Array
 	if typeof(lineage) != TYPE_ARRAY:
 		return
 	for index in range(lineage.size()):
-		var form_id := str(lineage[index])
-		var form := PiyokoCollectionCatalog.get_form(form_id)
+		var form_id: String = str(lineage[index])
+		var form: Dictionary = PiyokoCollectionCatalog.get_form(form_id)
 		var texture := TextureRect.new()
 		texture.custom_minimum_size = Vector2(120, 78)
 		texture.texture = form.get("texture", PiyokoTextureManager.CHIBI_TEXTURE) as Texture2D
