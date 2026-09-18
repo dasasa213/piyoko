@@ -4,12 +4,19 @@ extends Node
 ## 育成値を変更せず、ピヨコの状態に合わせた画面演出だけを担当する。
 
 const LOW_MOOD_THRESHOLD := 1
-const RAIN_TEXTURE_PATH := "res://assets/effects/07_rain.png"
+const HIGH_MOOD_THRESHOLD := 4
+const RAIN_X_OFFSETS := [-58.0, -29.0, 0.0, 29.0, 58.0]
+const RAIN_PHASE_OFFSETS := [0.0, 17.0, 35.0, 8.0, 27.0]
 const GROWTH_TEXTURE_PATH := "res://assets/effects/09_growth.png"
 const HAPPY_HEART_PATH := "res://assets/effects/happy_heart.png"
 const SAD_SWEAT_PATH := "res://assets/effects/sad_sweat.png"
 
-var _rain: TextureRect
+var _rain_drops: Array[TextureRect] = []
+var _rain_center := Vector2.ZERO
+var _rain_elapsed := 0.0
+var _rain_active := false
+var _mood_heart: TextureRect
+var _mood_happy_active := false
 var _growth: TextureRect
 var _growth_tween: Tween
 var _emotion_icon: TextureRect
@@ -17,10 +24,18 @@ var _emotion_tween: Tween
 
 
 func setup(host: Control) -> void:
-	_rain = _create_effect_rect(host, Vector2(220, 193))
-	_rain.texture = _load_texture(RAIN_TEXTURE_PATH)
-	_rain.modulate = Color(1, 1, 1, 0.68)
-	_rain.hide()
+	var rain_texture := _load_texture(SAD_SWEAT_PATH)
+	for index in RAIN_X_OFFSETS.size():
+		var drop := _create_effect_rect(host, Vector2(24, 24))
+		drop.texture = rain_texture
+		drop.modulate = Color(0.78, 0.90, 1.0, 0.52)
+		drop.hide()
+		_rain_drops.append(drop)
+
+	_mood_heart = _create_effect_rect(host, Vector2(42, 42))
+	_mood_heart.texture = _load_texture(HAPPY_HEART_PATH)
+	_mood_heart.modulate = Color(1, 1, 1, 0.58)
+	_mood_heart.hide()
 
 	_growth = _create_effect_rect(host, Vector2(320, 320))
 	_growth.texture = _load_texture(GROWTH_TEXTURE_PATH)
@@ -31,12 +46,31 @@ func setup(host: Control) -> void:
 
 
 func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
-	if not is_instance_valid(_rain):
-		return
+	var has_piyoko := growth_stage >= 0
+	_rain_center = piyoko_center
+	_rain_active = has_piyoko and mood <= LOW_MOOD_THRESHOLD
 
-	# 素材内ですでに雲が上側へ配置されているため、追加の上方向補正は行わない。
-	_position_on_piyoko(_rain, piyoko_center, Vector2(0, -25))
-	_rain.visible = growth_stage >= 0 and mood <= LOW_MOOD_THRESHOLD
+	for drop in _rain_drops:
+		drop.visible = _rain_active
+
+	_mood_happy_active = has_piyoko and mood >= HIGH_MOOD_THRESHOLD
+	if is_instance_valid(_mood_heart):
+		_position_on_piyoko(_mood_heart, piyoko_center, Vector2(-60, -78))
+		_mood_heart.visible = _mood_happy_active and not _emotion_icon.visible
+
+
+func _process(delta: float) -> void:
+	if _rain_active:
+		_rain_elapsed += delta
+		for index in _rain_drops.size():
+			var fall_y := fposmod(_rain_elapsed * 34.0 + RAIN_PHASE_OFFSETS[index], 48.0)
+			_rain_drops[index].position = Vector2(
+				_rain_center.x + RAIN_X_OFFSETS[index] - 12.0,
+				_rain_center.y - 112.0 + fall_y
+			)
+
+	if _mood_happy_active and is_instance_valid(_mood_heart) and not _emotion_icon.visible:
+		_mood_heart.modulate.a = 0.55 + sin(Time.get_ticks_msec() * 0.003) * 0.08
 
 
 func play_happy(piyoko_center: Vector2) -> void:
@@ -58,6 +92,9 @@ func _play_emotion(texture_path: String, piyoko_center: Vector2, offset: Vector2
 	if is_instance_valid(_emotion_tween):
 		_emotion_tween.kill()
 
+	if is_instance_valid(_mood_heart):
+		_mood_heart.hide()
+
 	_emotion_icon.texture = texture
 	_position_on_piyoko(_emotion_icon, piyoko_center, offset)
 	var start_position := _emotion_icon.position
@@ -72,7 +109,13 @@ func _play_emotion(texture_path: String, piyoko_center: Vector2, offset: Vector2
 	_emotion_tween.tween_interval(0.42)
 	_emotion_tween.tween_property(_emotion_icon, "modulate:a", 0.0, 0.28)
 	_emotion_tween.parallel().tween_property(_emotion_icon, "position", start_position + Vector2(0, -13), 0.28)
-	_emotion_tween.tween_callback(_emotion_icon.hide)
+	_emotion_tween.tween_callback(_finish_emotion)
+
+
+func _finish_emotion() -> void:
+	_emotion_icon.hide()
+	if is_instance_valid(_mood_heart):
+		_mood_heart.visible = _mood_happy_active
 
 
 func play_growth(piyoko_center: Vector2) -> void:
