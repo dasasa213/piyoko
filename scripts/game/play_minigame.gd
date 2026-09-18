@@ -9,6 +9,7 @@ signal completed(success: bool)
 const TARGET_COUNT := 3
 const TIME_LIMIT := 5.0
 const RESULT_TIME := 1.5
+const ROOM_BACKGROUND := preload("res://assets/backgrounds/02_main_room.png")
 
 var _panel: Control
 var _target: TextureButton
@@ -18,6 +19,7 @@ var _result_label: Label
 var _cancel_button: Button
 var _game_timer: Timer
 var _result_timer: Timer
+var _reaction_tween: Tween
 
 var _hits := 0
 var _active := false
@@ -40,6 +42,9 @@ func start(texture: Texture2D, viewport_size: Vector2) -> void:
 	_time_label.show()
 	_target.show()
 	_target.disabled = false
+	_target.rotation_degrees = 0.0
+	_target.scale = Vector2.ONE
+	_target.modulate = Color.WHITE
 	_cancel_button.show()
 	_panel.show()
 
@@ -62,11 +67,20 @@ func _create_panel(host: Control) -> void:
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	host.add_child(_panel)
 
-	var background := ColorRect.new()
+	var background := TextureRect.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.color = Color("fff8df")
+	background.texture = ROOM_BACKGROUND
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	background.mouse_filter = Control.MOUSE_FILTER_STOP
 	_panel.add_child(background)
+
+	# 操作対象を見失わない程度に背景をやわらかくする。
+	var veil := ColorRect.new()
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.color = Color(1.0, 0.98, 0.88, 0.28)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.add_child(veil)
 
 	var header_card := Panel.new()
 	header_card.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -128,8 +142,8 @@ func _create_panel(host: Control) -> void:
 	_result_label.anchor_top = 0.5
 	_result_label.anchor_right = 1.0
 	_result_label.anchor_bottom = 0.5
-	_result_label.offset_top = -70.0
-	_result_label.offset_bottom = 70.0
+	_result_label.offset_top = -190.0
+	_result_label.offset_bottom = -85.0
 	_panel.add_child(_result_label)
 
 	_target = TextureButton.new()
@@ -233,24 +247,53 @@ func _show_result(success: bool) -> void:
 	_game_timer.stop()
 
 	_target.disabled = true
-	_target.hide()
 	_count_label.hide()
 	_time_label.hide()
 	_cancel_button.hide()
 	_result_label.show()
 
+	var viewport_size := get_viewport().get_visible_rect().size
+	_target.position = viewport_size * 0.5 - _target.size * 0.5 + Vector2(0, 42)
+	_target.pivot_offset = _target.size * 0.5
+	_play_result_reaction(success)
+
 	if success:
 		_result_label.text = "せいこう！\nやったね！"
 		_result_label.add_theme_color_override("font_color", Color(0.90, 0.36, 0.12, 1.0))
 	else:
-		_result_label.text = "しっぱい…\nざんねん！"
+		_result_label.text = "しっぱい…\nつぎはきっとできるよ"
 		_result_label.add_theme_color_override("font_color", Color(0.28, 0.36, 0.58, 1.0))
 
 	_result_timer.start()
 
 
+func _play_result_reaction(success: bool) -> void:
+	if is_instance_valid(_reaction_tween):
+		_reaction_tween.kill()
+
+	_target.rotation_degrees = 0.0
+	_target.scale = Vector2.ONE
+	_target.modulate = Color.WHITE
+	_reaction_tween = create_tween()
+
+	if success:
+		_reaction_tween.tween_property(_target, "position:y", _target.position.y - 24.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_reaction_tween.parallel().tween_property(_target, "scale", Vector2(1.10, 1.10), 0.18)
+		_reaction_tween.tween_property(_target, "position:y", _target.position.y, 0.24).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		_reaction_tween.parallel().tween_property(_target, "scale", Vector2.ONE, 0.24)
+	else:
+		_reaction_tween.tween_property(_target, "rotation_degrees", -5.0, 0.20).set_trans(Tween.TRANS_SINE)
+		_reaction_tween.parallel().tween_property(_target, "scale", Vector2(0.94, 0.88), 0.20)
+		_reaction_tween.parallel().tween_property(_target, "modulate", Color(0.78, 0.87, 1.0, 1.0), 0.20)
+		_reaction_tween.tween_interval(0.45)
+		_reaction_tween.tween_property(_target, "rotation_degrees", 0.0, 0.24)
+		_reaction_tween.parallel().tween_property(_target, "scale", Vector2.ONE, 0.24)
+		_reaction_tween.parallel().tween_property(_target, "modulate", Color.WHITE, 0.24)
+
+
 func _on_result_timeout() -> void:
 	_result_label.hide()
+	_target.hide()
 	_panel.hide()
 	completed.emit(_pending_success)
 
