@@ -88,6 +88,12 @@ const ADULT_REACTION_TEXTURES := {
 		"sad": preload("res://assets/characters/piyoko/reactions/adult_nap_sad.png"),
 		"eat": preload("res://assets/characters/piyoko/reactions/adult_nap_eat.png"),
 	},
+	# 専用リアクション画像を追加するまでは、通常立ち絵を崩さず使用する。
+	"yankee": {
+		"happy": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
+		"sad": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
+		"eat": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
+	},
 	"rainbow": {
 		"happy": preload("res://assets/characters/piyoko/reactions/adult_rainbow_happy.png"),
 		"sad": preload("res://assets/characters/piyoko/reactions/adult_rainbow_sad.png"),
@@ -151,6 +157,10 @@ const ADULT_TEXTURES := {
 
 	"nap": preload(
 		"res://assets/characters/piyoko/forms/11_adult_nap.png"
+	),
+
+	"yankee": preload(
+		"res://assets/characters/piyoko/forms/15_adult_yankee.png"
 	),
 
 	"rainbow": preload(
