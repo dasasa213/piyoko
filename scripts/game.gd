@@ -290,7 +290,13 @@ func _start_food_effect(food_key: String, display_name: String) -> void:
 
 func _on_food_effect_finished(food_key: String) -> void:
 	piyoko.feed(food_key)
-	_finish_care_action(true)
+
+	var likes_food := food_key != "broccoli"
+	_finish_care_action(likes_food)
+
+	if not likes_food and not is_growing:
+		_play_sad_reaction()
+		reaction_effect.play_sad(_get_piyoko_center())
 
 
 # ------------------------------------------------------------
