@@ -537,7 +537,7 @@ func _update_status_display() -> void:
 	if not status_bars.is_empty():
 		status_titles["growth"].text = piyoko.get_growth_stage_name()
 		status_bars["growth"].max_value = max(1, required_growth)
-		status_bars["growth"].value = required_growth if required_growth <= 0 else piyoko.growth_count
+		status_bars["growth"].value = 1 if required_growth <= 0 else piyoko.growth_count
 
 		status_bars["hunger"].max_value = 5
 		status_bars["hunger"].value = piyoko.hunger
