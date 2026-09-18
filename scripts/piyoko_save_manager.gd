@@ -5,7 +5,7 @@ extends RefCounted
 ## 図鑑データは PiyokoCollectionManager が別ファイルで管理する。
 
 const SAVE_PATH := "user://piyoko_save.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 
 
 # ------------------------------------------------------------
@@ -47,6 +47,20 @@ static func _create_save_data(piyoko: Piyoko) -> Dictionary:
 		"play_count": piyoko.play_count,
 		"play_success_count": piyoko.play_success_count,
 		"play_failure_count": piyoko.play_failure_count,
+		"help_work_count": piyoko.help_work_count,
+		"chibi_help_count": piyoko.chibi_help_count,
+		"adult_work_count": piyoko.adult_work_count,
+		"earned_coins": piyoko.earned_coins,
+		"child_shop_purchase_count": piyoko.child_shop_purchase_count,
+		"full_hunger_feed_count": piyoko.full_hunger_feed_count,
+		"current_play_success_streak": piyoko.current_play_success_streak,
+		"max_play_success_streak": piyoko.max_play_success_streak,
+		"play_streak_achieved": piyoko.play_streak_achieved,
+		"item_use_counts": piyoko.item_use_counts,
+		"moon_fragment_used": piyoko.moon_fragment_used,
+		"horse_ticket_used": piyoko.horse_ticket_used,
+		"rainbow_item_used": piyoko.rainbow_item_used,
+		"flower_item_used": piyoko.flower_item_used,
 		"adult_food_count": piyoko.adult_food_count,
 		"adult_shortcake_count": piyoko.adult_shortcake_count,
 		"adult_onigiri_count": piyoko.adult_onigiri_count,
@@ -109,10 +123,15 @@ static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 
 	piyoko.child_type = str(data.get("child_type", piyoko.child_type))
 	piyoko.adult_type = str(data.get("adult_type", piyoko.adult_type))
+	if piyoko.adult_type == "yankee":
+		# 旧名称の育成途中データは、同じ個体をはなぴよことして引き継ぐ。
+		piyoko.adult_type = "hana"
 
-	piyoko.hunger = int(data.get("hunger", piyoko.hunger))
-	piyoko.friendship = int(data.get("friendship", piyoko.friendship))
-	piyoko.mood = int(data.get("mood", piyoko.mood))
+	var old_scale := int(data.get("save_version", 1)) < SAVE_VERSION
+	var scale := 2 if old_scale else 1
+	piyoko.hunger = clampi(int(data.get("hunger", piyoko.hunger)) * scale, 0, Piyoko.STATUS_MAX)
+	piyoko.friendship = clampi(int(data.get("friendship", piyoko.friendship)) * scale, 0, Piyoko.STATUS_MAX)
+	piyoko.mood = clampi(int(data.get("mood", piyoko.mood)) * scale, 0, Piyoko.STATUS_MAX)
 
 	piyoko.shortcake_count = int(data.get("shortcake_count", piyoko.shortcake_count))
 	piyoko.onigiri_count = int(data.get("onigiri_count", piyoko.onigiri_count))
@@ -123,6 +142,22 @@ static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 	piyoko.play_count = int(data.get("play_count", piyoko.play_count))
 	piyoko.play_success_count = int(data.get("play_success_count", piyoko.play_success_count))
 	piyoko.play_failure_count = int(data.get("play_failure_count", piyoko.play_failure_count))
+	piyoko.help_work_count = int(data.get("help_work_count", piyoko.help_work_count))
+	piyoko.chibi_help_count = int(data.get("chibi_help_count", piyoko.chibi_help_count))
+	piyoko.adult_work_count = int(data.get("adult_work_count", piyoko.adult_work_count))
+	piyoko.earned_coins = int(data.get("earned_coins", piyoko.earned_coins))
+	piyoko.child_shop_purchase_count = int(data.get("child_shop_purchase_count", piyoko.child_shop_purchase_count))
+	piyoko.full_hunger_feed_count = int(data.get("full_hunger_feed_count", piyoko.full_hunger_feed_count))
+	piyoko.current_play_success_streak = int(data.get("current_play_success_streak", piyoko.current_play_success_streak))
+	piyoko.max_play_success_streak = int(data.get("max_play_success_streak", piyoko.max_play_success_streak))
+	piyoko.play_streak_achieved = bool(data.get("play_streak_achieved", piyoko.play_streak_achieved))
+	var raw_item_counts = data.get("item_use_counts", {})
+	if typeof(raw_item_counts) == TYPE_DICTIONARY:
+		piyoko.item_use_counts = (raw_item_counts as Dictionary).duplicate(true)
+	piyoko.moon_fragment_used = bool(data.get("moon_fragment_used", false))
+	piyoko.horse_ticket_used = bool(data.get("horse_ticket_used", false))
+	piyoko.rainbow_item_used = bool(data.get("rainbow_item_used", false))
+	piyoko.flower_item_used = bool(data.get("flower_item_used", false))
 
 	# バージョン1のセーブには子ぴよこ期専用履歴がないため、0から安全に再開する。
 	piyoko.adult_food_count = int(data.get("adult_food_count", piyoko.adult_food_count))

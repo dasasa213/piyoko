@@ -53,6 +53,12 @@ const CHILD_REACTION_TEXTURES := {
 		"sad": preload("res://assets/characters/piyoko/reactions/child_balance_sad.png"),
 		"eat": preload("res://assets/characters/piyoko/reactions/child_balance_eat.png"),
 	},
+	# 専用素材が追加されるまでは通常画像を安全な代替として使用する。
+	"work": {
+		"happy": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
+		"sad": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
+		"eat": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
+	},
 }
 
 
@@ -89,11 +95,17 @@ const ADULT_REACTION_TEXTURES := {
 		"eat": preload("res://assets/characters/piyoko/reactions/adult_nap_eat.png"),
 	},
 	# 専用リアクション画像を追加するまでは、通常立ち絵を崩さず使用する。
-	"yankee": {
+	"hana": {
 		"happy": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
 		"sad": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
 		"eat": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
 	},
+	"unpiyo": {"happy": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"), "sad": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"), "eat": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png")},
+	"umakowa": {"happy": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"), "sad": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"), "eat": preload("res://assets/characters/piyoko/forms/08_adult_champion.png")},
+	"haru": {"happy": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"), "sad": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"), "eat": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png")},
+	"suit": {"happy": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"), "sad": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"), "eat": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png")},
+	"shop": {"happy": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"), "sad": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"), "eat": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png")},
+	"break": {"happy": preload("res://assets/characters/piyoko/forms/11_adult_nap.png"), "sad": preload("res://assets/characters/piyoko/forms/11_adult_nap.png"), "eat": preload("res://assets/characters/piyoko/forms/11_adult_nap.png")},
 	"rainbow": {
 		"happy": preload("res://assets/characters/piyoko/reactions/adult_rainbow_happy.png"),
 		"sad": preload("res://assets/characters/piyoko/reactions/adult_rainbow_sad.png"),
@@ -126,7 +138,8 @@ const CHILD_TEXTURES := {
 
 	"balance": preload(
 		"res://assets/characters/piyoko/forms/05_child_balance.png"
-	)
+	),
+	"work": preload("res://assets/characters/piyoko/forms/05_child_balance.png")
 }
 
 
@@ -159,7 +172,7 @@ const ADULT_TEXTURES := {
 		"res://assets/characters/piyoko/forms/11_adult_nap.png"
 	),
 
-	"yankee": preload(
+	"hana": preload(
 		"res://assets/characters/piyoko/forms/15_adult_yankee.png"
 	),
 
@@ -169,7 +182,13 @@ const ADULT_TEXTURES := {
 
 	"oshimotif": preload(
 		"res://assets/characters/piyoko/forms/13_adult_oshimotif.png"
-	)
+	),
+	"unpiyo": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"),
+	"umakowa": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"),
+	"haru": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"),
+	"suit": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"),
+	"shop": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"),
+	"break": preload("res://assets/characters/piyoko/forms/11_adult_nap.png")
 }
 
 

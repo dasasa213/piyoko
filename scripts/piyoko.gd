@@ -12,7 +12,7 @@ extends RefCounted
 const CHILD_GROWTH_COUNT := 5
 const ADULT_GROWTH_COUNT := 15
 const STATUS_MIN := 0
-const STATUS_MAX := 5
+const STATUS_MAX := 10
 
 
 # ------------------------------------------------------------
@@ -32,9 +32,9 @@ var started_at: String = Time.get_datetime_string_from_system(false, true)
 var child_type: String = ""
 var adult_type: String = ""
 
-var hunger: int = 3
-var friendship: int = 3
-var mood: int = 3
+var hunger: int = 5
+var friendship: int = 5
+var mood: int = 5
 
 
 # ------------------------------------------------------------
@@ -51,6 +51,20 @@ var pet_count: int = 0
 var play_count: int = 0
 var play_success_count: int = 0
 var play_failure_count: int = 0
+var help_work_count: int = 0
+var chibi_help_count: int = 0
+var adult_work_count: int = 0
+var earned_coins: int = 0
+var child_shop_purchase_count: int = 0
+var full_hunger_feed_count: int = 0
+var current_play_success_streak: int = 0
+var max_play_success_streak: int = 0
+var play_streak_achieved: bool = false
+var item_use_counts: Dictionary = {}
+var moon_fragment_used: bool = false
+var horse_ticket_used: bool = false
+var rainbow_item_used: bool = false
+var flower_item_used: bool = false
 
 # 子ぴよこ期だけの進化判定用履歴。
 # ちび期の操作回数と混ざらないよう、子ぴよこへ成長してから記録する。
@@ -63,7 +77,7 @@ var adult_play_success_count: int = 0
 var adult_play_failure_count: int = 0
 var oshimotif_sequence_progress: int = 0
 
-# "food" / "pet" / "play"
+# "food" / "pet" / "play" / "work"
 var last_care: String = ""
 
 
@@ -72,11 +86,14 @@ var last_care: String = ""
 # ------------------------------------------------------------
 
 func feed(food_type: String) -> void:
+	var was_full := hunger >= STATUS_MAX
 	_add_growth()
 	food_count += 1
 	last_care = "food"
 	if growth_stage == 1:
 		adult_food_count += 1
+		if was_full:
+			full_hunger_feed_count += 1
 		_record_oshimotif_step("food")
 
 	match food_type:
@@ -128,6 +145,10 @@ func play(success: bool) -> void:
 		play_success_count += 1
 		if growth_stage == 1:
 			adult_play_success_count += 1
+			current_play_success_streak += 1
+			max_play_success_streak = maxi(max_play_success_streak, current_play_success_streak)
+			if current_play_success_streak >= 5:
+				play_streak_achieved = true
 			_record_oshimotif_step("play_success")
 		_add_friendship(2)
 		_add_mood(2)
@@ -135,8 +156,68 @@ func play(success: bool) -> void:
 		play_failure_count += 1
 		if growth_stage == 1:
 			adult_play_failure_count += 1
+			current_play_success_streak = 0
 			_record_oshimotif_step("play_failure")
 		_add_mood(-1)
+
+
+func work() -> bool:
+	if hunger <= STATUS_MIN or mood <= STATUS_MIN:
+		return false
+	if growth_stage < 2:
+		_add_growth()
+	else:
+		total_care_count += 1
+	help_work_count += 1
+	last_care = "work"
+	if growth_stage == 0:
+		chibi_help_count += 1
+	elif growth_stage == 1:
+		adult_work_count += 1
+	_add_hunger(-1)
+	_add_mood(-1)
+	earned_coins += 10
+	return true
+
+
+func record_shop_purchase(quantity: int = 1) -> void:
+	if growth_stage == 1:
+		child_shop_purchase_count += maxi(0, quantity)
+
+
+func use_item(item_id: String, hunger_delta: int = 0, friendship_delta: int = 0, mood_delta: int = 0) -> bool:
+	var before := Vector3i(hunger, friendship, mood)
+	_add_hunger(hunger_delta)
+	_add_friendship(friendship_delta)
+	_add_mood(mood_delta)
+	if before == Vector3i(hunger, friendship, mood):
+		return false
+	item_use_counts[item_id] = int(item_use_counts.get(item_id, 0)) + 1
+	return true
+
+
+func use_special_item(item_id: String) -> bool:
+	match item_id:
+		"moon_fragment":
+			if growth_stage != 1 or moon_fragment_used:
+				return false
+			moon_fragment_used = true
+		"horse_ticket":
+			if growth_stage != 1 or child_type != "play" or horse_ticket_used:
+				return false
+			horse_ticket_used = true
+		"rainbow":
+			if growth_stage != 1 or child_type != "balance" or rainbow_item_used:
+				return false
+			rainbow_item_used = true
+		"flower":
+			if growth_stage != 1 or child_type != "pet" or flower_item_used:
+				return false
+			flower_item_used = true
+		_:
+			return false
+	item_use_counts[item_id] = int(item_use_counts.get(item_id, 0)) + 1
+	return true
 
 
 # ------------------------------------------------------------
@@ -160,7 +241,7 @@ func _add_growth() -> void:
 	total_care_count += 1
 
 
-## 推しモチーフ条件「ごはん→遊ぶ成功→なでる」を連続で3周したか記録する。
+## 旧セーブとの互換性のため履歴値は保持するが、現在の進化判定には使用しない。
 func _record_oshimotif_step(step: String) -> void:
 	var expected_steps := ["food", "play_success", "pet"]
 	var expected_step: String = expected_steps[oshimotif_sequence_progress % expected_steps.size()]
@@ -206,21 +287,23 @@ func _grow_to_adult() -> void:
 
 
 ## ちび期のお世話回数で子ぴよこの系統を決定する。
-## 4・3・3はバランス、最大回数が同数なら最後に行った操作を優先する。
+## 5回のお世話が 2・2・1・0 または 2・1・1・1 ならバランス、
+## それ以外で最大回数が同数なら最後に行った操作を優先する。
 func _determine_child_type() -> void:
 	var counts := {
 		"food": food_count,
 		"play": play_count,
-		"pet": pet_count
+		"pet": pet_count,
+		"work": chibi_help_count
 	}
-	var sorted_counts := [food_count, play_count, pet_count]
+	var sorted_counts := [food_count, play_count, pet_count, chibi_help_count]
 	sorted_counts.sort()
 
-	if sorted_counts == [1, 2, 2]:
+	if sorted_counts == [0, 1, 2, 2] or sorted_counts == [1, 1, 1, 2]:
 		child_type = "balance"
 		return
 
-	var maximum: int = max(food_count, max(play_count, pet_count))
+	var maximum: int = sorted_counts[-1]
 	var maximum_types: Array[String] = []
 	for care_type in counts:
 		if int(counts[care_type]) == maximum:
@@ -234,26 +317,44 @@ func _determine_child_type() -> void:
 		child_type = "balance"
 
 
-## 子ぴよこ期だけの履歴から、各系統につき2種類の大人進化先を決定する。
+## 子ぴよこ期だけの履歴と使用アイテムから、大人進化先を決定する。
 func _determine_adult_type() -> void:
 	match child_type:
 		"food":
+			if full_hunger_feed_count >= 5:
+				adult_type = "unpiyo"
+				return
 			var shortcake_is_top := (
 				adult_shortcake_count > adult_onigiri_count
 				and adult_shortcake_count > adult_broccoli_count
 			)
 			adult_type = "sweets" if shortcake_is_top else "gourmet"
 		"play":
+			if horse_ticket_used and play_streak_achieved:
+				adult_type = "umakowa"
+				return
 			adult_type = "champion" if adult_play_success_count > adult_play_failure_count else "challenger"
 		"pet":
-			if mood >= 4:
+			if flower_item_used and mood >= 8:
+				adult_type = "hana"
+			elif mood >= 8:
 				adult_type = "love"
-			elif mood <= 1:
-				adult_type = "yankee"
 			else:
 				adult_type = "nap"
 		"balance":
-			adult_type = "oshimotif" if oshimotif_sequence_progress >= 9 else "rainbow"
+			if rainbow_item_used:
+				adult_type = "oshimotif"
+			elif moon_fragment_used and friendship >= 10:
+				adult_type = "haru"
+			else:
+				adult_type = "rainbow"
+		"work":
+			if child_shop_purchase_count >= 3:
+				adult_type = "shop"
+			elif mood >= 8:
+				adult_type = "break"
+			else:
+				adult_type = "suit"
 		_:
 			# 想定外の系統でも進行不能にならないための保険。
 			adult_type = "rainbow"
@@ -289,6 +390,8 @@ func get_child_type_name() -> String:
 			return "あまえぴよこ"
 		"balance":
 			return "へいきんぴよこ"
+		"work":
+			return "おてつだいぴよこ"
 		_:
 			return ""
 
@@ -307,12 +410,24 @@ func get_adult_type_name() -> String:
 			return "ぐるめぴよこ"
 		"nap":
 			return "おひるねぴよこ"
-		"yankee":
-			return "やんきーぴよこ"
+		"hana":
+			return "はなぴよこ"
 		"rainbow":
 			return "にじいろぴよこ"
 		"oshimotif":
 			return "みこぴよこ"
+		"unpiyo":
+			return "うんぴよ"
+		"umakowa":
+			return "うまこわぴよこ"
+		"haru":
+			return "はるぴよこ"
+		"suit":
+			return "すーつぴよこ"
+		"shop":
+			return "おみせぴよこ"
+		"break":
+			return "きゅうけいぴよこ"
 		_:
 			return ""
 

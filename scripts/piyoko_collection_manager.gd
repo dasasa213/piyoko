@@ -68,6 +68,7 @@ func load_collection() -> void:
 		return
 
 	_apply_collection_data(data)
+	_migrate_legacy_ids()
 
 
 func _read_collection_data() -> Dictionary:
@@ -108,6 +109,24 @@ func _apply_collection_data(data: Dictionary) -> void:
 	if typeof(saved_dates) == TYPE_DICTIONARY:
 		for piyoko_id in saved_dates:
 			discovered_dates[str(piyoko_id)] = str(saved_dates[piyoko_id])
+
+
+func _migrate_legacy_ids() -> void:
+	var changed := false
+	if "adult_yankee" in discovered:
+		discovered.erase("adult_yankee")
+		if "adult_hana" not in discovered:
+			discovered.append("adult_hana")
+		discovered_dates["adult_hana"] = str(discovered_dates.get("adult_yankee", ""))
+		discovered_dates.erase("adult_yankee")
+		changed = true
+	# たまごは育成演出には残すが、図鑑の掲載対象から外す。
+	if "egg" in discovered:
+		discovered.erase("egg")
+		discovered_dates.erase("egg")
+		changed = true
+	if changed:
+		save_collection()
 
 
 # ------------------------------------------------------------

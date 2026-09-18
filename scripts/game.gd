@@ -29,6 +29,16 @@ var room_background: TextureRect
 var birth_message_panel: PanelContainer
 var memories_button: Button
 var food_close_button: Button
+var work_button: Button
+var shop_button: Button
+var coin_label: Label
+var special_marker_label: Label
+var shop_overlay: Control
+var shop_list: VBoxContainer
+var shop_mode := "buy"
+var shop_message: Label
+var special_use_confirm: ConfirmationDialog
+var pending_special_item := ""
 
 var food_effect: Node
 var pet_effect: Node
@@ -53,6 +63,7 @@ func _ready() -> void:
 	_load_piyoko()
 	_connect_scene_signals()
 	_setup_components()
+	_setup_work_and_shop_ui()
 	_setup_initial_view()
 	_apply_nature_ui_styles()
 
@@ -211,6 +222,107 @@ func _setup_components() -> void:
 	add_child(piyoko_motion_effect)
 	piyoko_motion_effect.setup($MainMargin/GameLayout/PiyokoArea/PiyokoHolder/PiyokoSprite)
 	piyoko_motion_effect.finished.connect(_on_piyoko_motion_finished)
+
+
+func _setup_work_and_shop_ui() -> void:
+	work_button = Button.new()
+	work_button.name = "WorkButton"
+	work_button.custom_minimum_size = Vector2(0, 56)
+	work_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	work_button.pressed.connect(_on_work_button_pressed)
+	$MainMargin/GameLayout/ActionMenu.add_child(work_button)
+
+	var shop_anchor := VBoxContainer.new()
+	shop_anchor.name = "ShopAnchor"
+	shop_anchor.position = Vector2(22, 150)
+	shop_anchor.custom_minimum_size = Vector2(170, 100)
+	shop_anchor.z_index = 35
+	add_child(shop_anchor)
+	coin_label = Label.new()
+	coin_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	coin_label.add_theme_font_size_override("font_size", 20)
+	coin_label.add_theme_color_override("font_color", Color("492d16"))
+	shop_anchor.add_child(coin_label)
+	shop_button = Button.new()
+	shop_button.text = "ショップ"
+	shop_button.custom_minimum_size = Vector2(170, 58)
+	shop_button.add_theme_font_size_override("font_size", 19)
+	shop_button.pressed.connect(_open_shop)
+	shop_anchor.add_child(shop_button)
+	special_marker_label = Label.new()
+	special_marker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	special_marker_label.add_theme_font_size_override("font_size", 14)
+	special_marker_label.add_theme_color_override("font_color", Color("58743b"))
+	shop_anchor.add_child(special_marker_label)
+
+	shop_overlay = Control.new()
+	shop_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shop_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	shop_overlay.z_index = 90
+	shop_overlay.hide()
+	add_child(shop_overlay)
+	var dim := ColorRect.new()
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.08, 0.10, 0.05, 0.55)
+	shop_overlay.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shop_overlay.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(980, 650)
+	panel.add_theme_stylebox_override("panel", _make_finish_result_panel_style())
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 24)
+	panel.add_child(margin)
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", 12)
+	margin.add_child(root)
+	var header := Label.new()
+	header.text = "ピヨコショップ"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 30)
+	header.add_theme_color_override("font_color", Color("492d16"))
+	root.add_child(header)
+	var tabs := HBoxContainer.new()
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 18)
+	root.add_child(tabs)
+	for mode_data in [{"id":"buy", "text":"買う"}, {"id":"inventory", "text":"もちもの"}]:
+		var tab := Button.new()
+		tab.text = mode_data.text
+		tab.custom_minimum_size = Vector2(250, 50)
+		tab.pressed.connect(_set_shop_mode.bind(mode_data.id))
+		tabs.add_child(tab)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(900, 430)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(scroll)
+	shop_list = VBoxContainer.new()
+	shop_list.custom_minimum_size.x = 880
+	shop_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shop_list.add_theme_constant_override("separation", 8)
+	scroll.add_child(shop_list)
+	shop_message = Label.new()
+	shop_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	shop_message.add_theme_font_size_override("font_size", 17)
+	shop_message.add_theme_color_override("font_color", Color("58743b"))
+	root.add_child(shop_message)
+	var close := Button.new()
+	close.text = "とじる"
+	close.custom_minimum_size = Vector2(320, 58)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close.pressed.connect(_close_shop)
+	root.add_child(close)
+
+	special_use_confirm = ConfirmationDialog.new()
+	special_use_confirm.ok_button_text = "使う"
+	special_use_confirm.cancel_button_text = "やめる"
+	special_use_confirm.confirmed.connect(_confirm_special_item)
+	add_child(special_use_confirm)
+	_apply_dialog_style(special_use_confirm, Vector2i(650, 300))
+	_update_work_and_shop_display()
 
 
 # レイアウト再計算や別画面からの復帰後も、リアクションをピヨコへ追従させる。
@@ -446,6 +558,162 @@ func _on_play_minigame_finished(success: bool) -> void:
 		reaction_effect.play_sad(_get_piyoko_center())
 
 
+# ------------------------------------------------------------
+# おてつだい／おしごと・ショップ
+# ------------------------------------------------------------
+
+func _on_work_button_pressed() -> void:
+	var current_coins := int(PiyokoEconomyManager.load_data().get("coins", 0))
+	if current_coins >= PiyokoEconomyManager.MAX_COINS:
+		_show_shop_message("所持金がいっぱいです")
+		return
+	if piyoko.hunger <= Piyoko.STATUS_MIN or piyoko.mood <= Piyoko.STATUS_MIN:
+		_show_shop_message("おなかときげんを回復しよう")
+		return
+	var added := PiyokoEconomyManager.add_coins(10)
+	if added <= 0:
+		_show_shop_message("おかねを保存できませんでした")
+		return
+	piyoko.work()
+	_show_shop_message("%sをして+%dC" % [work_button.text, added])
+	_finish_care_action(false)
+
+
+func _open_shop() -> void:
+	shop_message.text = ""
+	shop_overlay.show()
+	_set_action_buttons_disabled(true)
+	_refresh_shop_items()
+
+
+func _close_shop() -> void:
+	shop_overlay.hide()
+	_set_action_buttons_disabled(false)
+	_update_work_and_shop_display()
+
+
+func _set_shop_mode(mode: String) -> void:
+	shop_mode = mode
+	shop_message.text = ""
+	_refresh_shop_items()
+
+
+func _refresh_shop_items() -> void:
+	for child in shop_list.get_children():
+		child.queue_free()
+	var economy := PiyokoEconomyManager.load_data()
+	for item_id in PiyokoEconomyManager.ITEMS:
+		var item: Dictionary = PiyokoEconomyManager.ITEMS[item_id]
+		var row := HBoxContainer.new()
+		row.custom_minimum_size = Vector2(860, 74)
+		row.add_theme_constant_override("separation", 12)
+		var name_label := Label.new()
+		name_label.text = str(item["name"])
+		name_label.custom_minimum_size = Vector2(260, 0)
+		name_label.add_theme_font_size_override("font_size", 19)
+		name_label.add_theme_color_override("font_color", Color("492d16"))
+		row.add_child(name_label)
+		var effect := Label.new()
+		effect.text = str(item["effect"])
+		effect.custom_minimum_size = Vector2(220, 0)
+		effect.add_theme_color_override("font_color", Color("58743b"))
+		row.add_child(effect)
+		var owned := int((economy["inventory"] as Dictionary).get(item_id, 0))
+		var info := Label.new()
+		info.text = "%dC　所持:%d" % [int(item["price"]), owned] if shop_mode == "buy" else "所持:%d" % owned
+		info.custom_minimum_size = Vector2(170, 0)
+		row.add_child(info)
+		var action := Button.new()
+		action.text = "買う" if shop_mode == "buy" else "使う"
+		action.custom_minimum_size = Vector2(150, 54)
+		action.disabled = owned <= 0 if shop_mode == "inventory" else int(economy["coins"]) < int(item["price"])
+		if shop_mode == "buy":
+			action.pressed.connect(_buy_shop_item.bind(str(item_id)))
+		else:
+			action.pressed.connect(_use_shop_item.bind(str(item_id)))
+		row.add_child(action)
+		shop_list.add_child(row)
+	_update_work_and_shop_display()
+
+
+func _buy_shop_item(item_id: String) -> void:
+	if not PiyokoEconomyManager.buy(item_id):
+		shop_message.text = "Cが足りません"
+		return
+	piyoko.record_shop_purchase()
+	_save_game()
+	shop_message.text = "%sを買いました！" % PiyokoEconomyManager.ITEMS[item_id]["name"]
+	_refresh_shop_items()
+
+
+func _use_shop_item(item_id: String) -> void:
+	var item: Dictionary = PiyokoEconomyManager.ITEMS[item_id]
+	if bool(item.get("special", false)):
+		if not _can_use_special_item(item_id):
+			shop_message.text = "今はこのアイテムを使えません"
+			return
+		pending_special_item = item_id
+		special_use_confirm.dialog_text = "%sをこの子に使いますか？" % item["name"]
+		special_use_confirm.popup_centered()
+		return
+	var changed := piyoko.use_item(item_id, int(item.get("hunger", 0)), int(item.get("friendship", 0)), int(item.get("mood", 0)))
+	if not changed:
+		shop_message.text = "これ以上は変化しません"
+		return
+	if not PiyokoEconomyManager.consume(item_id):
+		shop_message.text = "アイテムを使用できませんでした"
+		return
+	_update_status_display()
+	_save_game()
+	shop_message.text = str(item["effect"])
+	_refresh_shop_items()
+
+
+func _can_use_special_item(item_id: String) -> bool:
+	if piyoko.growth_stage != 1:
+		return false
+	match item_id:
+		"moon_fragment": return not piyoko.moon_fragment_used
+		"horse_ticket": return piyoko.child_type == "play" and not piyoko.horse_ticket_used
+		"rainbow": return piyoko.child_type == "balance" and not piyoko.rainbow_item_used
+		"flower": return piyoko.child_type == "pet" and not piyoko.flower_item_used
+	return false
+
+
+func _confirm_special_item() -> void:
+	if pending_special_item.is_empty() or not piyoko.use_special_item(pending_special_item):
+		shop_message.text = "今はこのアイテムを使えません"
+		return
+	if not PiyokoEconomyManager.consume(pending_special_item):
+		shop_message.text = "アイテムを使用できませんでした"
+		return
+	shop_message.text = "%sを使いました" % PiyokoEconomyManager.ITEMS[pending_special_item]["name"]
+	pending_special_item = ""
+	_save_game()
+	_refresh_shop_items()
+
+
+func _show_shop_message(message: String) -> void:
+	$GrowthMessageLabel.text = message
+	$GrowthMessageLabel.show()
+	$GrowthMessageTimer.start()
+
+
+func _update_work_and_shop_display() -> void:
+	if not is_instance_valid(work_button):
+		return
+	work_button.text = "おてつだい" if piyoko.growth_stage == 0 else "おしごと"
+	var economy := PiyokoEconomyManager.load_data()
+	coin_label.text = "所持：%dC" % int(economy.get("coins", 0))
+	var used_markers: Array[String] = []
+	if piyoko.moon_fragment_used: used_markers.append("月")
+	if piyoko.horse_ticket_used: used_markers.append("馬")
+	if piyoko.rainbow_item_used: used_markers.append("虹")
+	if piyoko.flower_item_used: used_markers.append("花")
+	special_marker_label.text = "使用済み：%s" % "・".join(used_markers) if not used_markers.is_empty() else ""
+	work_button.disabled = piyoko.hunger <= 0 or piyoko.mood <= 0 or int(economy.get("coins", 0)) >= PiyokoEconomyManager.MAX_COINS
+
+
 func _play_sad_reaction() -> void:
 	_set_reaction_texture("sad")
 	if is_instance_valid(piyoko_motion_effect):
@@ -486,6 +754,7 @@ func _finish_care_action(play_happy_animation: bool) -> void:
 
 	piyoko.print_status()
 	_save_game()
+	_update_work_and_shop_display()
 
 
 func _set_reaction_texture(reaction_name: String) -> void:
@@ -576,12 +845,12 @@ func _check_growth() -> bool:
 
 
 func _start_egg_sequence() -> void:
-	PiyokoCollectionManager.discover("egg")
 	_set_action_buttons_disabled(true)
 	room_background.texture = BIRTH_BACKGROUND
 	birth_message_panel.show()
 	$MainMargin/GameLayout/Header.hide()
 	$MainMargin/GameLayout/ActionMenu.hide()
+	shop_button.get_parent().hide()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.show()
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchGuideLabel.show()
 	_update_piyoko_texture()
@@ -595,6 +864,7 @@ func _show_care_room() -> void:
 	$MainMargin/GameLayout/Header.show()
 	$MainMargin/GameLayout/Header/StatusMargin/StatusContainer.show()
 	$MainMargin/GameLayout/ActionMenu.show()
+	shop_button.get_parent().show()
 
 
 func _on_hatch_button_pressed() -> void:
@@ -620,11 +890,11 @@ func _update_status_display() -> void:
 		status_bars["growth"].max_value = max(1, required_growth)
 		status_bars["growth"].value = 1 if required_growth <= 0 else piyoko.growth_count
 
-		status_bars["hunger"].max_value = 5
+		status_bars["hunger"].max_value = 10
 		status_bars["hunger"].value = piyoko.hunger
-		status_bars["friendship"].max_value = 5
+		status_bars["friendship"].max_value = 10
 		status_bars["friendship"].value = piyoko.friendship
-		status_bars["mood"].max_value = 5
+		status_bars["mood"].max_value = 10
 		status_bars["mood"].value = piyoko.mood
 
 	if is_instance_valid(reaction_effect):
@@ -648,6 +918,10 @@ func _set_action_buttons_disabled(disabled: bool) -> void:
 	$MainMargin/GameLayout/ActionMenu/FoodButton.disabled = disabled
 	$MainMargin/GameLayout/ActionMenu/PetButton.disabled = disabled
 	$MainMargin/GameLayout/ActionMenu/PlayButton.disabled = disabled
+	if is_instance_valid(work_button):
+		work_button.disabled = disabled
+		if not disabled:
+			_update_work_and_shop_display()
 
 
 func _on_growth_message_timeout() -> void:
