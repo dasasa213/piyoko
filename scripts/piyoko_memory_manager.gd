@@ -4,7 +4,7 @@ extends RefCounted
 ## 育成を終えた1羽ごとの記録を、現在の育成セーブ・図鑑とは分離して保存する。
 
 const MEMORIES_PATH := "user://piyoko_memories.json"
-const DATA_VERSION := 1
+const DATA_VERSION := 2
 
 
 static func add_completed_piyoko(piyoko: Piyoko) -> bool:
@@ -40,10 +40,31 @@ static func add_completed_piyoko(piyoko: Piyoko) -> bool:
 		"play_count": piyoko.play_count,
 		"play_success_count": piyoko.play_success_count,
 		"play_failure_count": piyoko.play_failure_count,
+		"help_work_count": piyoko.help_work_count,
+		"chibi_help_count": piyoko.chibi_help_count,
+		"adult_work_count": piyoko.adult_work_count,
+		"earned_coins": piyoko.earned_coins,
+		"child_shop_purchase_count": piyoko.child_shop_purchase_count,
+		"item_use_count": _sum_item_uses(piyoko.item_use_counts),
+		"item_use_counts": piyoko.item_use_counts.duplicate(true),
+		"full_hunger_feed_count": piyoko.full_hunger_feed_count,
+		"max_play_success_streak": piyoko.max_play_success_streak,
+		"play_streak_achieved": piyoko.play_streak_achieved,
+		"moon_fragment_used": piyoko.moon_fragment_used,
+		"horse_ticket_used": piyoko.horse_ticket_used,
+		"rainbow_item_used": piyoko.rainbow_item_used,
+		"flower_item_used": piyoko.flower_item_used,
 		"lineage": ["chibi", "child_" + piyoko.child_type, "adult_" + piyoko.adult_type],
 		"favorite": false
 	})
 	return _save_memories(records)
+
+
+static func _sum_item_uses(item_counts: Dictionary) -> int:
+	var total := 0
+	for value in item_counts.values():
+		total += int(value)
+	return total
 
 
 static func load_memories() -> Array[Dictionary]:
@@ -70,8 +91,21 @@ static func load_memories() -> Array[Dictionary]:
 
 	for raw_record in raw_records:
 		if typeof(raw_record) == TYPE_DICTIONARY:
-			records.append(raw_record as Dictionary)
+			var record: Dictionary = (raw_record as Dictionary).duplicate(true)
+			_migrate_legacy_record(record)
+			records.append(record)
 	return records
+
+
+static func _migrate_legacy_record(record: Dictionary) -> void:
+	if str(record.get("adult_type", "")) != "yankee":
+		return
+	record["adult_type"] = "hana"
+	var lineage = record.get("lineage", [])
+	if typeof(lineage) == TYPE_ARRAY:
+		for index in range(lineage.size()):
+			if str(lineage[index]) == "adult_yankee":
+				lineage[index] = "adult_hana"
 
 
 static func get_memory(memory_number: int) -> Dictionary:

@@ -155,12 +155,17 @@ func _build_care_record(parent: HBoxContainer) -> void:
 	parent.add_child(column)
 
 	column.add_child(_make_section_title("お世話のきろく"))
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
 	var grid := GridContainer.new()
 	grid.columns = 2
+	grid.custom_minimum_size.x = 370
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 18)
 	grid.add_theme_constant_override("v_separation", 5)
-	column.add_child(grid)
+	scroll.add_child(grid)
 
 	_add_value_row(grid, "お世話合計", _count_text("total_care_count"))
 	_add_value_row(grid, "ごはん合計", _count_text("food_count"))
@@ -171,6 +176,35 @@ func _build_care_record(parent: HBoxContainer) -> void:
 	_add_value_row(grid, "あそぶ合計", _count_text("play_count"))
 	_add_value_row(grid, "あそぶ成功", _count_text("play_success_count"))
 	_add_value_row(grid, "あそぶ失敗", _count_text("play_failure_count"))
+	_add_optional_value_row(grid, "おてつだい・おしごと", "help_work_count")
+	_add_optional_value_row(grid, "ちび期のおてつだい", "chibi_help_count")
+	_add_optional_value_row(grid, "子期のおしごと", "adult_work_count")
+	_add_optional_value_row(grid, "この子が稼いだC", "earned_coins", "C")
+	_add_optional_value_row(grid, "子期の購入数", "child_shop_purchase_count")
+	_add_optional_value_row(grid, "アイテム使用", "item_use_count")
+	_add_optional_value_row(grid, "満腹時のごはん", "full_hunger_feed_count")
+	_add_optional_value_row(grid, "最大連続成功", "max_play_success_streak")
+	if bool(record.get("moon_fragment_used", false)):
+		_add_value_row(grid, "月のかけら", "使用済み")
+	if bool(record.get("horse_ticket_used", false)):
+		_add_value_row(grid, "馬券", "使用済み")
+	if bool(record.get("rainbow_item_used", false)):
+		_add_value_row(grid, "にじ", "使用済み")
+	if bool(record.get("flower_item_used", false)):
+		_add_value_row(grid, "はな", "使用済み")
+	var item_counts = record.get("item_use_counts", {})
+	if typeof(item_counts) == TYPE_DICTIONARY:
+		for item_id in item_counts:
+			var count := int((item_counts as Dictionary)[item_id])
+			if count > 0 and PiyokoEconomyManager.ITEMS.has(str(item_id)):
+				_add_value_row(grid, str(PiyokoEconomyManager.ITEMS[str(item_id)]["name"]), "%d 回" % count)
+
+
+func _add_optional_value_row(grid: GridContainer, label_text: String, key: String, suffix: String = " 回") -> void:
+	var value := int(record.get(key, 0))
+	if value <= 0:
+		return
+	_add_value_row(grid, label_text, "%d%s" % [value, suffix])
 
 
 func _build_lineage(parent: HBoxContainer) -> void:

@@ -3,8 +3,8 @@ extends Node
 
 ## 育成値を変更せず、ピヨコの状態に合わせた画面演出だけを担当する。
 
-const LOW_MOOD_THRESHOLD := 1
-const HIGH_MOOD_THRESHOLD := 4
+const LOW_MOOD_THRESHOLD := 2
+const HIGH_MOOD_THRESHOLD := 8
 const RAIN_X_OFFSETS := [-58.0, -29.0, 0.0, 29.0, 58.0]
 const RAIN_PHASE_OFFSETS := [0.0, 17.0, 35.0, 8.0, 27.0]
 const GROWTH_TEXTURE_PATH := "res://assets/effects/09_growth.png"

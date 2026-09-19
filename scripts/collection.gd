@@ -1,10 +1,10 @@
 extends Control
 
 ## ピヨコ図鑑画面。
-## たまご1種 → ちびぴよこ1種 → 子ぴよこ4種 → 大人ぴよこ9種を、
+## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ15種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
-const TOTAL_COLLECTION_COUNT := 15
+const TOTAL_COLLECTION_COUNT := 21
 const UNDISCOVERED_NAME := "？？？"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
@@ -20,16 +20,14 @@ const CARD_NAME_POSITION := Vector2(5.0, 96.0)
 const CARD_NAME_SIZE := Vector2(155.0, 29.0)
 const CARD_NAME_FONT_SIZE := 14
 
-# 15形態を矢印ごと崩さず確認できる横長キャンバス。
-const DIAGRAM_SIZE := Vector2(1770.0, 720.0)
-const CENTER_CARD_X := 802.5
-const EGG_Y := 0.0
-const CHIBI_Y := 190.0
-const CHILD_Y := 380.0
-const ADULT_Y := 570.0
-const CHILD_X := [170.0, 530.0, 980.0, 1430.0]
-const ADULT_X := [80.0, 260.0, 440.0, 620.0, 800.0, 980.0, 1160.0, 1340.0, 1520.0]
-const STAGE_LABEL_X := 2.0
+# 全21形態を矢印ごと崩さず確認できる横長キャンバス。
+const DIAGRAM_SIZE := Vector2(3200.0, 570.0)
+const CENTER_CARD_X := 1420.0
+const CHIBI_Y := 0.0
+const CHILD_Y := 200.0
+const ADULT_Y := 405.0
+const CHILD_X := [190.0, 805.0, 1420.0, 2035.0, 2650.0]
+const ADULT_X := [0.0, 190.0, 380.0, 615.0, 805.0, 995.0, 1230.0, 1420.0, 1610.0, 1845.0, 2035.0, 2225.0, 2460.0, 2650.0, 2840.0]
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
 const LINE_WIDTH := 4.0
@@ -38,21 +36,27 @@ const ARROW_LINE_GAP := 5.0
 const LINE_GAP := 14.0
 
 const FORM_DATA := [
-	{"id": "egg", "name": "たまご", "texture": PiyokoTextureManager.EGG_TEXTURE},
 	{"id": "chibi", "name": "ちびぴよこ", "texture": PiyokoTextureManager.CHIBI_TEXTURE},
 	{"id": "child_food", "name": "ごはんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["food"]},
 	{"id": "child_play", "name": "やんちゃぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["play"]},
+	{"id": "child_work", "name": "おてつだいぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["work"]},
 	{"id": "child_pet", "name": "あまえぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["pet"]},
 	{"id": "child_balance", "name": "へいきんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["balance"]},
 	{"id": "adult_sweets", "name": "すいーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["sweets"]},
 	{"id": "adult_gourmet", "name": "ぐるめぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["gourmet"]},
+	{"id": "adult_unpiyo", "name": "うんぴよ", "texture": PiyokoTextureManager.ADULT_TEXTURES["unpiyo"]},
 	{"id": "adult_champion", "name": "ちゃんぷぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["champion"]},
 	{"id": "adult_challenger", "name": "ふぁいとぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["challenger"]},
+	{"id": "adult_umakowa", "name": "うまこわぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["umakowa"]},
+	{"id": "adult_suit", "name": "すーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["suit"]},
+	{"id": "adult_shop", "name": "おみせぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["shop"]},
+	{"id": "adult_break", "name": "きゅうけいぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["break"]},
 	{"id": "adult_love", "name": "らぶぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["love"]},
 	{"id": "adult_nap", "name": "おひるねぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"]},
-	{"id": "adult_yankee", "name": "やんきーぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["yankee"]},
+	{"id": "adult_hana", "name": "はなぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["hana"]},
 	{"id": "adult_rainbow", "name": "にじいろぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"]},
-	{"id": "adult_oshimotif", "name": "おしモチーフぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
+	{"id": "adult_oshimotif", "name": "みこぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
+	{"id": "adult_haru", "name": "はるぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["haru"]},
 ]
 
 @onready var title_label: Label = $MainMargin/CollectionLayout/TitleLabel
@@ -68,7 +72,6 @@ var cards: Dictionary = {}
 
 func _ready() -> void:
 	_build_diagram_canvas()
-	_setup_stage_labels()
 	_setup_evolution_lines()
 	_update_collection_count()
 	_update_collection_cards()
@@ -141,13 +144,12 @@ func _build_diagram_canvas() -> void:
 	diagram_canvas.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	evolution_tree.add_child(diagram_canvas)
 
-	_create_card(FORM_DATA[0], Vector2(CENTER_CARD_X, EGG_Y))
-	_create_card(FORM_DATA[1], Vector2(CENTER_CARD_X, CHIBI_Y))
+	_create_card(FORM_DATA[0], Vector2(CENTER_CARD_X, CHIBI_Y))
 
-	for i in 4:
-		_create_card(FORM_DATA[i + 2], Vector2(CHILD_X[i], CHILD_Y))
+	for i in 5:
+		_create_card(FORM_DATA[i + 1], Vector2(CHILD_X[i], CHILD_Y))
 
-	for i in 9:
+	for i in 15:
 		_create_card(FORM_DATA[i + 6], Vector2(ADULT_X[i], ADULT_Y))
 
 
@@ -209,39 +211,6 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	cards[str(form["id"])] = card
 
 
-func _setup_stage_labels() -> void:
-	_add_stage_label("たまご", Vector2(STAGE_LABEL_X, EGG_Y + 31.0), Color(1.0, 0.93, 0.68, 0.96))
-	_add_stage_label("ちび", Vector2(STAGE_LABEL_X, CHIBI_Y + 31.0), Color(0.98, 0.82, 0.49, 0.96))
-	_add_stage_label("子ぴよこ", Vector2(STAGE_LABEL_X, CHILD_Y + 31.0), Color(1.0, 0.76, 0.80, 0.96))
-	_add_stage_label("大人", Vector2(STAGE_LABEL_X, ADULT_Y + 31.0), Color(0.67, 0.88, 1.0, 0.96))
-
-
-func _add_stage_label(text_value: String, target_position: Vector2, background_color: Color) -> void:
-	var panel := PanelContainer.new()
-	panel.position = target_position
-	panel.size = Vector2(90.0, 34.0)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.z_index = 3
-
-	var style := StyleBoxFlat.new()
-	style.bg_color = background_color
-	style.border_color = Color(0.48, 0.31, 0.18, 0.55)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(17)
-	panel.add_theme_stylebox_override("panel", style)
-
-	var label := Label.new()
-	label.text = text_value
-	label.custom_minimum_size = Vector2(82.0, 30.0)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", Color(0.24, 0.14, 0.08, 1.0))
-	panel.add_child(label)
-	diagram_canvas.add_child(panel)
-
-
 func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
@@ -255,28 +224,24 @@ func _setup_evolution_lines() -> void:
 
 func _finish_layout() -> void:
 	_update_scroll_mode()
+	collection_area.scroll_horizontal = maxi(0, int(CENTER_CARD_X - collection_area.size.x * 0.5 + CARD_SIZE.x * 0.5))
 	if evolution_lines != null:
 		evolution_lines.queue_redraw()
 
 
 func _draw_evolution_lines() -> void:
-	# たまご → ちびぴよこ。
-	_draw_arrow(
-		_bottom_center(cards["egg"]) + Vector2(0.0, LINE_GAP),
-		_top_center(cards["chibi"]) - Vector2(0.0, LINE_GAP)
-	)
-
-	# ちびぴよこ → 子ぴよこ4種。
+	# ちびぴよこ → 子ぴよこ5種。
 	_draw_branch(
 		cards["chibi"],
-		[cards["child_food"], cards["child_play"], cards["child_pet"], cards["child_balance"]]
+		[cards["child_food"], cards["child_play"], cards["child_work"], cards["child_pet"], cards["child_balance"]]
 	)
 
-	# 子ぴよこごとに大人形態へ分岐。あまえ系のみ、きげんに応じた3分岐。
-	_draw_branch(cards["child_food"], [cards["adult_sweets"], cards["adult_gourmet"]])
-	_draw_branch(cards["child_play"], [cards["adult_champion"], cards["adult_challenger"]])
-	_draw_branch(cards["child_pet"], [cards["adult_love"], cards["adult_nap"], cards["adult_yankee"]])
-	_draw_branch(cards["child_balance"], [cards["adult_rainbow"], cards["adult_oshimotif"]])
+	# 子ぴよこごとに3種類の大人形態へ分岐する。
+	_draw_branch(cards["child_food"], [cards["adult_sweets"], cards["adult_gourmet"], cards["adult_unpiyo"]])
+	_draw_branch(cards["child_play"], [cards["adult_champion"], cards["adult_challenger"], cards["adult_umakowa"]])
+	_draw_branch(cards["child_work"], [cards["adult_suit"], cards["adult_shop"], cards["adult_break"]])
+	_draw_branch(cards["child_pet"], [cards["adult_love"], cards["adult_nap"], cards["adult_hana"]])
+	_draw_branch(cards["child_balance"], [cards["adult_rainbow"], cards["adult_oshimotif"], cards["adult_haru"]])
 
 
 func _draw_branch(source_card: Control, target_cards: Array) -> void:
