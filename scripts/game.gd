@@ -37,6 +37,7 @@ var shop_overlay: Control
 var shop_list: VBoxContainer
 var shop_mode := "buy"
 var shop_message: Label
+var shop_tabs: Dictionary = {}
 var special_use_confirm: ConfirmationDialog
 var pending_special_item := ""
 var food_buttons: Array[Button] = []
@@ -245,6 +246,7 @@ func _setup_work_and_shop_ui() -> void:
 	work_button.name = "WorkButton"
 	work_button.custom_minimum_size = Vector2(0, 56)
 	work_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_apply_action_button_style(work_button)
 	work_button.pressed.connect(_on_work_button_pressed)
 	$MainMargin/GameLayout/ActionMenu.add_child(work_button)
 
@@ -258,17 +260,22 @@ func _setup_work_and_shop_ui() -> void:
 	coin_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	coin_label.add_theme_font_size_override("font_size", 20)
 	coin_label.add_theme_color_override("font_color", Color("492d16"))
+	coin_label.add_theme_color_override("font_outline_color", Color("fff8dc"))
+	coin_label.add_theme_constant_override("outline_size", 6)
 	shop_anchor.add_child(coin_label)
 	shop_button = Button.new()
 	shop_button.text = "ショップ"
 	shop_button.custom_minimum_size = Vector2(170, 58)
 	shop_button.add_theme_font_size_override("font_size", 19)
+	_apply_action_button_style(shop_button)
 	shop_button.pressed.connect(_open_shop)
 	shop_anchor.add_child(shop_button)
 	special_marker_label = Label.new()
 	special_marker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	special_marker_label.add_theme_font_size_override("font_size", 14)
 	special_marker_label.add_theme_color_override("font_color", Color("58743b"))
+	special_marker_label.add_theme_color_override("font_outline_color", Color("fff8dc"))
+	special_marker_label.add_theme_constant_override("outline_size", 5)
 	shop_anchor.add_child(special_marker_label)
 
 	shop_overlay = Control.new()
@@ -285,7 +292,7 @@ func _setup_work_and_shop_ui() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shop_overlay.add_child(center)
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(980, 650)
+	panel.custom_minimum_size = Vector2(940, 570)
 	panel.add_theme_stylebox_override("panel", _make_finish_result_panel_style())
 	center.add_child(panel)
 	var margin := MarginContainer.new()
@@ -308,15 +315,18 @@ func _setup_work_and_shop_ui() -> void:
 	for mode_data in [{"id":"buy", "text":"買う"}, {"id":"inventory", "text":"もちもの"}]:
 		var tab := Button.new()
 		tab.text = mode_data.text
-		tab.custom_minimum_size = Vector2(250, 50)
+		tab.custom_minimum_size = Vector2(240, 48)
+		_apply_action_button_style(tab)
 		tab.pressed.connect(_set_shop_mode.bind(mode_data.id))
 		tabs.add_child(tab)
+		shop_tabs[mode_data.id] = tab
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(900, 430)
+	scroll.custom_minimum_size = Vector2(860, 300)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	root.add_child(scroll)
 	shop_list = VBoxContainer.new()
-	shop_list.custom_minimum_size.x = 880
+	shop_list.custom_minimum_size.x = 840
 	shop_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	shop_list.add_theme_constant_override("separation", 8)
 	scroll.add_child(shop_list)
@@ -329,6 +339,7 @@ func _setup_work_and_shop_ui() -> void:
 	close.text = "とじる"
 	close.custom_minimum_size = Vector2(320, 58)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_apply_action_button_style(close)
 	close.pressed.connect(_close_shop)
 	root.add_child(close)
 
@@ -637,30 +648,36 @@ func _refresh_shop_items() -> void:
 	for child in shop_list.get_children():
 		child.queue_free()
 	var economy := PiyokoEconomyManager.load_data()
+	var visible_count := 0
 	for item_id in PiyokoItemCatalog.get_ordered_ids():
 		var item := PiyokoItemCatalog.get_item(item_id)
+		var owned := int((economy["inventory"] as Dictionary).get(item_id, 0))
+		if shop_mode == "inventory" and owned <= 0:
+			continue
 		var row := HBoxContainer.new()
-		row.custom_minimum_size = Vector2(860, 74)
+		row.custom_minimum_size = Vector2(820, 64)
 		row.add_theme_constant_override("separation", 12)
 		var name_label := Label.new()
 		name_label.text = str(item["name"])
-		name_label.custom_minimum_size = Vector2(260, 0)
+		name_label.custom_minimum_size = Vector2(245, 0)
 		name_label.add_theme_font_size_override("font_size", 19)
 		name_label.add_theme_color_override("font_color", Color("492d16"))
 		row.add_child(name_label)
 		var effect := Label.new()
 		effect.text = str(item["effect_text"])
-		effect.custom_minimum_size = Vector2(220, 0)
+		effect.custom_minimum_size = Vector2(205, 0)
 		effect.add_theme_color_override("font_color", Color("58743b"))
 		row.add_child(effect)
-		var owned := int((economy["inventory"] as Dictionary).get(item_id, 0))
 		var info := Label.new()
 		info.text = "%dC　所持:%d" % [int(item["price"]), owned] if shop_mode == "buy" else "所持:%d" % owned
-		info.custom_minimum_size = Vector2(170, 0)
+		info.custom_minimum_size = Vector2(150, 0)
+		info.add_theme_font_size_override("font_size", 17)
+		info.add_theme_color_override("font_color", Color("492d16"))
 		row.add_child(info)
 		var action := Button.new()
 		action.text = "買う" if shop_mode == "buy" else "使う"
-		action.custom_minimum_size = Vector2(150, 54)
+		action.custom_minimum_size = Vector2(135, 50)
+		_apply_action_button_style(action)
 		action.disabled = owned <= 0 if shop_mode == "inventory" else int(economy["coins"]) < int(item["price"])
 		if shop_mode == "buy":
 			action.pressed.connect(_buy_shop_item.bind(str(item_id)))
@@ -668,7 +685,30 @@ func _refresh_shop_items() -> void:
 			action.pressed.connect(_use_shop_item.bind(str(item_id)))
 		row.add_child(action)
 		shop_list.add_child(row)
+		visible_count += 1
+	if shop_mode == "inventory" and visible_count == 0:
+		var empty_label := Label.new()
+		empty_label.text = "まだアイテムを持っていません"
+		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty_label.custom_minimum_size = Vector2(820, 90)
+		empty_label.add_theme_font_size_override("font_size", 20)
+		empty_label.add_theme_color_override("font_color", Color("755b3b"))
+		shop_list.add_child(empty_label)
+	for mode_id in shop_tabs:
+		var tab: Button = shop_tabs[mode_id]
+		tab.disabled = str(mode_id) == shop_mode
 	_update_work_and_shop_display()
+
+
+func _apply_action_button_style(button: Button) -> void:
+	var source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
+	button.add_theme_font_size_override("font_size", 18)
+	for color_name in [&"font_color", &"font_hover_color", &"font_pressed_color", &"font_focus_color", &"font_disabled_color"]:
+		button.add_theme_color_override(color_name, source.get_theme_color(color_name))
+	for style_name in [&"normal", &"hover", &"pressed", &"focus", &"disabled"]:
+		var style := source.get_theme_stylebox(style_name)
+		if style != null:
+			button.add_theme_stylebox_override(style_name, style.duplicate())
 
 
 func _buy_shop_item(item_id: String) -> void:
@@ -959,6 +999,8 @@ func _set_action_buttons_disabled(disabled: bool) -> void:
 		work_button.disabled = disabled
 		if not disabled:
 			_update_work_and_shop_display()
+	if is_instance_valid(shop_button):
+		shop_button.disabled = disabled
 
 
 func _on_growth_message_timeout() -> void:
