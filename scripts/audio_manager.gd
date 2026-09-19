@@ -68,7 +68,7 @@ func _load_saved_volume() -> void:
 		AudioServer.set_bus_volume_db(0, linear_to_db(volume / 100.0))
 
 
-func _on_scene_changed(_scene: Node) -> void:
+func _on_scene_changed() -> void:
 	call_deferred("_refresh_bgm")
 	call_deferred("_connect_existing_buttons")
 
