@@ -34,15 +34,10 @@ jobs:
           godot --headless --path . --export-release "Windows Desktop" build/windows/Piyoko.exe
           test -s build/windows/Piyoko.exe
 
-      - name: Create download ZIP
-        run: |
-          cd build/windows
-          zip -9 Piyoko-Windows-x64.zip Piyoko.exe
-
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
           name: Piyoko-Windows-x64
-          path: build/windows/Piyoko-Windows-x64.zip
+          path: build/windows/Piyoko.exe
           if-no-files-found: error
           retention-days: 30
