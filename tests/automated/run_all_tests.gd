@@ -231,14 +231,15 @@ func _test_economy() -> void:
 
 
 func _test_collection() -> void:
-	PiyokoCollectionManager.delete_collection()
+	var collection_manager := root.get_node("/root/PiyokoCollectionManager")
+	collection_manager.delete_collection()
 	for form in PiyokoDefinitionCatalog.get_forms():
-		PiyokoCollectionManager.discover(str(form.get("id", "")))
-	_expect(PiyokoCollectionManager.discovered.size() == 21, "全21形態を図鑑登録")
+		collection_manager.discover(str(form.get("id", "")))
+	_expect(collection_manager.discovered.size() == 21, "全21形態を図鑑登録")
 	for form in PiyokoDefinitionCatalog.get_forms():
 		var form_id := str(form.get("id", ""))
-		_expect(PiyokoCollectionManager.is_discovered(form_id), "図鑑発見済み: " + form_id)
-		_expect(not PiyokoCollectionManager.get_discovered_date(form_id).is_empty(), "図鑑発見日あり: " + form_id)
+		_expect(collection_manager.is_discovered(form_id), "図鑑発見済み: " + form_id)
+		_expect(not collection_manager.get_discovered_date(form_id).is_empty(), "図鑑発見日あり: " + form_id)
 
 
 func _test_scene_smoke() -> void:
@@ -267,4 +268,4 @@ func _test_scene_smoke() -> void:
 func _cleanup_user_data() -> void:
 	PiyokoSaveManager.delete_save()
 	PiyokoEconomyManager.delete_all()
-	PiyokoCollectionManager.delete_collection()
+	root.get_node("/root/PiyokoCollectionManager").delete_collection()
