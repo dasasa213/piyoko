@@ -1,460 +1,460 @@
 {
   "format_version": 1,
   "forms": [
-    {
-      "id": "chibi",
-      "type": "chibi",
-      "name": "ちびぴよこ",
-      "stage": "chibi",
-      "lineage": "root",
-      "order": 0,
-      "previous_id": "",
-      "texture": "res://assets/characters/piyoko/forms/01_chibi_piyoko.png",
-      "description": "たまごから生まれたばかりの、元気で小さなピヨコ。",
-      "condition": "たまごをタッチして孵化させる。",
-      "hint": "たまごをやさしく見守ってみよう。"
-    },
-    {
-      "id": "child_food",
-      "type": "food",
-      "name": "ごはんぴよこ",
-      "stage": "child",
-      "lineage": "food",
-      "care_key": "food",
-      "order": 0,
-      "previous_id": "chibi",
-      "texture": "res://assets/characters/piyoko/forms/02_child_food.png",
-      "description": "おいしいものが大好き。食事の時間をいつも楽しみにしている。",
-      "condition": "ちびぴよこ期にごはんが最多。最多が同数なら、最後のお世話がごはん。",
-      "hint": "食べ物との過ごし方が成長の鍵になりそう。"
-    },
-    {
-      "id": "child_play",
-      "type": "play",
-      "name": "やんちゃぴよこ",
-      "stage": "child",
-      "lineage": "play",
-      "care_key": "play",
-      "order": 1,
-      "previous_id": "chibi",
-      "texture": "res://assets/characters/piyoko/forms/03_child_play.png",
-      "description": "遊ぶことが大好きで、毎日元気いっぱいに動き回る。",
-      "condition": "ちびぴよこ期に遊ぶが最多。最多が同数なら、最後のお世話が遊ぶ。",
-      "hint": "たくさん遊んだ思い出が成長につながりそう。"
-    },
-    {
-      "id": "child_work",
-      "type": "work",
-      "name": "おてつだいぴよこ",
-      "stage": "child",
-      "lineage": "work",
-      "care_key": "work",
-      "order": 2,
-      "previous_id": "chibi",
-      "texture": "res://assets/characters/piyoko/generated/v3/child_work_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/child_work_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/child_work_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/child_work_eat.png",
-      "description": "だれかの役に立つことが大好き。まだ少し不器用だけど、今日も一生懸命おてつだいしている。",
-      "condition": "ちびぴよこ期に、おてつだいを最も多く行う。",
-      "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。"
-    },
-    {
-      "id": "child_pet",
-      "type": "pet",
-      "name": "あまえぴよこ",
-      "stage": "child",
-      "lineage": "pet",
-      "care_key": "pet",
-      "order": 3,
-      "previous_id": "chibi",
-      "texture": "res://assets/characters/piyoko/forms/04_child_pet.png",
-      "description": "なでてもらうのが大好きな、甘え上手のピヨコ。",
-      "condition": "ちびぴよこ期になでるが最多。最多が同数なら、最後のお世話がなでる。",
-      "hint": "ふれあいと、きげんを大切にしてみよう。"
-    },
-    {
-      "id": "child_balance",
-      "type": "balance",
-      "name": "へいきんぴよこ",
-      "stage": "child",
-      "lineage": "balance",
-      "order": 4,
-      "previous_id": "chibi",
-      "texture": "res://assets/characters/piyoko/forms/05_child_balance.png",
-      "description": "食事も遊びもふれあいも、バランスよく楽しむピヨコ。",
-      "condition": "ちびぴよこ期に4種類のお世話をバランスよく行う。",
-      "hint": "いろいろなお世話を偏らず試してみよう。"
-    },
-    {
-      "id": "adult_sweets",
-      "type": "sweets",
-      "name": "すいーつぴよこ",
-      "stage": "adult",
-      "lineage": "food",
-      "order": 0,
-      "previous_id": "child_food",
-      "texture": "res://assets/characters/piyoko/forms/06_adult_sweets.png",
-      "description": "甘い幸せをたくさん知って成長した、ふんわり華やかなピヨコ。",
-      "condition": "ごはんぴよこ期に、ショートケーキを単独で最も多く与える。",
-      "hint": "食べ物との過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 200,
-        "conditions": [
-          {
-            "type": "strict_max",
-            "field": "adult_shortcake_count",
-            "others": [
-              "adult_onigiri_count",
+	{
+	  "id": "chibi",
+	  "type": "chibi",
+	  "name": "ちびぴよこ",
+	  "stage": "chibi",
+	  "lineage": "root",
+	  "order": 0,
+	  "previous_id": "",
+	  "texture": "res://assets/characters/piyoko/forms/01_chibi_piyoko.png",
+	  "description": "たまごから生まれたばかりの、元気で小さなピヨコ。",
+	  "condition": "たまごをタッチして孵化させる。",
+	  "hint": "たまごをやさしく見守ってみよう。"
+	},
+	{
+	  "id": "child_food",
+	  "type": "food",
+	  "name": "ごはんぴよこ",
+	  "stage": "child",
+	  "lineage": "food",
+	  "care_key": "food",
+	  "order": 0,
+	  "previous_id": "chibi",
+	  "texture": "res://assets/characters/piyoko/forms/02_child_food.png",
+	  "description": "おいしいものが大好き。食事の時間をいつも楽しみにしている。",
+	  "condition": "ちびぴよこ期にごはんが最多。最多が同数なら、最後のお世話がごはん。",
+	  "hint": "食べ物との過ごし方が成長の鍵になりそう。"
+	},
+	{
+	  "id": "child_play",
+	  "type": "play",
+	  "name": "やんちゃぴよこ",
+	  "stage": "child",
+	  "lineage": "play",
+	  "care_key": "play",
+	  "order": 1,
+	  "previous_id": "chibi",
+	  "texture": "res://assets/characters/piyoko/forms/03_child_play.png",
+	  "description": "遊ぶことが大好きで、毎日元気いっぱいに動き回る。",
+	  "condition": "ちびぴよこ期に遊ぶが最多。最多が同数なら、最後のお世話が遊ぶ。",
+	  "hint": "たくさん遊んだ思い出が成長につながりそう。"
+	},
+	{
+	  "id": "child_work",
+	  "type": "work",
+	  "name": "おてつだいぴよこ",
+	  "stage": "child",
+	  "lineage": "work",
+	  "care_key": "work",
+	  "order": 2,
+	  "previous_id": "chibi",
+	  "texture": "res://assets/characters/piyoko/generated/v3/child_work_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/child_work_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/child_work_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/child_work_eat.png",
+	  "description": "だれかの役に立つことが大好き。まだ少し不器用だけど、今日も一生懸命おてつだいしている。",
+	  "condition": "ちびぴよこ期に、おてつだいを最も多く行う。",
+	  "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。"
+	},
+	{
+	  "id": "child_pet",
+	  "type": "pet",
+	  "name": "あまえぴよこ",
+	  "stage": "child",
+	  "lineage": "pet",
+	  "care_key": "pet",
+	  "order": 3,
+	  "previous_id": "chibi",
+	  "texture": "res://assets/characters/piyoko/forms/04_child_pet.png",
+	  "description": "なでてもらうのが大好きな、甘え上手のピヨコ。",
+	  "condition": "ちびぴよこ期になでるが最多。最多が同数なら、最後のお世話がなでる。",
+	  "hint": "ふれあいと、きげんを大切にしてみよう。"
+	},
+	{
+	  "id": "child_balance",
+	  "type": "balance",
+	  "name": "へいきんぴよこ",
+	  "stage": "child",
+	  "lineage": "balance",
+	  "order": 4,
+	  "previous_id": "chibi",
+	  "texture": "res://assets/characters/piyoko/forms/05_child_balance.png",
+	  "description": "食事も遊びもふれあいも、バランスよく楽しむピヨコ。",
+	  "condition": "ちびぴよこ期に4種類のお世話をバランスよく行う。",
+	  "hint": "いろいろなお世話を偏らず試してみよう。"
+	},
+	{
+	  "id": "adult_sweets",
+	  "type": "sweets",
+	  "name": "すいーつぴよこ",
+	  "stage": "adult",
+	  "lineage": "food",
+	  "order": 0,
+	  "previous_id": "child_food",
+	  "texture": "res://assets/characters/piyoko/forms/06_adult_sweets.png",
+	  "description": "甘い幸せをたくさん知って成長した、ふんわり華やかなピヨコ。",
+	  "condition": "ごはんぴよこ期に、ショートケーキを単独で最も多く与える。",
+	  "hint": "食べ物との過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 200,
+		"conditions": [
+		  {
+			"type": "strict_max",
+			"field": "adult_shortcake_count",
+			"others": [
+			  "adult_onigiri_count",
               "adult_broccoli_count"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_gourmet",
-      "type": "gourmet",
-      "name": "ぐるめぴよこ",
-      "stage": "adult",
-      "lineage": "food",
-      "order": 1,
-      "previous_id": "child_food",
-      "texture": "res://assets/characters/piyoko/forms/07_adult_gourmet.png",
-      "description": "いろいろな味を楽しみながら成長した、食通のピヨコ。",
-      "condition": "ごはんぴよこ期に、ショートケーキが単独最多にならない。",
-      "hint": "食べ物との過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 0,
-        "conditions": [
-          {
-            "type": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_unpiyo",
-      "type": "unpiyo",
-      "name": "うんぴよ",
-      "stage": "adult",
-      "lineage": "food",
-      "order": 2,
-      "previous_id": "child_food",
-      "texture": "res://assets/characters/piyoko/forms/14_extra_pooppiyo.png",
-      "description": "たくさん食べて、ちょっぴり不思議な姿に成長したピヨコ。見た目によらずきれい好きで、どこか憎めない人気者。",
-      "condition": "ごはんぴよこ期に、おなか10の状態でごはんを5回与える。",
-      "hint": "食べ物との過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 300,
-        "conditions": [
-          {
-            "type": "field_min",
-            "field": "full_hunger_feed_count",
-            "value": 5
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_champion",
-      "type": "champion",
-      "name": "ちゃんぷぴよこ",
-      "stage": "adult",
-      "lineage": "play",
-      "order": 0,
-      "previous_id": "child_play",
-      "texture": "res://assets/characters/piyoko/forms/08_adult_champion.png",
-      "description": "たくさんの成功を重ね、自信に満ちたチャンピオンになった。",
-      "condition": "やんちゃぴよこ期に、遊びの成功回数を失敗回数より多くする。",
-      "hint": "たくさん遊んだ思い出が成長につながりそう。",
-      "evolution": {
-        "priority": 200,
-        "conditions": [
-          {
-            "type": "field_compare",
-            "left": "adult_play_success_count",
-            "operator": ">",
-            "right": "adult_play_failure_count"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_challenger",
-      "type": "challenger",
-      "name": "ふぁいとぴよこ",
-      "stage": "adult",
-      "lineage": "play",
-      "order": 1,
-      "previous_id": "child_play",
-      "texture": "res://assets/characters/piyoko/forms/09_adult_challenger.png",
-      "description": "失敗してもくじけず、何度でも挑戦を続ける勇敢なピヨコ。",
-      "condition": "やんちゃぴよこ期に、遊びの失敗回数を成功回数以上にする。",
-      "hint": "たくさん遊んだ思い出が成長につながりそう。",
-      "evolution": {
-        "priority": 0,
-        "conditions": [
-          {
-            "type": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_umakowa",
-      "type": "umakowa",
-      "name": "うまこわぴよこ",
-      "stage": "adult",
-      "lineage": "play",
-      "order": 2,
-      "previous_id": "child_play",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_umakowa_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_umakowa_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_umakowa_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_umakowa_eat.png",
-      "description": "勝負になると誰よりも熱くなる、勇ましいピヨコ。自慢の速さと負けん気で、どんな遊びにも全力で挑む。",
-      "condition": "やんちゃぴよこ期に馬券を使い、遊びを5回連続で成功させる。",
-      "hint": "たくさん遊んだ思い出が成長につながりそう。",
-      "evolution": {
-        "priority": 300,
-        "conditions": [
-          {
-            "type": "field_true",
-            "field": "horse_ticket_used"
-          },
-          {
-            "type": "field_true",
-            "field": "play_streak_achieved"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_suit",
-      "type": "suit",
-      "name": "すーつぴよこ",
-      "stage": "adult",
-      "lineage": "work",
-      "order": 0,
-      "previous_id": "child_work",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_suit_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_suit_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_suit_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_suit_eat.png",
-      "description": "まじめに働く、しっかり者のピヨコ。身だしなみを整え、今日も自分の仕事にこつこつ取り組んでいる。",
-      "condition": "おみせ・きゅうけいの条件を満たさずに成長する。",
-      "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 0,
-        "conditions": [
-          {
-            "type": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_shop",
-      "type": "shop",
-      "name": "おみせぴよこ",
-      "stage": "adult",
-      "lineage": "work",
-      "order": 1,
-      "previous_id": "child_work",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_shop_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_shop_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_shop_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_shop_eat.png",
-      "description": "お客さんの笑顔がいちばんのごほうび。元気なあいさつと丁寧なおもてなしで、今日もお店をにぎやかにする。",
-      "condition": "おてつだいぴよこ期に、商品を合計3個以上購入する。",
-      "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 300,
-        "conditions": [
-          {
-            "type": "field_min",
-            "field": "child_shop_purchase_count",
-            "value": 3
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_break",
-      "type": "break",
-      "name": "きゅうけいぴよこ",
-      "stage": "adult",
-      "lineage": "work",
-      "order": 2,
-      "previous_id": "child_work",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_break_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_break_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_break_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_break_eat.png",
-      "description": "がんばる時間と休む時間、どちらも大切にするピヨコ。温かい飲み物を片手に、ほっとひと息ついている。",
-      "condition": "商品を3個購入せず、成長時のきげんを8以上にする。",
-      "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
-      "evolution": {
-        "priority": 200,
-        "conditions": [
-          {
-            "type": "field_min",
-            "field": "mood",
-            "value": 8
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_love",
-      "type": "love",
-      "name": "らぶぴよこ",
-      "stage": "adult",
-      "lineage": "pet",
-      "order": 0,
-      "previous_id": "child_pet",
-      "texture": "res://assets/characters/piyoko/forms/10_adult_love.png",
-      "description": "たくさんの愛情を受け、やさしさにあふれて成長した。",
-      "condition": "あまえぴよこ期の成長時に、きげんを8以上にする。",
-      "hint": "ふれあいと、きげんを大切にしてみよう。",
-      "evolution": {
-        "priority": 200,
-        "conditions": [
-          {
-            "type": "field_min",
-            "field": "mood",
-            "value": 8
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_nap",
-      "type": "nap",
-      "name": "おひるねぴよこ",
-      "stage": "adult",
-      "lineage": "pet",
-      "order": 1,
-      "previous_id": "child_pet",
-      "texture": "res://assets/characters/piyoko/forms/11_adult_nap.png",
-      "description": "静かな時間とお昼寝を愛する、のんびり屋のピヨコ。",
-      "condition": "はな・らぶの条件を満たさずに成長する。",
-      "hint": "ふれあいと、きげんを大切にしてみよう。",
-      "evolution": {
-        "priority": 0,
-        "conditions": [
-          {
-            "type": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_hana",
-      "type": "hana",
-      "name": "はなぴよこ",
-      "stage": "adult",
-      "lineage": "pet",
-      "order": 2,
-      "previous_id": "child_pet",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_hana_normal.png",
-      "description": "ちょっとやんちゃな世紀末ピヨコ。ぴよこ界のｵｼｬﾚ番長。",
-      "condition": "あまえぴよこ期に「はな」を使い、成長時のきげんを8以上にする。",
-      "hint": "ふれあいと、きげんを大切にしてみよう。",
-      "evolution": {
-        "priority": 300,
-        "conditions": [
-          {
-            "type": "field_true",
-            "field": "flower_item_used"
-          },
-          {
-            "type": "field_min",
-            "field": "mood",
-            "value": 8
-          }
-        ]
-      },
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_hana_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_hana_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_hana_eat.png"
-    },
-    {
-      "id": "adult_rainbow",
-      "type": "rainbow",
-      "name": "にじいろぴよこ",
-      "stage": "adult",
-      "lineage": "balance",
-      "order": 0,
-      "previous_id": "child_balance",
-      "texture": "res://assets/characters/piyoko/forms/12_adult_rainbow.png",
-      "description": "さまざまなお世話を受けて、色とりどりの個性が花開いた。",
-      "condition": "へいきんぴよこ期に、通常のお世話を続ける。",
-      "hint": "いろいろなお世話を偏らず試してみよう。",
-      "evolution": {
-        "priority": 0,
-        "conditions": [
-          {
-            "type": "default"
-          }
-        ]
-      }
-    },
-    {
-      "id": "adult_oshimotif",
-      "type": "oshimotif",
-      "name": "みこぴよこ",
-      "stage": "adult",
-      "lineage": "balance",
-      "order": 1,
-      "previous_id": "child_balance",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_normal.png",
-      "description": "深淵から突如現れたピヨコ。今日もみんなの幸せを作っている。",
-      "condition": "へいきんぴよこ期に「にじ」を使う。",
-      "hint": "特別なにじに、秘密がありそう。",
-      "evolution": {
-        "priority": 300,
-        "conditions": [
-          {
-            "type": "field_true",
-            "field": "rainbow_item_used"
-          }
-        ]
-      },
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_eat.png"
-    },
-    {
-      "id": "adult_haru",
-      "type": "haru",
-      "name": "はるぴよこ",
-      "stage": "adult",
-      "lineage": "balance",
-      "order": 2,
-      "previous_id": "child_balance",
-      "texture": "res://assets/characters/piyoko/generated/v3/adult_haru_normal.png",
-      "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_haru_happy.png",
-      "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_haru_sad.png",
-      "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_haru_eat.png",
-      "description": "月のかけらに導かれて成長した、穏やかなピヨコ。夜空を眺めながら、大切な人のそばを優しく照らしている。",
-      "condition": "へいきんぴよこ期に月のかけらを使い、なかよしを10にする。",
-      "hint": "いろいろなお世話を偏らず試してみよう。",
-      "evolution": {
-        "priority": 200,
-        "conditions": [
-          {
-            "type": "field_true",
-            "field": "moon_fragment_used"
-          },
-          {
-            "type": "field_min",
-            "field": "friendship",
-            "value": 10
-          }
-        ]
-      }
-    }
+			]
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_gourmet",
+	  "type": "gourmet",
+	  "name": "ぐるめぴよこ",
+	  "stage": "adult",
+	  "lineage": "food",
+	  "order": 1,
+	  "previous_id": "child_food",
+	  "texture": "res://assets/characters/piyoko/forms/07_adult_gourmet.png",
+	  "description": "いろいろな味を楽しみながら成長した、食通のピヨコ。",
+	  "condition": "ごはんぴよこ期に、ショートケーキが単独最多にならない。",
+	  "hint": "食べ物との過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 0,
+		"conditions": [
+		  {
+			"type": "default"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_unpiyo",
+	  "type": "unpiyo",
+	  "name": "うんぴよ",
+	  "stage": "adult",
+	  "lineage": "food",
+	  "order": 2,
+	  "previous_id": "child_food",
+	  "texture": "res://assets/characters/piyoko/forms/14_extra_pooppiyo.png",
+	  "description": "たくさん食べて、ちょっぴり不思議な姿に成長したピヨコ。見た目によらずきれい好きで、どこか憎めない人気者。",
+	  "condition": "ごはんぴよこ期に、おなか10の状態でごはんを5回与える。",
+	  "hint": "食べ物との過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 300,
+		"conditions": [
+		  {
+			"type": "field_min",
+			"field": "full_hunger_feed_count",
+			"value": 5
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_champion",
+	  "type": "champion",
+	  "name": "ちゃんぷぴよこ",
+	  "stage": "adult",
+	  "lineage": "play",
+	  "order": 0,
+	  "previous_id": "child_play",
+	  "texture": "res://assets/characters/piyoko/forms/08_adult_champion.png",
+	  "description": "たくさんの成功を重ね、自信に満ちたチャンピオンになった。",
+	  "condition": "やんちゃぴよこ期に、遊びの成功回数を失敗回数より多くする。",
+	  "hint": "たくさん遊んだ思い出が成長につながりそう。",
+	  "evolution": {
+		"priority": 200,
+		"conditions": [
+		  {
+			"type": "field_compare",
+			"left": "adult_play_success_count",
+			"operator": ">",
+			"right": "adult_play_failure_count"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_challenger",
+	  "type": "challenger",
+	  "name": "ふぁいとぴよこ",
+	  "stage": "adult",
+	  "lineage": "play",
+	  "order": 1,
+	  "previous_id": "child_play",
+	  "texture": "res://assets/characters/piyoko/forms/09_adult_challenger.png",
+	  "description": "失敗してもくじけず、何度でも挑戦を続ける勇敢なピヨコ。",
+	  "condition": "やんちゃぴよこ期に、遊びの失敗回数を成功回数以上にする。",
+	  "hint": "たくさん遊んだ思い出が成長につながりそう。",
+	  "evolution": {
+		"priority": 0,
+		"conditions": [
+		  {
+			"type": "default"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_umakowa",
+	  "type": "umakowa",
+	  "name": "うまこわぴよこ",
+	  "stage": "adult",
+	  "lineage": "play",
+	  "order": 2,
+	  "previous_id": "child_play",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_umakowa_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_umakowa_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_umakowa_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_umakowa_eat.png",
+	  "description": "勝負になると誰よりも熱くなる、勇ましいピヨコ。自慢の速さと負けん気で、どんな遊びにも全力で挑む。",
+	  "condition": "やんちゃぴよこ期に馬券を使い、遊びを5回連続で成功させる。",
+	  "hint": "たくさん遊んだ思い出が成長につながりそう。",
+	  "evolution": {
+		"priority": 300,
+		"conditions": [
+		  {
+			"type": "field_true",
+			"field": "horse_ticket_used"
+		  },
+		  {
+			"type": "field_true",
+			"field": "play_streak_achieved"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_suit",
+	  "type": "suit",
+	  "name": "すーつぴよこ",
+	  "stage": "adult",
+	  "lineage": "work",
+	  "order": 0,
+	  "previous_id": "child_work",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_suit_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_suit_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_suit_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_suit_eat.png",
+	  "description": "まじめに働く、しっかり者のピヨコ。身だしなみを整え、今日も自分の仕事にこつこつ取り組んでいる。",
+	  "condition": "おみせ・きゅうけいの条件を満たさずに成長する。",
+	  "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 0,
+		"conditions": [
+		  {
+			"type": "default"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_shop",
+	  "type": "shop",
+	  "name": "おみせぴよこ",
+	  "stage": "adult",
+	  "lineage": "work",
+	  "order": 1,
+	  "previous_id": "child_work",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_shop_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_shop_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_shop_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_shop_eat.png",
+	  "description": "お客さんの笑顔がいちばんのごほうび。元気なあいさつと丁寧なおもてなしで、今日もお店をにぎやかにする。",
+	  "condition": "おてつだいぴよこ期に、商品を合計3個以上購入する。",
+	  "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 300,
+		"conditions": [
+		  {
+			"type": "field_min",
+			"field": "child_shop_purchase_count",
+			"value": 3
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_break",
+	  "type": "break",
+	  "name": "きゅうけいぴよこ",
+	  "stage": "adult",
+	  "lineage": "work",
+	  "order": 2,
+	  "previous_id": "child_work",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_break_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_break_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_break_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_break_eat.png",
+	  "description": "がんばる時間と休む時間、どちらも大切にするピヨコ。温かい飲み物を片手に、ほっとひと息ついている。",
+	  "condition": "商品を3個購入せず、成長時のきげんを8以上にする。",
+	  "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
+	  "evolution": {
+		"priority": 200,
+		"conditions": [
+		  {
+			"type": "field_min",
+			"field": "mood",
+			"value": 8
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_love",
+	  "type": "love",
+	  "name": "らぶぴよこ",
+	  "stage": "adult",
+	  "lineage": "pet",
+	  "order": 0,
+	  "previous_id": "child_pet",
+	  "texture": "res://assets/characters/piyoko/forms/10_adult_love.png",
+	  "description": "たくさんの愛情を受け、やさしさにあふれて成長した。",
+	  "condition": "あまえぴよこ期の成長時に、きげんを8以上にする。",
+	  "hint": "ふれあいと、きげんを大切にしてみよう。",
+	  "evolution": {
+		"priority": 200,
+		"conditions": [
+		  {
+			"type": "field_min",
+			"field": "mood",
+			"value": 8
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_nap",
+	  "type": "nap",
+	  "name": "おひるねぴよこ",
+	  "stage": "adult",
+	  "lineage": "pet",
+	  "order": 1,
+	  "previous_id": "child_pet",
+	  "texture": "res://assets/characters/piyoko/forms/11_adult_nap.png",
+	  "description": "静かな時間とお昼寝を愛する、のんびり屋のピヨコ。",
+	  "condition": "はな・らぶの条件を満たさずに成長する。",
+	  "hint": "ふれあいと、きげんを大切にしてみよう。",
+	  "evolution": {
+		"priority": 0,
+		"conditions": [
+		  {
+			"type": "default"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_hana",
+	  "type": "hana",
+	  "name": "はなぴよこ",
+	  "stage": "adult",
+	  "lineage": "pet",
+	  "order": 2,
+	  "previous_id": "child_pet",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_hana_normal.png",
+	  "description": "ちょっとやんちゃな世紀末ピヨコ。ぴよこ界のｵｼｬﾚ番長。",
+	  "condition": "あまえぴよこ期に「はな」を使い、成長時のきげんを8以上にする。",
+	  "hint": "ふれあいと、きげんを大切にしてみよう。",
+	  "evolution": {
+		"priority": 300,
+		"conditions": [
+		  {
+			"type": "field_true",
+			"field": "flower_item_used"
+		  },
+		  {
+			"type": "field_min",
+			"field": "mood",
+			"value": 8
+		  }
+		]
+	  },
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_hana_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_hana_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_hana_eat.png"
+	},
+	{
+	  "id": "adult_rainbow",
+	  "type": "rainbow",
+	  "name": "にじいろぴよこ",
+	  "stage": "adult",
+	  "lineage": "balance",
+	  "order": 0,
+	  "previous_id": "child_balance",
+	  "texture": "res://assets/characters/piyoko/forms/12_adult_rainbow.png",
+	  "description": "さまざまなお世話を受けて、色とりどりの個性が花開いた。",
+	  "condition": "へいきんぴよこ期に、通常のお世話を続ける。",
+	  "hint": "いろいろなお世話を偏らず試してみよう。",
+	  "evolution": {
+		"priority": 0,
+		"conditions": [
+		  {
+			"type": "default"
+		  }
+		]
+	  }
+	},
+	{
+	  "id": "adult_oshimotif",
+	  "type": "oshimotif",
+	  "name": "みこぴよこ",
+	  "stage": "adult",
+	  "lineage": "balance",
+	  "order": 1,
+	  "previous_id": "child_balance",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_normal.png",
+	  "description": "深淵から突如現れたピヨコ。今日もみんなの幸せを作っている。",
+	  "condition": "へいきんぴよこ期に「にじ」を使う。",
+	  "hint": "特別なにじに、秘密がありそう。",
+	  "evolution": {
+		"priority": 300,
+		"conditions": [
+		  {
+			"type": "field_true",
+			"field": "rainbow_item_used"
+		  }
+		]
+	  },
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_oshimotif_eat.png"
+	},
+	{
+	  "id": "adult_haru",
+	  "type": "haru",
+	  "name": "はるぴよこ",
+	  "stage": "adult",
+	  "lineage": "balance",
+	  "order": 2,
+	  "previous_id": "child_balance",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_haru_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_haru_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_haru_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_haru_eat.png",
+	  "description": "月のかけらに導かれて成長した、穏やかなピヨコ。夜空を眺めながら、大切な人のそばを優しく照らしている。",
+	  "condition": "へいきんぴよこ期に月のかけらを使い、なかよしを10にする。",
+	  "hint": "いろいろなお世話を偏らず試してみよう。",
+	  "evolution": {
+		"priority": 200,
+		"conditions": [
+		  {
+			"type": "field_true",
+			"field": "moon_fragment_used"
+		  },
+		  {
+			"type": "field_min",
+			"field": "friendship",
+			"value": 10
+		  }
+		]
+	  }
+	}
   ]
 }
