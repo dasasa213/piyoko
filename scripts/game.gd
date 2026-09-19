@@ -37,6 +37,7 @@ var shop_overlay: Control
 var shop_list: VBoxContainer
 var shop_mode := "buy"
 var shop_message: Label
+var shop_coin_label: Label
 var shop_tabs: Dictionary = {}
 var special_use_confirm: ConfirmationDialog
 var pending_special_item := ""
@@ -308,6 +309,11 @@ func _setup_work_and_shop_ui() -> void:
 	header.add_theme_font_size_override("font_size", 30)
 	header.add_theme_color_override("font_color", Color("492d16"))
 	root.add_child(header)
+	shop_coin_label = Label.new()
+	shop_coin_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	shop_coin_label.add_theme_font_size_override("font_size", 21)
+	shop_coin_label.add_theme_color_override("font_color", Color("75501f"))
+	root.add_child(shop_coin_label)
 	var tabs := HBoxContainer.new()
 	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
 	tabs.add_theme_constant_override("separation", 18)
@@ -588,6 +594,7 @@ func _on_pet_effect_finished() -> void:
 # ------------------------------------------------------------
 
 func _on_play_button_pressed() -> void:
+	_set_action_buttons_disabled(true)
 	var texture := PiyokoTextureManager.get_texture(
 		piyoko.growth_stage,
 		piyoko.child_type,
@@ -626,6 +633,8 @@ func _on_work_button_pressed() -> void:
 
 
 func _open_shop() -> void:
+	if is_instance_valid(play_minigame) and play_minigame.is_active():
+		return
 	shop_message.text = ""
 	shop_overlay.show()
 	_set_action_buttons_disabled(true)
@@ -648,6 +657,7 @@ func _refresh_shop_items() -> void:
 	for child in shop_list.get_children():
 		child.queue_free()
 	var economy := PiyokoEconomyManager.load_data()
+	shop_coin_label.text = "所持金：%dC" % int(economy.get("coins", 0))
 	var visible_count := 0
 	for item_id in PiyokoItemCatalog.get_ordered_ids():
 		var item := PiyokoItemCatalog.get_item(item_id)

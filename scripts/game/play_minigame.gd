@@ -54,6 +54,10 @@ func start(texture: Texture2D, viewport_size: Vector2) -> void:
 	_game_timer.start()
 
 
+func is_active() -> bool:
+	return _active or not _result_timer.is_stopped()
+
+
 func _process(_delta: float) -> void:
 	if _active:
 		_time_label.text = "のこり %.1f 秒" % _game_timer.time_left
