@@ -4,6 +4,7 @@
 
 - `piyoko_forms.json`: 形態、表示、画像、進化条件
 - `shop_items.json`: 商品、価格、効果、使用可能な成長段階
+- `foods.json`: 食べ物、表示名、画像、ステータス効果、好み
 
 ゲーム起動時にID重複、画像パス、未対応の条件・効果を検査します。不正な定義はGodotの「出力」にエラーとして表示されます。
 
@@ -66,6 +67,26 @@
 ```
 
 進化アイテムは `special_flag` と `allowed_lineages` を設定します。フラグは現在の `Piyoko` が保持するプロパティ名を指定してください。新しい種類の効果や新しい進化判定方式を増やす場合だけ、対応するカタログ／評価クラスへの実装追加が必要です。
+
+## 食べ物を追加する
+
+`foods.json` の `foods` に追加すると、ごはんメニューと食事演出へ自動的に表示されます。
+
+```json
+{
+  "id": "example_food",
+  "name": "れいのごはん",
+  "button_text": "🍽 れいのごはん",
+  "image": "res://assets/items/food/04_example.png",
+  "effects": {"hunger": 1, "friendship": 1, "mood": 0},
+  "liked": true,
+  "count_field": "",
+  "adult_count_field": "",
+  "order": 3
+}
+```
+
+単純な食べ物追加では回数項目を空にできます。新しい進化条件やおもいでに固有回数を残す場合は、`Piyoko` とセーブ／おもいでデータにも対応する回数項目を追加してください。
 
 ## 追加後の確認
 

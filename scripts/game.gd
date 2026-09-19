@@ -39,6 +39,7 @@ var shop_mode := "buy"
 var shop_message: Label
 var special_use_confirm: ConfirmationDialog
 var pending_special_item := ""
+var food_buttons: Array[Button] = []
 
 var food_effect: Node
 var pet_effect: Node
@@ -64,11 +65,30 @@ func _ready() -> void:
 	_connect_scene_signals()
 	_setup_components()
 	_setup_work_and_shop_ui()
+	_apply_platform_ui()
 	_setup_initial_view()
 	_apply_nature_ui_styles()
 
 	print("ゲーム画面：ピヨコを作成しました")
 	piyoko.print_status()
+
+
+func _apply_platform_ui() -> void:
+	if OS.has_feature("mobile"):
+		$GameMenuPanel/GameMenu/QuitButton.hide()
+
+
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_WM_GO_BACK_REQUEST or not OS.has_feature("mobile"):
+		return
+	if is_instance_valid(shop_overlay) and shop_overlay.visible:
+		_close_shop()
+	elif $FoodPanel.visible:
+		_on_food_close_button_pressed()
+	elif $GameMenuPanel.visible:
+		_on_close_menu_button_pressed()
+	else:
+		_on_back_to_title_button_pressed()
 
 
 # 既存の単色背景を非表示にし、育成画面用の画像を最背面に配置する。
@@ -174,10 +194,6 @@ func _connect_scene_signals() -> void:
 	$MainMargin/GameLayout/ActionMenu/FoodButton.pressed.connect(_on_food_button_pressed)
 	$MainMargin/GameLayout/ActionMenu/PetButton.pressed.connect(_on_pet_button_pressed)
 	$MainMargin/GameLayout/ActionMenu/PlayButton.pressed.connect(_on_play_button_pressed)
-
-	$FoodPanel/FoodMenu/ShortcakeButton.pressed.connect(_on_shortcake_button_pressed)
-	$FoodPanel/FoodMenu/OnigiriButton.pressed.connect(_on_onigiri_button_pressed)
-	$FoodPanel/FoodMenu/BroccoliButton.pressed.connect(_on_broccoli_button_pressed)
 
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/HatchButton.pressed.connect(_on_hatch_button_pressed)
 	$MainMargin/GameLayout/PiyokoArea/PiyokoHolder/AnimationPlayer.animation_finished.connect(_on_animation_finished)
@@ -341,12 +357,37 @@ func _setup_food_menu_ui() -> void:
 	$FoodPanel.offset_top = -160.0
 	$FoodPanel.offset_bottom = 160.0
 
+	var menu: VBoxContainer = $FoodPanel/FoodMenu
+	var reusable_buttons: Array[Button] = [
+		$FoodPanel/FoodMenu/ShortcakeButton,
+		$FoodPanel/FoodMenu/OnigiriButton,
+		$FoodPanel/FoodMenu/BroccoliButton,
+	]
+	var food_ids := PiyokoFoodCatalog.get_ordered_ids()
+	for index in food_ids.size():
+		var button: Button
+		if index < reusable_buttons.size():
+			button = reusable_buttons[index]
+		else:
+			button = Button.new()
+			menu.add_child(button)
+		var food_id: String = food_ids[index]
+		var food := PiyokoFoodCatalog.get_food(food_id)
+		button.name = "%sButton" % food_id.to_pascal_case()
+		button.text = str(food.get("button_text", food.get("name", food_id)))
+		button.custom_minimum_size.y = 52.0
+		button.pressed.connect(_on_food_selected.bind(food_id))
+		button.show()
+		food_buttons.append(button)
+	for index in range(food_ids.size(), reusable_buttons.size()):
+		reusable_buttons[index].hide()
+
 	food_close_button = Button.new()
 	food_close_button.name = "CloseFoodButton"
 	food_close_button.text = "とじる"
 	food_close_button.custom_minimum_size.y = 46.0
 	food_close_button.pressed.connect(_on_food_close_button_pressed)
-	$FoodPanel/FoodMenu.add_child(food_close_button)
+	menu.add_child(food_close_button)
 
 
 func _setup_status_bars() -> void:
@@ -410,10 +451,9 @@ func _setup_status_bars() -> void:
 
 func _apply_nature_ui_styles() -> void:
 	var style_source: Button = $MainMargin/GameLayout/ActionMenu/FoodButton
-	var submenu_buttons: Array[Button] = [
-		$FoodPanel/FoodMenu/ShortcakeButton,
-		$FoodPanel/FoodMenu/OnigiriButton,
-		$FoodPanel/FoodMenu/BroccoliButton,
+	var submenu_buttons: Array[Button] = []
+	submenu_buttons.append_array(food_buttons)
+	submenu_buttons.append_array([
 		food_close_button,
 		$PlayPanel/PlayMenu/SuccessButton,
 		$PlayPanel/PlayMenu/FailureButton,
@@ -424,7 +464,7 @@ func _apply_nature_ui_styles() -> void:
 		$GameMenuPanel/GameMenu/BackToTitleButton,
 		$GameMenuPanel/GameMenu/QuitButton,
 		$GameMenuPanel/GameMenu/CloseMenuButton,
-	]
+	])
 
 	for button in submenu_buttons:
 		button.custom_minimum_size.y = 46.0
@@ -486,16 +526,11 @@ func _on_food_close_button_pressed() -> void:
 	$FoodPanel.hide()
 
 
-func _on_shortcake_button_pressed() -> void:
-	_start_food_effect("shortcake", "ショートケーキ")
-
-
-func _on_onigiri_button_pressed() -> void:
-	_start_food_effect("onigiri", "おにぎり")
-
-
-func _on_broccoli_button_pressed() -> void:
-	_start_food_effect("broccoli", "ブロッコリー")
+func _on_food_selected(food_key: String) -> void:
+	var food := PiyokoFoodCatalog.get_food(food_key)
+	if food.is_empty():
+		return
+	_start_food_effect(food_key, str(food.get("name", food_key)))
 
 
 func _start_food_effect(food_key: String, display_name: String) -> void:
@@ -511,7 +546,7 @@ func _start_food_effect(food_key: String, display_name: String) -> void:
 func _on_food_effect_finished(food_key: String) -> void:
 	piyoko.feed(food_key)
 
-	var likes_food := food_key != "broccoli"
+	var likes_food := bool(PiyokoFoodCatalog.get_food(food_key).get("liked", true))
 	_finish_care_action(likes_food)
 
 	if not likes_food and not is_growing:

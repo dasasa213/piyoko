@@ -15,6 +15,11 @@ func _ready() -> void:
 	_build_screen()
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and OS.has_feature("mobile"):
+		_on_back_pressed()
+
+
 func _build_screen() -> void:
 	var shade := ColorRect.new()
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

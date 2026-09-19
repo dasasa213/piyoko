@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "foods": [
+    {
+      "id": "shortcake",
+      "name": "ショートケーキ",
+      "button_text": "🍰 ショートケーキ",
+      "image": "res://assets/items/food/01_shortcake.png",
+      "effects": {"hunger": 2, "friendship": 1, "mood": 2},
+      "liked": true,
+      "count_field": "shortcake_count",
+      "adult_count_field": "adult_shortcake_count",
+      "order": 0
+    },
+    {
+      "id": "onigiri",
+      "name": "おにぎり",
+      "button_text": "🍙 おにぎり",
+      "image": "res://assets/items/food/02_onigiri.png",
+      "effects": {"hunger": 2, "friendship": 0, "mood": 1},
+      "liked": true,
+      "count_field": "onigiri_count",
+      "adult_count_field": "adult_onigiri_count",
+      "order": 1
+    },
+    {
+      "id": "broccoli",
+      "name": "ブロッコリー",
+      "button_text": "🥦 ブロッコリー",
+      "image": "res://assets/items/food/03_broccoli.png",
+      "effects": {"hunger": 2, "friendship": -1, "mood": -1},
+      "liked": false,
+      "count_field": "broccoli_count",
+      "adult_count_field": "adult_broccoli_count",
+      "order": 2
+    }
+  ]
+}

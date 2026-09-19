@@ -86,6 +86,10 @@ var last_care: String = ""
 # ------------------------------------------------------------
 
 func feed(food_type: String) -> void:
+	var food := PiyokoFoodCatalog.get_food(food_type)
+	if food.is_empty():
+		push_warning("未定義の食べ物です: %s" % food_type)
+		return
 	var was_full := hunger >= STATUS_MAX
 	_add_growth()
 	food_count += 1
@@ -96,29 +100,23 @@ func feed(food_type: String) -> void:
 			full_hunger_feed_count += 1
 		_record_oshimotif_step("food")
 
-	match food_type:
-		"shortcake":
-			shortcake_count += 1
-			if growth_stage == 1:
-				adult_shortcake_count += 1
-			_add_hunger(2)
-			_add_friendship(1)
-			_add_mood(2)
+	_increment_defined_counter(str(food.get("count_field", "")))
+	if growth_stage == 1:
+		_increment_defined_counter(str(food.get("adult_count_field", "")))
+	var effects: Dictionary = food.get("effects", {})
+	_add_hunger(int(effects.get("hunger", 0)))
+	_add_friendship(int(effects.get("friendship", 0)))
+	_add_mood(int(effects.get("mood", 0)))
 
-		"onigiri":
-			onigiri_count += 1
-			if growth_stage == 1:
-				adult_onigiri_count += 1
-			_add_hunger(2)
-			_add_mood(1)
 
-		"broccoli":
-			broccoli_count += 1
-			if growth_stage == 1:
-				adult_broccoli_count += 1
-			_add_hunger(2)
-			_add_friendship(-1)
-			_add_mood(-1)
+func _increment_defined_counter(field_name: String) -> void:
+	if field_name.is_empty():
+		return
+	var current_value = get(field_name)
+	if current_value == null:
+		push_warning("食べ物の回数項目が見つかりません: %s" % field_name)
+		return
+	set(field_name, int(current_value) + 1)
 
 
 func pet() -> void:

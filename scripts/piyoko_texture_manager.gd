@@ -184,7 +184,7 @@ static func get_reaction_texture(
 	var form := PiyokoDefinitionCatalog.get_form(form_id)
 	var reaction_path := str(form.get("reaction_%s" % reaction_name, ""))
 	if not reaction_path.is_empty():
-		return load(reaction_path) as Texture2D
+		return PiyokoDefinitionCatalog.get_reaction_texture(form_id, reaction_name)
 	if (
 		form.has("region")
 		or child_type == "work"

@@ -22,6 +22,11 @@ func _ready() -> void:
 	_build_screen(piyoko_id)
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and OS.has_feature("mobile"):
+		_on_back_button_pressed()
+
+
 func _build_screen(piyoko_id: String) -> void:
 	var background := TextureRect.new()
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -61,6 +61,11 @@ func _ready() -> void:
 	call_deferred("_finish_layout")
 
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and OS.has_feature("mobile"):
+		_on_back_button_pressed()
+
+
 func _style_collection_controls() -> void:
 	# 系統図・矢印・カード配置には触れず、画面外周の案内と戻る操作だけを整える。
 	title_label.add_theme_font_size_override("font_size", 34)

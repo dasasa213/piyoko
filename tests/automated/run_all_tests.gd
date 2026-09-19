@@ -13,6 +13,7 @@ func _run_all() -> void:
 	await process_frame
 	_test_definition_catalog()
 	_test_item_catalog()
+	_test_food_catalog()
 	_test_child_evolutions()
 	_test_all_adult_evolutions()
 	_test_status_and_work()
@@ -52,6 +53,11 @@ func _test_definition_catalog() -> void:
 		var texture_path := str(form.get("texture", ""))
 		_expect(ResourceLoader.exists(texture_path), "画像ファイルあり: " + form_id)
 		_expect(PiyokoDefinitionCatalog.get_texture(form_id) != null, "画像読込成功: " + form_id)
+		for reaction_name in ["happy", "sad", "eat"]:
+			var reaction_path := str(form.get("reaction_%s" % reaction_name, ""))
+			if not reaction_path.is_empty():
+				_expect(ResourceLoader.exists(reaction_path), "表情差分あり: %s/%s" % [form_id, reaction_name])
+				_expect(PiyokoDefinitionCatalog.get_reaction_texture(form_id, reaction_name) != null, "表情差分読込成功: %s/%s" % [form_id, reaction_name])
 		var region_key := JSON.stringify(form.get("region", []))
 		var visual_key := texture_path + "|" + region_key
 		_expect(not visual_keys.has(visual_key), "全身画像・切出し領域が固有: " + form_id)
@@ -66,6 +72,20 @@ func _test_item_catalog() -> void:
 		var item := PiyokoItemCatalog.get_item(item_id)
 		_expect(not item.is_empty(), "商品を取得可能: " + item_id)
 		_expect(int(item.get("price", -1)) >= 0, "商品価格が妥当: " + item_id)
+
+
+func _test_food_catalog() -> void:
+	_expect(PiyokoFoodCatalog.validate(), "食べ物定義が妥当")
+	var ids := PiyokoFoodCatalog.get_ordered_ids()
+	_expect(ids.size() == 3, "食べ物が3種類")
+	for food_id in ids:
+		var food := PiyokoFoodCatalog.get_food(food_id)
+		_expect(not food.is_empty(), "食べ物を取得可能: " + food_id)
+		_expect(ResourceLoader.exists(str(food.get("image", ""))), "食べ物画像あり: " + food_id)
+	var piyoko := Piyoko.new()
+	piyoko.feed("shortcake")
+	_expect(piyoko.hunger == 7 and piyoko.friendship == 6 and piyoko.mood == 7, "JSONのケーキ効果を反映")
+	_expect(piyoko.shortcake_count == 1, "JSONのケーキ回数項目を反映")
 
 
 func _test_child_evolutions() -> void:

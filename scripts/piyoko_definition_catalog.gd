@@ -46,9 +46,18 @@ static func get_display_name(form_id: String, fallback: String) -> String:
 
 static func get_texture(form_id: String) -> Texture2D:
 	var form := get_form(form_id)
+	return _texture_from_form(form, "texture")
+
+
+static func get_reaction_texture(form_id: String, reaction_name: String) -> Texture2D:
+	var form := get_form(form_id)
+	return _texture_from_form(form, "reaction_%s" % reaction_name)
+
+
+static func _texture_from_form(form: Dictionary, texture_key: String) -> Texture2D:
 	if form.is_empty():
 		return null
-	var source := load(str(form.get("texture", ""))) as Texture2D
+	var source := load(str(form.get(texture_key, ""))) as Texture2D
 	if source == null:
 		return null
 	var region = form.get("region", [])

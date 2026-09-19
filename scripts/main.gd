@@ -16,11 +16,13 @@ var fullscreen_toggle: CheckButton
 func _ready() -> void:
 	PiyokoDefinitionCatalog.validate()
 	PiyokoItemCatalog.validate()
+	PiyokoFoodCatalog.validate()
 	AudioManager.play_title_bgm()
 	_setup_dialog_dim()
 	_setup_collection_button()
 	_setup_memories_button()
 	_setup_options_controls()
+	_apply_platform_ui()
 	_load_settings()
 	_update_start_buttons()
 	$OptionsPanel.hide()
@@ -39,6 +41,22 @@ func _ready() -> void:
 	$NewGameConfirm.visibility_changed.connect(_refresh_dialog_dim)
 	$FullResetConfirm.visibility_changed.connect(_refresh_dialog_dim)
 	$FullResetComplete.visibility_changed.connect(_refresh_dialog_dim)
+
+
+func _apply_platform_ui() -> void:
+	if not OS.has_feature("mobile"):
+		return
+	$TitleCenter/TitleMenu/QuitButton.hide()
+	fullscreen_toggle.hide()
+
+
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_WM_GO_BACK_REQUEST or not OS.has_feature("mobile"):
+		return
+	if $OptionsPanel.visible:
+		_on_options_back_button_pressed()
+	else:
+		get_tree().quit()
 
 
 func _setup_dialog_dim() -> void:

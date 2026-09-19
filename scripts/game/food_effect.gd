@@ -6,12 +6,6 @@ extends Node
 
 signal finished(food_key: String)
 
-const FOOD_IMAGE_PATHS := {
-	"shortcake": "res://assets/items/food/01_shortcake.png",
-	"onigiri": "res://assets/items/food/02_onigiri.png",
-	"broccoli": "res://assets/items/food/03_broccoli.png",
-}
-
 var _food_image: TextureRect
 var _reaction_label: Label
 var _active := false
@@ -50,12 +44,13 @@ func is_active() -> bool:
 func play(food_key: String, _display_name: String, viewport_size: Vector2) -> void:
 	if _active:
 		return
-	if not FOOD_IMAGE_PATHS.has(food_key):
+	var food := PiyokoFoodCatalog.get_food(food_key)
+	if food.is_empty():
 		push_warning("食べ物画像が見つかりません: %s" % food_key)
 		finished.emit(food_key)
 		return
 
-	var texture := _load_food_texture(str(FOOD_IMAGE_PATHS[food_key]))
+	var texture := _load_food_texture(str(food.get("image", "")))
 	if texture == null:
 		push_warning("食べ物画像を読み込めません: %s" % food_key)
 		finished.emit(food_key)
