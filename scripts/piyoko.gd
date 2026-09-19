@@ -285,7 +285,7 @@ func check_growth() -> bool:
 
 func _grow_to_child() -> void:
 	_determine_child_type()
-	PiyokoCollectionManager.discover("child_" + child_type)
+	_discover_form("child_" + child_type)
 
 	growth_stage = 1
 	growth_count = 0
@@ -293,10 +293,21 @@ func _grow_to_child() -> void:
 
 func _grow_to_adult() -> void:
 	_determine_adult_type()
-	PiyokoCollectionManager.discover("adult_" + adult_type)
+	_discover_form("adult_" + adult_type)
 
 	growth_stage = 2
 	growth_count = 0
+
+
+## モデルをオートロード名に静的依存させず、実行中の図鑑へ登録する。
+## これにより通常起動とヘッドレステストの双方で同じ成長処理を使える。
+func _discover_form(form_id: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	var collection_manager := tree.root.get_node_or_null("PiyokoCollectionManager")
+	if collection_manager != null:
+		collection_manager.discover(form_id)
 
 
 ## ちび期のお世話回数で子ぴよこの系統を決定する。
