@@ -53,12 +53,6 @@ const CHILD_REACTION_TEXTURES := {
 		"sad": preload("res://assets/characters/piyoko/reactions/child_balance_sad.png"),
 		"eat": preload("res://assets/characters/piyoko/reactions/child_balance_eat.png"),
 	},
-	# 専用素材が追加されるまでは通常画像を安全な代替として使用する。
-	"work": {
-		"happy": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
-		"sad": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
-		"eat": preload("res://assets/characters/piyoko/forms/05_child_balance.png"),
-	},
 }
 
 
@@ -94,18 +88,6 @@ const ADULT_REACTION_TEXTURES := {
 		"sad": preload("res://assets/characters/piyoko/reactions/adult_nap_sad.png"),
 		"eat": preload("res://assets/characters/piyoko/reactions/adult_nap_eat.png"),
 	},
-	# 専用リアクション画像を追加するまでは、通常立ち絵を崩さず使用する。
-	"hana": {
-		"happy": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
-		"sad": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
-		"eat": preload("res://assets/characters/piyoko/forms/15_adult_yankee.png"),
-	},
-	"unpiyo": {"happy": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"), "sad": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"), "eat": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png")},
-	"umakowa": {"happy": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"), "sad": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"), "eat": preload("res://assets/characters/piyoko/forms/08_adult_champion.png")},
-	"haru": {"happy": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"), "sad": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"), "eat": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png")},
-	"suit": {"happy": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"), "sad": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"), "eat": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png")},
-	"shop": {"happy": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"), "sad": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"), "eat": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png")},
-	"break": {"happy": preload("res://assets/characters/piyoko/forms/11_adult_nap.png"), "sad": preload("res://assets/characters/piyoko/forms/11_adult_nap.png"), "eat": preload("res://assets/characters/piyoko/forms/11_adult_nap.png")},
 	"rainbow": {
 		"happy": preload("res://assets/characters/piyoko/reactions/adult_rainbow_happy.png"),
 		"sad": preload("res://assets/characters/piyoko/reactions/adult_rainbow_sad.png"),
@@ -138,8 +120,7 @@ const CHILD_TEXTURES := {
 
 	"balance": preload(
 		"res://assets/characters/piyoko/forms/05_child_balance.png"
-	),
-	"work": preload("res://assets/characters/piyoko/forms/05_child_balance.png")
+	)
 }
 
 
@@ -172,23 +153,13 @@ const ADULT_TEXTURES := {
 		"res://assets/characters/piyoko/forms/11_adult_nap.png"
 	),
 
-	"hana": preload(
-		"res://assets/characters/piyoko/forms/15_adult_yankee.png"
-	),
-
 	"rainbow": preload(
 		"res://assets/characters/piyoko/forms/12_adult_rainbow.png"
 	),
 
 	"oshimotif": preload(
 		"res://assets/characters/piyoko/forms/13_adult_oshimotif.png"
-	),
-	"unpiyo": preload("res://assets/characters/piyoko/forms/14_extra_pooppiyo.png"),
-	"umakowa": preload("res://assets/characters/piyoko/forms/08_adult_champion.png"),
-	"haru": preload("res://assets/characters/piyoko/forms/13_adult_oshimotif.png"),
-	"suit": preload("res://assets/characters/piyoko/forms/09_adult_challenger.png"),
-	"shop": preload("res://assets/characters/piyoko/forms/07_adult_gourmet.png"),
-	"break": preload("res://assets/characters/piyoko/forms/11_adult_nap.png")
+	)
 }
 
 
@@ -209,6 +180,17 @@ static func get_reaction_texture(
 	child_type: String = "",
 	adult_type: String = ""
 ) -> Texture2D:
+	var form_id := _form_id(growth_stage, child_type, adult_type)
+	var form := PiyokoDefinitionCatalog.get_form(form_id)
+	var reaction_path := str(form.get("reaction_%s" % reaction_name, ""))
+	if not reaction_path.is_empty():
+		return load(reaction_path) as Texture2D
+	if (
+		form.has("region")
+		or child_type == "work"
+		or adult_type in ["hana", "unpiyo", "umakowa", "haru", "suit", "shop", "break"]
+	):
+		return PiyokoDefinitionCatalog.get_texture(form_id)
 	match growth_stage:
 		0:
 			return CHIBI_REACTION_TEXTURES.get(reaction_name)
@@ -226,6 +208,13 @@ static func get_texture(
 	child_type: String,
 	adult_type: String
 ) -> Texture2D:
+
+	if growth_stage >= 0:
+		var definition_texture := PiyokoDefinitionCatalog.get_texture(
+			_form_id(growth_stage, child_type, adult_type)
+		)
+		if definition_texture != null:
+			return definition_texture
 
 	match growth_stage:
 		-1:
@@ -247,3 +236,11 @@ static func get_texture(
 			)
 
 	return CHIBI_TEXTURE
+
+
+static func _form_id(growth_stage: int, child_type: String, adult_type: String) -> String:
+	match growth_stage:
+		0: return "chibi"
+		1: return "child_" + child_type
+		2: return "adult_" + adult_type
+	return ""

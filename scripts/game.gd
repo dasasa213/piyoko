@@ -602,8 +602,8 @@ func _refresh_shop_items() -> void:
 	for child in shop_list.get_children():
 		child.queue_free()
 	var economy := PiyokoEconomyManager.load_data()
-	for item_id in PiyokoEconomyManager.ITEMS:
-		var item: Dictionary = PiyokoEconomyManager.ITEMS[item_id]
+	for item_id in PiyokoItemCatalog.get_ordered_ids():
+		var item := PiyokoItemCatalog.get_item(item_id)
 		var row := HBoxContainer.new()
 		row.custom_minimum_size = Vector2(860, 74)
 		row.add_theme_constant_override("separation", 12)
@@ -614,7 +614,7 @@ func _refresh_shop_items() -> void:
 		name_label.add_theme_color_override("font_color", Color("492d16"))
 		row.add_child(name_label)
 		var effect := Label.new()
-		effect.text = str(item["effect"])
+		effect.text = str(item["effect_text"])
 		effect.custom_minimum_size = Vector2(220, 0)
 		effect.add_theme_color_override("font_color", Color("58743b"))
 		row.add_child(effect)
@@ -642,21 +642,30 @@ func _buy_shop_item(item_id: String) -> void:
 		return
 	piyoko.record_shop_purchase()
 	_save_game()
-	shop_message.text = "%sを買いました！" % PiyokoEconomyManager.ITEMS[item_id]["name"]
+	shop_message.text = "%sを買いました！" % PiyokoItemCatalog.get_item(item_id)["name"]
 	_refresh_shop_items()
 
 
 func _use_shop_item(item_id: String) -> void:
-	var item: Dictionary = PiyokoEconomyManager.ITEMS[item_id]
-	if bool(item.get("special", false)):
-		if not _can_use_special_item(item_id):
-			shop_message.text = "今はこのアイテムを使えません"
-			return
+	var item := PiyokoItemCatalog.get_item(item_id)
+	if not piyoko.can_use_item(item_id):
+		shop_message.text = "今はこのアイテムを使えません"
+		return
+	if not str(item.get("special_flag", "")).is_empty():
 		pending_special_item = item_id
 		special_use_confirm.dialog_text = "%sをこの子に使いますか？" % item["name"]
 		special_use_confirm.popup_centered()
 		return
-	var changed := piyoko.use_item(item_id, int(item.get("hunger", 0)), int(item.get("friendship", 0)), int(item.get("mood", 0)))
+	var deltas := {"hunger": 0, "friendship": 0, "mood": 0}
+	for effect_data in item.get("effects", []):
+		var effect: Dictionary = effect_data
+		if str(effect.get("type", "")) == "status_change":
+			var status := str(effect.get("status", ""))
+			if deltas.has(status):
+				deltas[status] = int(deltas[status]) + int(effect.get("value", 0))
+	var changed := piyoko.use_item(
+		item_id, int(deltas["hunger"]), int(deltas["friendship"]), int(deltas["mood"])
+	)
 	if not changed:
 		shop_message.text = "これ以上は変化しません"
 		return
@@ -665,19 +674,12 @@ func _use_shop_item(item_id: String) -> void:
 		return
 	_update_status_display()
 	_save_game()
-	shop_message.text = str(item["effect"])
+	shop_message.text = str(item["effect_text"])
 	_refresh_shop_items()
 
 
 func _can_use_special_item(item_id: String) -> bool:
-	if piyoko.growth_stage != 1:
-		return false
-	match item_id:
-		"moon_fragment": return not piyoko.moon_fragment_used
-		"horse_ticket": return piyoko.child_type == "play" and not piyoko.horse_ticket_used
-		"rainbow": return piyoko.child_type == "balance" and not piyoko.rainbow_item_used
-		"flower": return piyoko.child_type == "pet" and not piyoko.flower_item_used
-	return false
+	return piyoko.can_use_special_item(item_id)
 
 
 func _confirm_special_item() -> void:
@@ -687,7 +689,7 @@ func _confirm_special_item() -> void:
 	if not PiyokoEconomyManager.consume(pending_special_item):
 		shop_message.text = "アイテムを使用できませんでした"
 		return
-	shop_message.text = "%sを使いました" % PiyokoEconomyManager.ITEMS[pending_special_item]["name"]
+	shop_message.text = "%sを使いました" % PiyokoItemCatalog.get_item(pending_special_item)["name"]
 	pending_special_item = ""
 	_save_game()
 	_refresh_shop_items()
@@ -1144,10 +1146,7 @@ func _show_finish_result(memory_number: int) -> void:
 	AudioManager.play_se("care_complete")
 	var adult_type: String = piyoko.adult_type
 	var adult_form: Dictionary = PiyokoCollectionCatalog.get_form("adult_" + adult_type)
-	finish_result_portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(
-		adult_type,
-		PiyokoTextureManager.CHIBI_TEXTURE
-	) as Texture2D
+	finish_result_portrait.texture = PiyokoDefinitionCatalog.get_texture("adult_" + adult_type)
 	finish_result_name_label.text = str(adult_form.get("name", "大人ぴよこ"))
 	finish_result_number_label.text = "おもいで　No.%03d" % memory_number if memory_number > 0 else "おもいでに保存しました"
 

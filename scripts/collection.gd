@@ -4,7 +4,6 @@ extends Control
 ## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ15種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
-const TOTAL_COLLECTION_COUNT := 21
 const UNDISCOVERED_NAME := "？？？"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
@@ -21,43 +20,17 @@ const CARD_NAME_SIZE := Vector2(155.0, 29.0)
 const CARD_NAME_FONT_SIZE := 14
 
 # 全21形態を矢印ごと崩さず確認できる横長キャンバス。
-const DIAGRAM_SIZE := Vector2(3200.0, 570.0)
-const CENTER_CARD_X := 1420.0
 const CHIBI_Y := 0.0
 const CHILD_Y := 200.0
 const ADULT_Y := 405.0
-const CHILD_X := [190.0, 805.0, 1420.0, 2035.0, 2650.0]
-const ADULT_X := [0.0, 190.0, 380.0, 615.0, 805.0, 995.0, 1230.0, 1420.0, 1610.0, 1845.0, 2035.0, 2225.0, 2460.0, 2650.0, 2840.0]
+const CARD_STEP_X := 190.0
+const BRANCH_GAP_X := 45.0
 
 const LINE_COLOR := Color(0.25, 0.14, 0.07, 0.95)
 const LINE_WIDTH := 4.0
 const ARROW_SIZE := 9.0
 const ARROW_LINE_GAP := 5.0
 const LINE_GAP := 14.0
-
-const FORM_DATA := [
-	{"id": "chibi", "name": "ちびぴよこ", "texture": PiyokoTextureManager.CHIBI_TEXTURE},
-	{"id": "child_food", "name": "ごはんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["food"]},
-	{"id": "child_play", "name": "やんちゃぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["play"]},
-	{"id": "child_work", "name": "おてつだいぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["work"]},
-	{"id": "child_pet", "name": "あまえぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["pet"]},
-	{"id": "child_balance", "name": "へいきんぴよこ", "texture": PiyokoTextureManager.CHILD_TEXTURES["balance"]},
-	{"id": "adult_sweets", "name": "すいーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["sweets"]},
-	{"id": "adult_gourmet", "name": "ぐるめぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["gourmet"]},
-	{"id": "adult_unpiyo", "name": "うんぴよ", "texture": PiyokoTextureManager.ADULT_TEXTURES["unpiyo"]},
-	{"id": "adult_champion", "name": "ちゃんぷぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["champion"]},
-	{"id": "adult_challenger", "name": "ふぁいとぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["challenger"]},
-	{"id": "adult_umakowa", "name": "うまこわぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["umakowa"]},
-	{"id": "adult_suit", "name": "すーつぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["suit"]},
-	{"id": "adult_shop", "name": "おみせぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["shop"]},
-	{"id": "adult_break", "name": "きゅうけいぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["break"]},
-	{"id": "adult_love", "name": "らぶぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["love"]},
-	{"id": "adult_nap", "name": "おひるねぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["nap"]},
-	{"id": "adult_hana", "name": "はなぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["hana"]},
-	{"id": "adult_rainbow", "name": "にじいろぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["rainbow"]},
-	{"id": "adult_oshimotif", "name": "みこぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["oshimotif"]},
-	{"id": "adult_haru", "name": "はるぴよこ", "texture": PiyokoTextureManager.ADULT_TEXTURES["haru"]},
-]
 
 @onready var title_label: Label = $MainMargin/CollectionLayout/TitleLabel
 @onready var count_label: Label = $MainMargin/CollectionLayout/Countlabel
@@ -68,9 +41,16 @@ const FORM_DATA := [
 var diagram_canvas: Control
 var evolution_lines: Control
 var cards: Dictionary = {}
+var form_data: Array[Dictionary] = []
+var diagram_size := Vector2(3200.0, 570.0)
+var center_card_x := 1420.0
+var child_x: Array[float] = []
+var adult_x: Array[float] = []
 
 
 func _ready() -> void:
+	form_data = PiyokoCollectionCatalog.get_forms()
+	_calculate_diagram_positions()
 	_build_diagram_canvas()
 	_setup_evolution_lines()
 	_update_collection_count()
@@ -139,18 +119,41 @@ func _build_diagram_canvas() -> void:
 
 	diagram_canvas = Control.new()
 	diagram_canvas.name = "DiagramCanvas"
-	diagram_canvas.custom_minimum_size = DIAGRAM_SIZE
-	diagram_canvas.size = DIAGRAM_SIZE
+	diagram_canvas.custom_minimum_size = diagram_size
+	diagram_canvas.size = diagram_size
 	diagram_canvas.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	evolution_tree.add_child(diagram_canvas)
 
-	_create_card(FORM_DATA[0], Vector2(CENTER_CARD_X, CHIBI_Y))
+	_create_card(form_data[0], Vector2(center_card_x, CHIBI_Y))
 
-	for i in 5:
-		_create_card(FORM_DATA[i + 1], Vector2(CHILD_X[i], CHILD_Y))
+	var child_forms := PiyokoDefinitionCatalog.get_stage_forms("child")
+	for i in child_forms.size():
+		_create_card(PiyokoCollectionCatalog.get_form(str(child_forms[i]["id"])), Vector2(child_x[i], CHILD_Y))
 
-	for i in 15:
-		_create_card(FORM_DATA[i + 6], Vector2(ADULT_X[i], ADULT_Y))
+	var adult_position_index := 0
+	for child in child_forms:
+		for adult in PiyokoDefinitionCatalog.get_adults_for_lineage(str(child["lineage"])):
+			_create_card(
+				PiyokoCollectionCatalog.get_form(str(adult["id"])),
+				Vector2(adult_x[adult_position_index], ADULT_Y)
+			)
+			adult_position_index += 1
+
+
+func _calculate_diagram_positions() -> void:
+	child_x.clear()
+	adult_x.clear()
+	var cursor_x := 0.0
+	var children := PiyokoDefinitionCatalog.get_stage_forms("child")
+	for child in children:
+		var adults := PiyokoDefinitionCatalog.get_adults_for_lineage(str(child["lineage"]))
+		var branch_count := maxi(1, adults.size())
+		child_x.append(cursor_x + float(branch_count - 1) * CARD_STEP_X * 0.5)
+		for index in branch_count:
+			adult_x.append(cursor_x + float(index) * CARD_STEP_X)
+		cursor_x += float(branch_count) * CARD_STEP_X + BRANCH_GAP_X
+	diagram_size.x = maxf(1280.0, cursor_x - BRANCH_GAP_X + CARD_SIZE.x)
+	center_card_x = child_x[floori(child_x.size() * 0.5)] if not child_x.is_empty() else 0.0
 
 
 func _create_card(form: Dictionary, target_position: Vector2) -> void:
@@ -215,7 +218,7 @@ func _setup_evolution_lines() -> void:
 	evolution_lines = Control.new()
 	evolution_lines.name = "EvolutionLines"
 	evolution_lines.position = Vector2.ZERO
-	evolution_lines.size = DIAGRAM_SIZE
+	evolution_lines.size = diagram_size
 	evolution_lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	evolution_lines.z_index = 1
 	evolution_lines.draw.connect(_draw_evolution_lines)
@@ -224,24 +227,23 @@ func _setup_evolution_lines() -> void:
 
 func _finish_layout() -> void:
 	_update_scroll_mode()
-	collection_area.scroll_horizontal = maxi(0, int(CENTER_CARD_X - collection_area.size.x * 0.5 + CARD_SIZE.x * 0.5))
+	collection_area.scroll_horizontal = maxi(0, int(center_card_x - collection_area.size.x * 0.5 + CARD_SIZE.x * 0.5))
 	if evolution_lines != null:
 		evolution_lines.queue_redraw()
 
 
 func _draw_evolution_lines() -> void:
-	# ちびぴよこ → 子ぴよこ5種。
-	_draw_branch(
-		cards["chibi"],
-		[cards["child_food"], cards["child_play"], cards["child_work"], cards["child_pet"], cards["child_balance"]]
-	)
+	var child_cards: Array = []
+	for child in PiyokoDefinitionCatalog.get_stage_forms("child"):
+		child_cards.append(cards[str(child["id"])])
+	_draw_branch(cards["chibi"], child_cards)
 
-	# 子ぴよこごとに3種類の大人形態へ分岐する。
-	_draw_branch(cards["child_food"], [cards["adult_sweets"], cards["adult_gourmet"], cards["adult_unpiyo"]])
-	_draw_branch(cards["child_play"], [cards["adult_champion"], cards["adult_challenger"], cards["adult_umakowa"]])
-	_draw_branch(cards["child_work"], [cards["adult_suit"], cards["adult_shop"], cards["adult_break"]])
-	_draw_branch(cards["child_pet"], [cards["adult_love"], cards["adult_nap"], cards["adult_hana"]])
-	_draw_branch(cards["child_balance"], [cards["adult_rainbow"], cards["adult_oshimotif"], cards["adult_haru"]])
+	for child in PiyokoDefinitionCatalog.get_stage_forms("child"):
+		var adult_cards: Array = []
+		for adult in PiyokoDefinitionCatalog.get_adults_for_lineage(str(child["lineage"])):
+			adult_cards.append(cards[str(adult["id"])])
+		if not adult_cards.is_empty():
+			_draw_branch(cards[str(child["id"])], adult_cards)
 
 
 func _draw_branch(source_card: Control, target_cards: Array) -> void:
@@ -286,8 +288,8 @@ func _draw_arrow(from: Vector2, to: Vector2) -> void:
 
 func _update_scroll_mode() -> void:
 	var viewport_size := collection_area.size
-	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if DIAGRAM_SIZE.x > viewport_size.x else ScrollContainer.SCROLL_MODE_DISABLED
-	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if DIAGRAM_SIZE.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
+	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.x > viewport_size.x else ScrollContainer.SCROLL_MODE_DISABLED
+	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
 
 
 func _update_back_button_text() -> void:
@@ -299,14 +301,14 @@ func _update_back_button_text() -> void:
 
 func _update_collection_count() -> void:
 	var discovered_count := 0
-	for form in FORM_DATA:
+	for form in form_data:
 		if PiyokoCollectionManager.is_discovered(str(form["id"])):
 			discovered_count += 1
-	count_label.text = "発見数：%d / %d" % [discovered_count, TOTAL_COLLECTION_COUNT]
+	count_label.text = "発見数：%d / %d" % [discovered_count, form_data.size()]
 
 
 func _update_collection_cards() -> void:
-	for form in FORM_DATA:
+	for form in form_data:
 		var piyoko_id := str(form["id"])
 		var card := cards[piyoko_id] as Control
 		var texture_rect := card.get_node("PiyokoTexture") as TextureRect

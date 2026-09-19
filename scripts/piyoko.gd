@@ -197,27 +197,40 @@ func use_item(item_id: String, hunger_delta: int = 0, friendship_delta: int = 0,
 
 
 func use_special_item(item_id: String) -> bool:
-	match item_id:
-		"moon_fragment":
-			if growth_stage != 1 or moon_fragment_used:
-				return false
-			moon_fragment_used = true
-		"horse_ticket":
-			if growth_stage != 1 or child_type != "play" or horse_ticket_used:
-				return false
-			horse_ticket_used = true
-		"rainbow":
-			if growth_stage != 1 or child_type != "balance" or rainbow_item_used:
-				return false
-			rainbow_item_used = true
-		"flower":
-			if growth_stage != 1 or child_type != "pet" or flower_item_used:
-				return false
-			flower_item_used = true
-		_:
-			return false
+	if not can_use_special_item(item_id):
+		return false
+	var item := PiyokoItemCatalog.get_item(item_id)
+	set(str(item.get("special_flag", "")), true)
 	item_use_counts[item_id] = int(item_use_counts.get(item_id, 0)) + 1
 	return true
+
+
+func can_use_special_item(item_id: String) -> bool:
+	var item := PiyokoItemCatalog.get_item(item_id)
+	var flag := str(item.get("special_flag", ""))
+	if item.is_empty() or flag.is_empty() or not _item_allows_current_stage(item) or bool(get(flag)):
+		return false
+	var allowed: Array = item.get("allowed_lineages", [])
+	return allowed.is_empty() or child_type in allowed
+
+
+func can_use_item(item_id: String) -> bool:
+	var item := PiyokoItemCatalog.get_item(item_id)
+	if item.is_empty() or not _item_allows_current_stage(item):
+		return false
+	if not str(item.get("special_flag", "")).is_empty():
+		return can_use_special_item(item_id)
+	return true
+
+
+func _item_allows_current_stage(item: Dictionary) -> bool:
+	var stage_name := ""
+	match growth_stage:
+		0: stage_name = "chibi"
+		1: stage_name = "child"
+		2: stage_name = "adult"
+	var allowed_stages: Array = item.get("use_stages", [])
+	return not stage_name.is_empty() and (allowed_stages.is_empty() or stage_name in allowed_stages)
 
 
 # ------------------------------------------------------------
@@ -290,13 +303,18 @@ func _grow_to_adult() -> void:
 ## 5回のお世話が 2・2・1・0 または 2・1・1・1 ならバランス、
 ## それ以外で最大回数が同数なら最後に行った操作を優先する。
 func _determine_child_type() -> void:
-	var counts := {
+	var available_counts := {
 		"food": food_count,
 		"play": play_count,
 		"pet": pet_count,
 		"work": chibi_help_count
 	}
-	var sorted_counts := [food_count, play_count, pet_count, chibi_help_count]
+	var counts: Dictionary = {}
+	for child in PiyokoDefinitionCatalog.get_stage_forms("child"):
+		var care_key := str(child.get("care_key", ""))
+		if not care_key.is_empty() and available_counts.has(care_key):
+			counts[care_key] = int(available_counts[care_key])
+	var sorted_counts := counts.values()
 	sorted_counts.sort()
 
 	if sorted_counts == [0, 1, 2, 2] or sorted_counts == [1, 1, 1, 2]:
@@ -319,45 +337,7 @@ func _determine_child_type() -> void:
 
 ## 子ぴよこ期だけの履歴と使用アイテムから、大人進化先を決定する。
 func _determine_adult_type() -> void:
-	match child_type:
-		"food":
-			if full_hunger_feed_count >= 5:
-				adult_type = "unpiyo"
-				return
-			var shortcake_is_top := (
-				adult_shortcake_count > adult_onigiri_count
-				and adult_shortcake_count > adult_broccoli_count
-			)
-			adult_type = "sweets" if shortcake_is_top else "gourmet"
-		"play":
-			if horse_ticket_used and play_streak_achieved:
-				adult_type = "umakowa"
-				return
-			adult_type = "champion" if adult_play_success_count > adult_play_failure_count else "challenger"
-		"pet":
-			if flower_item_used and mood >= 8:
-				adult_type = "hana"
-			elif mood >= 8:
-				adult_type = "love"
-			else:
-				adult_type = "nap"
-		"balance":
-			if rainbow_item_used:
-				adult_type = "oshimotif"
-			elif moon_fragment_used and friendship >= 10:
-				adult_type = "haru"
-			else:
-				adult_type = "rainbow"
-		"work":
-			if child_shop_purchase_count >= 3:
-				adult_type = "shop"
-			elif mood >= 8:
-				adult_type = "break"
-			else:
-				adult_type = "suit"
-		_:
-			# 想定外の系統でも進行不能にならないための保険。
-			adult_type = "rainbow"
+	adult_type = PiyokoEvolutionEvaluator.determine_adult_type(child_type, self)
 
 
 # ------------------------------------------------------------
@@ -381,55 +361,15 @@ func get_growth_stage_name() -> String:
 
 
 func get_child_type_name() -> String:
-	match child_type:
-		"food":
-			return "ごはんぴよこ"
-		"play":
-			return "やんちゃぴよこ"
-		"pet":
-			return "あまえぴよこ"
-		"balance":
-			return "へいきんぴよこ"
-		"work":
-			return "おてつだいぴよこ"
-		_:
-			return ""
+	if child_type.is_empty():
+		return ""
+	return PiyokoDefinitionCatalog.get_display_name("child_" + child_type, "")
 
 
 func get_adult_type_name() -> String:
-	match adult_type:
-		"sweets":
-			return "すいーつぴよこ"
-		"champion":
-			return "ちゃんぷぴよこ"
-		"challenger":
-			return "ふぁいとぴよこ"
-		"love":
-			return "らぶぴよこ"
-		"gourmet":
-			return "ぐるめぴよこ"
-		"nap":
-			return "おひるねぴよこ"
-		"hana":
-			return "はなぴよこ"
-		"rainbow":
-			return "にじいろぴよこ"
-		"oshimotif":
-			return "みこぴよこ"
-		"unpiyo":
-			return "うんぴよ"
-		"umakowa":
-			return "うまこわぴよこ"
-		"haru":
-			return "はるぴよこ"
-		"suit":
-			return "すーつぴよこ"
-		"shop":
-			return "おみせぴよこ"
-		"break":
-			return "きゅうけいぴよこ"
-		_:
-			return ""
+	if adult_type.is_empty():
+		return ""
+	return PiyokoDefinitionCatalog.get_display_name("adult_" + adult_type, "")
 
 
 func get_required_growth_count() -> int:

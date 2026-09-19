@@ -129,7 +129,7 @@ func _build_profile(parent: HBoxContainer) -> void:
 
 	var portrait := TextureRect.new()
 	portrait.custom_minimum_size = Vector2(210, 166)
-	portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(adult_type, PiyokoTextureManager.CHIBI_TEXTURE)
+	portrait.texture = PiyokoDefinitionCatalog.get_texture("adult_" + adult_type)
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	column.add_child(portrait)
@@ -196,8 +196,9 @@ func _build_care_record(parent: HBoxContainer) -> void:
 	if typeof(item_counts) == TYPE_DICTIONARY:
 		for item_id in item_counts:
 			var count := int((item_counts as Dictionary)[item_id])
-			if count > 0 and PiyokoEconomyManager.ITEMS.has(str(item_id)):
-				_add_value_row(grid, str(PiyokoEconomyManager.ITEMS[str(item_id)]["name"]), "%d 回" % count)
+			if count > 0 and PiyokoItemCatalog.has_item(str(item_id)):
+				var item := PiyokoItemCatalog.get_item(str(item_id))
+				_add_value_row(grid, str(item.get("name", item_id)), "%d 回" % count)
 
 
 func _add_optional_value_row(grid: GridContainer, label_text: String, key: String, suffix: String = " 回") -> void:

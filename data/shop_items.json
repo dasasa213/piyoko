@@ -1,0 +1,15 @@
+{
+  "format_version": 1,
+  "items": [
+    {"id":"full_cookie","name":"まんぷくクッキー","category":"care","price":20,"effect_text":"おなか +2","effects":[{"type":"status_change","status":"hunger","value":2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"refresh_tea","name":"すっきりティー","category":"care","price":20,"effect_text":"おなか -2","effects":[{"type":"status_change","status":"hunger","value":-2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"friend_ribbon","name":"なかよしリボン","category":"care","price":20,"effect_text":"なかよし +2","effects":[{"type":"status_change","status":"friendship","value":2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"alone_ticket","name":"ひとり時間チケット","category":"care","price":20,"effect_text":"なかよし -2","effects":[{"type":"status_change","status":"friendship","value":-2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"smile_candy","name":"にこにこキャンディ","category":"care","price":20,"effect_text":"きげん +2","effects":[{"type":"status_change","status":"mood","value":2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"calm_herb","name":"おちつきハーブ","category":"care","price":20,"effect_text":"きげん -2","effects":[{"type":"status_change","status":"mood","value":-2}],"use_stages":["chibi","child","adult"],"consumable":true},
+    {"id":"moon_fragment","name":"月のかけら","category":"evolution","price":100,"effect_text":"月の力を宿す","special_flag":"moon_fragment_used","allowed_lineages":[],"use_stages":["child"],"confirmation_required":true,"consumable":true},
+    {"id":"horse_ticket","name":"馬券","category":"evolution","price":100,"effect_text":"勝負の力を宿す","special_flag":"horse_ticket_used","allowed_lineages":["play"],"use_stages":["child"],"confirmation_required":true,"consumable":true},
+    {"id":"rainbow","name":"にじ","category":"evolution","price":200,"effect_text":"特別な虹を宿す","special_flag":"rainbow_item_used","allowed_lineages":["balance"],"use_stages":["child"],"confirmation_required":true,"consumable":true},
+    {"id":"flower","name":"はな","category":"evolution","price":100,"effect_text":"花の力を宿す","special_flag":"flower_item_used","allowed_lineages":["pet"],"use_stages":["child"],"confirmation_required":true,"consumable":true}
+  ]
+}

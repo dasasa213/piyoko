@@ -8,20 +8,6 @@ const DATA_VERSION := 1
 const INITIAL_COINS := 50
 const MAX_COINS := 99999
 
-const ITEMS := {
-	"full_cookie": {"name": "まんぷくクッキー", "price": 20, "effect": "おなか +2", "hunger": 2},
-	"refresh_tea": {"name": "すっきりティー", "price": 20, "effect": "おなか -2", "hunger": -2},
-	"friend_ribbon": {"name": "なかよしリボン", "price": 20, "effect": "なかよし +2", "friendship": 2},
-	"alone_ticket": {"name": "ひとり時間チケット", "price": 20, "effect": "なかよし -2", "friendship": -2},
-	"smile_candy": {"name": "にこにこキャンディ", "price": 20, "effect": "きげん +2", "mood": 2},
-	"calm_herb": {"name": "おちつきハーブ", "price": 20, "effect": "きげん -2", "mood": -2},
-	"moon_fragment": {"name": "月のかけら", "price": 100, "effect": "月の力を宿す", "special": true},
-	"horse_ticket": {"name": "馬券", "price": 100, "effect": "勝負の力を宿す", "special": true},
-	"rainbow": {"name": "にじ", "price": 200, "effect": "特別な虹を宿す", "special": true},
-	"flower": {"name": "はな", "price": 100, "effect": "花の力を宿す", "special": true},
-}
-
-
 static func default_data() -> Dictionary:
 	return {
 		"data_version": DATA_VERSION,
@@ -73,10 +59,10 @@ static func add_coins(amount: int) -> int:
 
 
 static func buy(item_id: String) -> bool:
-	if not ITEMS.has(item_id):
+	if not PiyokoItemCatalog.has_item(item_id):
 		return false
 	var data := load_data()
-	var price := int((ITEMS[item_id] as Dictionary).get("price", 0))
+	var price := int(PiyokoItemCatalog.get_item(item_id).get("price", 0))
 	if int(data["coins"]) < price:
 		return false
 	data["coins"] = int(data["coins"]) - price

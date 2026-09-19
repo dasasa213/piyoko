@@ -278,7 +278,7 @@ func _create_memory_card(record: Dictionary) -> Button:
 
 	var portrait := TextureRect.new()
 	portrait.custom_minimum_size = Vector2(132, 92)
-	portrait.texture = PiyokoTextureManager.ADULT_TEXTURES.get(adult_type, PiyokoTextureManager.CHIBI_TEXTURE)
+	portrait.texture = PiyokoDefinitionCatalog.get_texture("adult_" + adult_type)
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE

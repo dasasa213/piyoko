@@ -14,6 +14,8 @@ var fullscreen_toggle: CheckButton
 
 
 func _ready() -> void:
+	PiyokoDefinitionCatalog.validate()
+	PiyokoItemCatalog.validate()
 	AudioManager.play_title_bgm()
 	_setup_dialog_dim()
 	_setup_collection_button()
