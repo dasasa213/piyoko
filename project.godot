@@ -13,7 +13,7 @@ config_version=5
 config/name="Piyoko"
 run/main_scene="uid://4tkknhhw0gue"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://assets/icons/piyoko.ico"
+config/icon="res://assets/icons/piyoko_icon.png"
 
 [autoload]
 
