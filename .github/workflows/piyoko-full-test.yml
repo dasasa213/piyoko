@@ -31,4 +31,12 @@ jobs:
         run: godot --headless --editor --path . --quit
 
       - name: Run full automated test
-        run: godot --headless --path . --script res://tests/automated/run_all_tests.gd
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/automated/run_all_tests.gd 2>&1 | tee godot-test.log
+          if grep -E "SCRIPT ERROR:|FAIL:|Error calling from signal|Failed to load script" godot-test.log; then
+            echo "Godot runtime errors were detected."
+            exit 1
+          fi
+          grep -E "=== result: [0-9]+ checks / 0 failures ===" godot-test.log
