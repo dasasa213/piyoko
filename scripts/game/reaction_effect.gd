@@ -10,10 +10,18 @@ const RAIN_PHASE_OFFSETS := [0.0, 17.0, 35.0, 8.0, 27.0]
 const GROWTH_TEXTURE_PATH := "res://assets/effects/09_growth.png"
 const HAPPY_HEART_PATH := "res://assets/effects/happy_heart.png"
 const SAD_SWEAT_PATH := "res://assets/effects/sad_sweat.png"
+const WORK_ACTION_PATH := "res://assets/effects/work_action.svg"
+const WORK_COIN_PATH := "res://assets/effects/work_coin.svg"
+const HELP_ACTION_PATH := "res://assets/effects/help_action.svg"
+const HELP_SPARKLE_PATH := "res://assets/effects/help_sparkle.svg"
 const EFFECT_TEXTURES := {
 	GROWTH_TEXTURE_PATH: preload("res://assets/effects/09_growth.png"),
 	HAPPY_HEART_PATH: preload("res://assets/effects/happy_heart.png"),
 	SAD_SWEAT_PATH: preload("res://assets/effects/sad_sweat.png"),
+	WORK_ACTION_PATH: preload("res://assets/effects/work_action.svg"),
+	WORK_COIN_PATH: preload("res://assets/effects/work_coin.svg"),
+	HELP_ACTION_PATH: preload("res://assets/effects/help_action.svg"),
+	HELP_SPARKLE_PATH: preload("res://assets/effects/help_sparkle.svg"),
 }
 
 var _rain_drops: Array[TextureRect] = []
@@ -26,6 +34,9 @@ var _growth: TextureRect
 var _growth_tween: Tween
 var _emotion_icon: TextureRect
 var _emotion_tween: Tween
+var _action_prop: TextureRect
+var _action_accent: TextureRect
+var _action_tween: Tween
 
 
 func setup(host: Control) -> void:
@@ -48,6 +59,11 @@ func setup(host: Control) -> void:
 
 	_emotion_icon = _create_effect_rect(host, Vector2(72, 72))
 	_emotion_icon.hide()
+
+	_action_prop = _create_effect_rect(host, Vector2(126, 126))
+	_action_prop.hide()
+	_action_accent = _create_effect_rect(host, Vector2(66, 66))
+	_action_accent.hide()
 
 
 func update_mood(mood: int, growth_stage: int, piyoko_center: Vector2) -> void:
@@ -83,6 +99,54 @@ func _process(delta: float) -> void:
 
 	if _mood_happy_active and is_instance_valid(_mood_heart) and not _emotion_icon.visible:
 		_mood_heart.modulate.a = 0.55 + sin(Time.get_ticks_msec() * 0.003) * 0.08
+
+
+func play_work_action(piyoko_center: Vector2, is_help: bool) -> void:
+	if not is_instance_valid(_action_prop) or not is_instance_valid(_action_accent):
+		return
+
+	if is_instance_valid(_action_tween):
+		_action_tween.kill()
+
+	_action_prop.texture = _load_texture(HELP_ACTION_PATH if is_help else WORK_ACTION_PATH)
+	_action_accent.texture = _load_texture(HELP_SPARKLE_PATH if is_help else WORK_COIN_PATH)
+	if _action_prop.texture == null or _action_accent.texture == null:
+		return
+
+	_position_on_piyoko(_action_prop, piyoko_center, Vector2(0, 54))
+	_position_on_piyoko(_action_accent, piyoko_center, Vector2(72, -56))
+	var prop_position := _action_prop.position
+	var accent_position := _action_accent.position
+	_action_prop.rotation_degrees = -8.0 if is_help else -2.0
+	_action_prop.scale = Vector2(0.82, 0.82)
+	_action_prop.modulate = Color(1, 1, 1, 0)
+	_action_accent.scale = Vector2(0.72, 0.72)
+	_action_accent.modulate = Color(1, 1, 1, 0)
+	_action_prop.show()
+	_action_accent.show()
+
+	_action_tween = create_tween()
+	_action_tween.tween_property(_action_prop, "modulate:a", 1.0, 0.12)
+	_action_tween.parallel().tween_property(_action_prop, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if is_help:
+		for angle in [9.0, -9.0, 7.0, 0.0]:
+			_action_tween.tween_property(_action_prop, "rotation_degrees", angle, 0.12).set_trans(Tween.TRANS_SINE)
+	else:
+		_action_tween.tween_property(_action_prop, "position", prop_position + Vector2(0, -8), 0.22).set_trans(Tween.TRANS_SINE)
+		_action_tween.tween_property(_action_prop, "position", prop_position, 0.22).set_trans(Tween.TRANS_SINE)
+	_action_tween.tween_property(_action_accent, "modulate:a", 1.0, 0.12)
+	_action_tween.parallel().tween_property(_action_accent, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_action_tween.parallel().tween_property(_action_accent, "position", accent_position + Vector2(0, -12), 0.28).set_trans(Tween.TRANS_SINE)
+	_action_tween.tween_interval(0.22)
+	_action_tween.tween_property(_action_prop, "modulate:a", 0.0, 0.18)
+	_action_tween.parallel().tween_property(_action_accent, "modulate:a", 0.0, 0.18)
+	_action_tween.tween_callback(_finish_action)
+	await _action_tween.finished
+
+
+func _finish_action() -> void:
+	_action_prop.hide()
+	_action_accent.hide()
 
 
 func play_happy(piyoko_center: Vector2) -> void:

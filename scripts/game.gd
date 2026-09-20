@@ -638,8 +638,12 @@ func _on_work_button_pressed() -> void:
 	if added <= 0:
 		_show_shop_message("おかねを保存できませんでした")
 		return
+	var is_help := piyoko.growth_stage == 0
 	piyoko.work()
 	_show_shop_message("%sをして+%dC" % [work_button.text, added])
+	_set_action_buttons_disabled(true)
+	if is_instance_valid(reaction_effect):
+		await reaction_effect.play_work_action(_get_piyoko_center(), is_help)
 	_finish_care_action(true)
 
 
