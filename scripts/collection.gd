@@ -4,7 +4,7 @@ extends Control
 ## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ15種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
-const UNDISCOVERED_NAME := "？？？"
+const UNDISCOVERED_NAME := "???"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
@@ -57,7 +57,6 @@ func _ready() -> void:
 	_update_collection_cards()
 	_update_back_button_text()
 	_style_collection_controls()
-	collection_area.gui_input.connect(_on_collection_area_gui_input)
 	back_button.pressed.connect(_on_back_button_pressed)
 	call_deferred("_finish_layout")
 
@@ -300,14 +299,17 @@ func _update_scroll_mode() -> void:
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
 
 
-## Androidではカード上からのスワイプでも図鑑を移動できるようにする。
-func _on_collection_area_gui_input(event: InputEvent) -> void:
+## Androidではボタンに遮られる前の画面入力からスワイプを取得する。
+## カード上から始めた操作でも図鑑全体をドラッグできる。
+func _input(event: InputEvent) -> void:
 	if not OS.has_feature("mobile") or not (event is InputEventScreenDrag):
 		return
 	var drag := event as InputEventScreenDrag
+	if not collection_area.get_global_rect().has_point(drag.position):
+		return
 	collection_area.scroll_horizontal -= int(round(drag.relative.x))
 	collection_area.scroll_vertical -= int(round(drag.relative.y))
-	collection_area.accept_event()
+	get_viewport().set_input_as_handled()
 
 
 func _update_back_button_text() -> void:
