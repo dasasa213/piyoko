@@ -10,6 +10,11 @@ const RAIN_PHASE_OFFSETS := [0.0, 17.0, 35.0, 8.0, 27.0]
 const GROWTH_TEXTURE_PATH := "res://assets/effects/09_growth.png"
 const HAPPY_HEART_PATH := "res://assets/effects/happy_heart.png"
 const SAD_SWEAT_PATH := "res://assets/effects/sad_sweat.png"
+const EFFECT_TEXTURES := {
+	GROWTH_TEXTURE_PATH: preload("res://assets/effects/09_growth.png"),
+	HAPPY_HEART_PATH: preload("res://assets/effects/happy_heart.png"),
+	SAD_SWEAT_PATH: preload("res://assets/effects/sad_sweat.png"),
+}
 
 var _rain_drops: Array[TextureRect] = []
 var _rain_center := Vector2.ZERO
@@ -163,8 +168,7 @@ func _position_on_piyoko(effect: TextureRect, piyoko_center: Vector2, offset: Ve
 
 
 func _load_texture(path: String) -> Texture2D:
-	var image := Image.new()
-	if path.is_empty() or image.load(path) != OK:
+	var texture := EFFECT_TEXTURES.get(path) as Texture2D
+	if texture == null:
 		push_warning("リアクション画像を読み込めませんでした: %s" % path)
-		return null
-	return ImageTexture.create_from_image(image)
+	return texture

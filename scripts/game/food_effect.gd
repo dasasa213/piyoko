@@ -6,6 +6,12 @@ extends Node
 
 signal finished(food_key: String)
 
+const FOOD_TEXTURES := {
+	"res://assets/items/food/01_shortcake.png": preload("res://assets/items/food/01_shortcake.png"),
+	"res://assets/items/food/02_onigiri.png": preload("res://assets/items/food/02_onigiri.png"),
+	"res://assets/items/food/03_broccoli.png": preload("res://assets/items/food/03_broccoli.png"),
+}
+
 var _food_image: TextureRect
 var _reaction_label: Label
 var _active := false
@@ -94,11 +100,7 @@ func play(food_key: String, _display_name: String, viewport_size: Vector2) -> vo
 
 
 func _load_food_texture(path: String) -> Texture2D:
-	# この演出素材はPNG本体を直接読むため、export_presets.cfgでPNGを同梱する。
-	var image := Image.new()
-	if path.is_empty() or image.load(path) != OK:
-		return null
-	return ImageTexture.create_from_image(image)
+	return FOOD_TEXTURES.get(path) as Texture2D
 
 
 func _finish(food_key: String) -> void:
