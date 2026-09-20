@@ -151,15 +151,21 @@ func _test_all_adult_evolutions() -> void:
 	}, "うまこわぴよこ")
 
 	_adult_case("work", "shop", {
-		"pc_parts_used": false, "mood": 5
-	}, "おみせぴよこ")
+		"pc_parts_used": false, "mood": 5, "child_shop_purchase_count": 3
+	}, "3個購入→おみせぴよこ")
 	_adult_case("work", "break", {
-		"pc_parts_used": false, "mood": 8
-	}, "きゅうけいぴよこ")
+		"pc_parts_used": false, "mood": 8, "child_shop_purchase_count": 0
+	}, "3個未満・きげん8→きゅうけいぴよこ")
+	_adult_case("work", "shop", {
+		"pc_parts_used": false, "mood": 8, "child_shop_purchase_count": 3
+	}, "3個購入をきゅうけいより優先→おみせぴよこ")
+	_adult_case("work", "shop", {
+		"pc_parts_used": false, "mood": 5, "child_shop_purchase_count": 0
+	}, "全条件未達→おみせぴよこ")
 	PiyokoEconomyManager.save_data({"coins": 100, "inventory": {}, "unlocks": {}})
 	_adult_case("work", "dasa", {
-		"pc_parts_used": true, "mood": 5
-	}, "ださぴよこ")
+		"pc_parts_used": true, "mood": 8, "child_shop_purchase_count": 3
+	}, "PC＋100Cを最優先→ださぴよこ")
 	PiyokoEconomyManager.save_data(PiyokoEconomyManager.default_data())
 
 	_adult_case("pet", "love", {

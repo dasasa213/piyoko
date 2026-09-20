@@ -272,13 +272,16 @@
       "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_shop_sad.png",
       "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_shop_eat.png",
       "description": "お客さんの笑顔がいちばんのごほうび。元気なあいさつと丁寧なおもてなしで、今日もお店をにぎやかにする。",
-      "condition": "ださぴよこ・きゅうけいぴよこの条件を満たさずに成長する。",
+      "condition": "おてつだいぴよこ期に商品を合計3個以上購入する。または、ほかの進化条件を満たさずに成長する。",
       "hint": "おてつだいとお店での過ごし方が成長の鍵になりそう。",
       "evolution": {
-        "priority": 0,
+        "priority": 300,
+        "fallback": true,
         "conditions": [
           {
-            "type": "default"
+            "type": "field_min",
+            "field": "child_shop_purchase_count",
+            "value": 3
           }
         ]
       }
