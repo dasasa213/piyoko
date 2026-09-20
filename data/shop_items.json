@@ -10,6 +10,7 @@
     {"id":"moon_fragment","name":"月のかけら","icon":"res://assets/items/shop/moon_fragment.png","category":"evolution","price":100,"effect_text":"月の力を宿す","special_flag":"moon_fragment_used","allowed_lineages":[],"use_stages":["child"],"confirmation_required":true,"consumable":true},
     {"id":"horse_ticket","name":"馬券","icon":"res://assets/items/shop/horse_ticket.png","category":"evolution","price":100,"effect_text":"勝負の力を宿す","special_flag":"horse_ticket_used","allowed_lineages":["play"],"use_stages":["child"],"confirmation_required":true,"consumable":true},
     {"id":"rainbow","name":"にじいろのしずく","icon":"res://assets/items/shop/rainbow.png","category":"evolution","price":200,"effect_text":"七色の力を宿す","special_flag":"rainbow_item_used","allowed_lineages":["balance"],"use_stages":["child"],"confirmation_required":true,"consumable":true},
-    {"id":"flower","name":"さくらの髪飾り","icon":"res://assets/items/shop/flower.png","category":"evolution","price":100,"effect_text":"桜の力を宿す","special_flag":"flower_item_used","allowed_lineages":["pet"],"use_stages":["child"],"confirmation_required":true,"consumable":true}
+    {"id":"flower","name":"さくらの髪飾り","icon":"res://assets/items/shop/flower.png","category":"evolution","price":100,"effect_text":"桜の力を宿す","special_flag":"flower_item_used","allowed_lineages":["pet"],"use_stages":["child"],"confirmation_required":true,"consumable":true},
+    {"id":"pc_parts","name":"PCぱーつ","icon":"res://assets/items/shop/pc_parts.png","category":"evolution","price":100,"effect_text":"PCの力を宿す","special_flag":"pc_parts_used","allowed_lineages":["work"],"use_stages":["child"],"confirmation_required":true,"consumable":true}
   ]
 }

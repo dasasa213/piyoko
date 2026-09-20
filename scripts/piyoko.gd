@@ -65,6 +65,7 @@ var moon_fragment_used: bool = false
 var horse_ticket_used: bool = false
 var rainbow_item_used: bool = false
 var flower_item_used: bool = false
+var pc_parts_used: bool = false
 
 # 子ぴよこ期だけの進化判定用履歴。
 # ちび期の操作回数と混ざらないよう、子ぴよこへ成長してから記録する。

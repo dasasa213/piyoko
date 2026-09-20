@@ -67,11 +67,12 @@ func _test_definition_catalog() -> void:
 func _test_item_catalog() -> void:
 	_expect(PiyokoItemCatalog.validate(), "ショップ定義が妥当")
 	var ids := PiyokoItemCatalog.get_ordered_ids()
-	_expect(ids.size() == 10, "ショップ商品が10種類")
+	_expect(ids.size() == 11, "ショップ商品が11種類")
 	for item_id in ids:
 		var item := PiyokoItemCatalog.get_item(item_id)
 		_expect(not item.is_empty(), "商品を取得可能: " + item_id)
 		_expect(int(item.get("price", -1)) >= 0, "商品価格が妥当: " + item_id)
+		_expect(ResourceLoader.exists(str(item.get("icon", ""))), "商品アイコンあり: " + item_id)
 
 
 func _test_food_catalog() -> void:
@@ -149,15 +150,17 @@ func _test_all_adult_evolutions() -> void:
 		"horse_ticket_used": true, "play_streak_achieved": true
 	}, "うまこわぴよこ")
 
-	_adult_case("work", "suit", {
-		"child_shop_purchase_count": 0, "mood": 5
-	}, "すーつぴよこ")
 	_adult_case("work", "shop", {
-		"child_shop_purchase_count": 3, "mood": 5
+		"pc_parts_used": false, "mood": 5
 	}, "おみせぴよこ")
 	_adult_case("work", "break", {
-		"child_shop_purchase_count": 2, "mood": 8
+		"pc_parts_used": false, "mood": 8
 	}, "きゅうけいぴよこ")
+	PiyokoEconomyManager.save_data({"coins": 100, "inventory": {}, "unlocks": {}})
+	_adult_case("work", "dasa", {
+		"pc_parts_used": true, "mood": 5
+	}, "ださぴよこ")
+	PiyokoEconomyManager.save_data(PiyokoEconomyManager.default_data())
 
 	_adult_case("pet", "love", {
 		"flower_item_used": false, "mood": 8
@@ -207,6 +210,7 @@ func _test_save_round_trip() -> void:
 	original.earned_coins = 120
 	original.child_shop_purchase_count = 3
 	original.horse_ticket_used = true
+	original.pc_parts_used = true
 	original.play_streak_achieved = true
 	original.item_use_counts = {"horse_ticket": 1}
 	_expect(PiyokoSaveManager.save(original), "育成データ保存")
@@ -217,7 +221,7 @@ func _test_save_round_trip() -> void:
 	_expect(restored.child_type == "play", "子系統を復元")
 	_expect(restored.hunger == 7 and restored.friendship == 9 and restored.mood == 8, "全ステータスを復元")
 	_expect(restored.earned_coins == 120 and restored.child_shop_purchase_count == 3, "仕事・購入履歴を復元")
-	_expect(restored.horse_ticket_used and restored.play_streak_achieved, "特殊進化条件を復元")
+	_expect(restored.horse_ticket_used and restored.pc_parts_used and restored.play_streak_achieved, "特殊進化条件を復元")
 	_expect(int(restored.item_use_counts.get("horse_ticket", 0)) == 1, "アイテム使用数を復元")
 
 

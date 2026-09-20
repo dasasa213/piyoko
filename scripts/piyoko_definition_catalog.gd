@@ -3,7 +3,8 @@ extends RefCounted
 
 const DATA_PATH := "res://data/piyoko_forms.json"
 const SUPPORTED_CONDITIONS := [
-	"default", "field_min", "field_true", "field_compare", "strict_max"
+	"default", "field_min", "field_true", "field_compare", "strict_max",
+	"economy_coin_min"
 ]
 
 static var _forms: Array[Dictionary] = []

@@ -54,6 +54,7 @@ static func add_completed_piyoko(piyoko: Piyoko) -> bool:
 		"horse_ticket_used": piyoko.horse_ticket_used,
 		"rainbow_item_used": piyoko.rainbow_item_used,
 		"flower_item_used": piyoko.flower_item_used,
+		"pc_parts_used": piyoko.pc_parts_used,
 		"lineage": ["chibi", "child_" + piyoko.child_type, "adult_" + piyoko.adult_type],
 		"favorite": false
 	})
@@ -98,14 +99,20 @@ static func load_memories() -> Array[Dictionary]:
 
 
 static func _migrate_legacy_record(record: Dictionary) -> void:
-	if str(record.get("adult_type", "")) != "yankee":
+	var old_type := str(record.get("adult_type", ""))
+	var new_type := ""
+	if old_type == "yankee":
+		new_type = "hana"
+	elif old_type == "suit":
+		new_type = "dasa"
+	else:
 		return
-	record["adult_type"] = "hana"
+	record["adult_type"] = new_type
 	var lineage = record.get("lineage", [])
 	if typeof(lineage) == TYPE_ARRAY:
 		for index in range(lineage.size()):
-			if str(lineage[index]) == "adult_yankee":
-				lineage[index] = "adult_hana"
+			if str(lineage[index]) == "adult_" + old_type:
+				lineage[index] = "adult_" + new_type
 
 
 static func get_memory(memory_number: int) -> Dictionary:

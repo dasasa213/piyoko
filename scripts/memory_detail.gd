@@ -194,9 +194,11 @@ func _build_care_record(parent: HBoxContainer) -> void:
 	if bool(record.get("horse_ticket_used", false)):
 		_add_value_row(grid, "馬券", "使用済み")
 	if bool(record.get("rainbow_item_used", false)):
-		_add_value_row(grid, "にじ", "使用済み")
+		_add_value_row(grid, "にじいろのしずく", "使用済み")
 	if bool(record.get("flower_item_used", false)):
-		_add_value_row(grid, "はな", "使用済み")
+		_add_value_row(grid, "さくらの髪飾り", "使用済み")
+	if bool(record.get("pc_parts_used", false)):
+		_add_value_row(grid, "PCぱーつ", "使用済み")
 	var item_counts = record.get("item_use_counts", {})
 	if typeof(item_counts) == TYPE_DICTIONARY:
 		for item_id in item_counts:

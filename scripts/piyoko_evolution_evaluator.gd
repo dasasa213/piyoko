@@ -29,6 +29,9 @@ static func _matches(condition: Dictionary, piyoko: Piyoko) -> bool:
 			return int(piyoko.get(str(condition.get("field", "")))) >= int(condition.get("value", 0))
 		"field_true":
 			return bool(piyoko.get(str(condition.get("field", ""))))
+		"economy_coin_min":
+			var economy := PiyokoEconomyManager.load_data()
+			return int(economy.get("coins", 0)) >= int(condition.get("value", 0))
 		"field_compare":
 			var left := int(piyoko.get(str(condition.get("left", ""))))
 			var right := int(piyoko.get(str(condition.get("right", ""))))

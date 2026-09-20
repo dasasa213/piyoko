@@ -188,7 +188,7 @@ static func get_reaction_texture(
 	if (
 		form.has("region")
 		or child_type == "work"
-		or adult_type in ["hana", "unpiyo", "umakowa", "haru", "suit", "shop", "break"]
+		or adult_type in ["hana", "unpiyo", "umakowa", "haru", "dasa", "shop", "break"]
 	):
 		return PiyokoDefinitionCatalog.get_texture(form_id)
 	match growth_stage:

@@ -120,6 +120,13 @@ func _migrate_legacy_ids() -> void:
 		discovered_dates["adult_hana"] = str(discovered_dates.get("adult_yankee", ""))
 		discovered_dates.erase("adult_yankee")
 		changed = true
+	if "adult_suit" in discovered:
+		discovered.erase("adult_suit")
+		if "adult_dasa" not in discovered:
+			discovered.append("adult_dasa")
+		discovered_dates["adult_dasa"] = str(discovered_dates.get("adult_suit", ""))
+		discovered_dates.erase("adult_suit")
+		changed = true
 	# たまごは育成演出には残すが、図鑑の掲載対象から外す。
 	if "egg" in discovered:
 		discovered.erase("egg")
