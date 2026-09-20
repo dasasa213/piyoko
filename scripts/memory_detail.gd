@@ -203,9 +203,18 @@ func _build_care_record(parent: HBoxContainer) -> void:
 	if typeof(item_counts) == TYPE_DICTIONARY:
 		for item_id in item_counts:
 			var count := int((item_counts as Dictionary)[item_id])
-			if count > 0 and PiyokoItemCatalog.has_item(str(item_id)):
+			if count > 0 and should_show_item_use_count(str(item_id)):
 				var item := PiyokoItemCatalog.get_item(str(item_id))
 				_add_value_row(grid, str(item.get("name", item_id)), "%d 回" % count)
+
+
+## 進化アイテムは1個体につき1回だけ使用でき、直前に「使用済み」で表示するため、
+## 個別の使用回数一覧には通常アイテムだけを表示する。
+static func should_show_item_use_count(item_id: String) -> bool:
+	if not PiyokoItemCatalog.has_item(item_id):
+		return false
+	var item := PiyokoItemCatalog.get_item(item_id)
+	return str(item.get("special_flag", "")).is_empty()
 
 
 func _add_optional_value_row(grid: GridContainer, label_text: String, key: String, suffix: String = " 回") -> void:

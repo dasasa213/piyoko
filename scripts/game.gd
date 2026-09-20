@@ -623,6 +623,10 @@ func _on_play_minigame_cancelled() -> void:
 # ------------------------------------------------------------
 
 func _on_work_button_pressed() -> void:
+	# 成長演出中の二重入力でAnimationPlayerが上書きされると、
+	# 演出完了時の「育成をおえる」表示まで到達できないため受け付けない。
+	if is_growing:
+		return
 	var current_coins := int(PiyokoEconomyManager.load_data().get("coins", 0))
 	if current_coins >= PiyokoEconomyManager.MAX_COINS:
 		_show_shop_message("所持金がいっぱいです")
@@ -815,7 +819,12 @@ func _update_work_and_shop_display() -> void:
 	if piyoko.flower_item_used: used_markers.append("花")
 	if piyoko.pc_parts_used: used_markers.append("PC")
 	special_marker_label.text = "使用済み：%s" % "・".join(used_markers) if not used_markers.is_empty() else ""
-	work_button.disabled = piyoko.hunger <= 0 or piyoko.mood <= 0 or int(economy.get("coins", 0)) >= PiyokoEconomyManager.MAX_COINS
+	work_button.disabled = (
+		is_growing
+		or piyoko.hunger <= 0
+		or piyoko.mood <= 0
+		or int(economy.get("coins", 0)) >= PiyokoEconomyManager.MAX_COINS
+	)
 
 
 func _play_sad_reaction() -> void:

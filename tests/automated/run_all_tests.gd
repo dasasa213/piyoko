@@ -73,6 +73,9 @@ func _test_item_catalog() -> void:
 		_expect(not item.is_empty(), "商品を取得可能: " + item_id)
 		_expect(int(item.get("price", -1)) >= 0, "商品価格が妥当: " + item_id)
 		_expect(ResourceLoader.exists(str(item.get("icon", ""))), "商品アイコンあり: " + item_id)
+	var memory_detail_script = load("res://scripts/memory_detail.gd")
+	_expect(memory_detail_script.should_show_item_use_count("full_cookie"), "通常アイテムはおもいでに使用回数を表示")
+	_expect(not memory_detail_script.should_show_item_use_count("pc_parts"), "進化アイテムはおもいでの使用回数表示から除外")
 
 
 func _test_food_catalog() -> void:
@@ -291,6 +294,16 @@ func _test_scene_smoke() -> void:
 		if instance != null:
 			root.add_child(instance)
 			await process_frame
+			if path == "res://scenes/game.tscn":
+				instance.set("is_growing", true)
+				instance.call("_update_work_and_shop_display")
+				var work_button := instance.get("work_button") as Button
+				_expect(work_button != null and work_button.disabled, "成長演出中はおしごとを再入力不可")
+				var game_piyoko := instance.get("piyoko") as Piyoko
+				game_piyoko.growth_stage = 2
+				instance.call("_update_finish_care_button")
+				var finish_button := instance.get("finish_care_button") as Button
+				_expect(finish_button != null and finish_button.visible, "大人進化後に育成をおえるを表示")
 			instance.queue_free()
 			await process_frame
 
