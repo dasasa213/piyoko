@@ -1,5 +1,5 @@
 Piyoko for Windows
-Version 1.0.0
+Version 1.0.1
 
 「小さないのちと、やさしい毎日を。」
 

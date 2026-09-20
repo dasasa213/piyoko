@@ -59,7 +59,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Piyoko-Android-debug
+          name: Piyoko-Android-debug-v1.0.1
           path: build/android/Piyoko-debug.apk
           if-no-files-found: error
           retention-days: 14
