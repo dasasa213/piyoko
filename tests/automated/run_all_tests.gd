@@ -74,6 +74,23 @@ func _test_export_settings() -> void:
 	for section in ["preset.0", "preset.1"]:
 		var include_filter := str(presets.get_value(section, "include_filter", ""))
 		_expect(include_filter.contains("*.png"), "%sで演出用PNG本体を同梱" % section)
+	_expect(
+		str(ProjectSettings.get_setting("application/config/icon", "")) == "res://assets/icons/piyoko_icon.png",
+		"ウィンドウ・タスクバーにPiyokoアイコンを設定"
+	)
+	_expect(
+		str(presets.get_value("preset.0.options", "application/icon", "")) == "res://assets/icons/piyoko.ico",
+		"Windows EXEにPiyokoアイコンを設定"
+	)
+	for icon_key in [
+		"launcher_icons/main_192x192",
+		"launcher_icons/adaptive_foreground_432x432",
+		"launcher_icons/adaptive_background_432x432",
+	]:
+		_expect(
+			str(presets.get_value("preset.1.options", icon_key, "")) == "res://assets/icons/piyoko_icon.png",
+			"AndroidにPiyokoアイコンを設定: " + icon_key
+		)
 
 
 func _test_definition_catalog() -> void:
