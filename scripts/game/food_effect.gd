@@ -94,10 +94,11 @@ func play(food_key: String, _display_name: String, viewport_size: Vector2) -> vo
 
 
 func _load_food_texture(path: String) -> Texture2D:
-	# エクスポート後はPNG本体ではなくPCK内のインポート済みリソースを読む。
-	if path.is_empty() or not ResourceLoader.exists(path):
+	# この演出素材はPNG本体を直接読むため、export_presets.cfgでPNGを同梱する。
+	var image := Image.new()
+	if path.is_empty() or image.load(path) != OK:
 		return null
-	return ResourceLoader.load(path) as Texture2D
+	return ImageTexture.create_from_image(image)
 
 
 func _finish(food_key: String) -> void:

@@ -163,7 +163,8 @@ func _position_on_piyoko(effect: TextureRect, piyoko_center: Vector2, offset: Ve
 
 
 func _load_texture(path: String) -> Texture2D:
-	if path.is_empty() or not ResourceLoader.exists(path):
+	var image := Image.new()
+	if path.is_empty() or image.load(path) != OK:
 		push_warning("リアクション画像を読み込めませんでした: %s" % path)
 		return null
-	return ResourceLoader.load(path) as Texture2D
+	return ImageTexture.create_from_image(image)

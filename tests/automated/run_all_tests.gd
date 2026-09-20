@@ -14,6 +14,7 @@ func _run_all() -> void:
 	_test_definition_catalog()
 	_test_cursor_assets()
 	_test_exported_effect_textures()
+	_test_export_settings()
 	_test_item_catalog()
 	_test_food_catalog()
 	_test_child_evolutions()
@@ -65,6 +66,14 @@ func _test_exported_effect_textures() -> void:
 	var reaction_effect = load("res://scripts/game/reaction_effect.gd").new()
 	_expect(reaction_effect.call("_load_texture", "res://assets/effects/happy_heart.png") is Texture2D, "DL版でリアクション画像を読込可能")
 	reaction_effect.free()
+
+
+func _test_export_settings() -> void:
+	var presets := ConfigFile.new()
+	_expect(presets.load("res://export_presets.cfg") == OK, "エクスポート設定を読込可能")
+	for section in ["preset.0", "preset.1"]:
+		var include_filter := str(presets.get_value(section, "include_filter", ""))
+		_expect(include_filter.contains("*.png"), "%sで演出用PNG本体を同梱" % section)
 
 
 func _test_definition_catalog() -> void:

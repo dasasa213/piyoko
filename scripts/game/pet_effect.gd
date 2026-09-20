@@ -76,10 +76,11 @@ func play(sprite: Control, viewport_size: Vector2) -> void:
 
 
 func _load_hand_texture() -> Texture2D:
-	# エクスポート後はPCK内のインポート済みリソースを読む。
-	if not ResourceLoader.exists(HAND_IMAGE_PATH):
+	# この演出素材はPNG本体を直接読むため、export_presets.cfgでPNGを同梱する。
+	var image := Image.new()
+	if image.load(HAND_IMAGE_PATH) != OK:
 		return null
-	return ResourceLoader.load(HAND_IMAGE_PATH) as Texture2D
+	return ImageTexture.create_from_image(image)
 
 
 func _play_sprite_only(sprite: Control) -> void:
