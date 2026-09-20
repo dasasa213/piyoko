@@ -5,6 +5,7 @@ extends Node
 ## ゲーム本体には成功/失敗だけを通知し、育成値の変更は game.gd 側で行う。
 
 signal completed(success: bool)
+signal cancelled
 
 const TARGET_COUNT := 3
 const TIME_LIMIT := 5.0
@@ -311,3 +312,4 @@ func _on_cancel_pressed() -> void:
 	_active = false
 	_game_timer.stop()
 	_panel.hide()
+	cancelled.emit()

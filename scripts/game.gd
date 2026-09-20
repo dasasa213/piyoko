@@ -231,6 +231,7 @@ func _setup_components() -> void:
 	add_child(play_minigame)
 	play_minigame.setup(self)
 	play_minigame.completed.connect(_on_play_minigame_finished)
+	play_minigame.cancelled.connect(_on_play_minigame_cancelled)
 
 	reaction_effect = ReactionEffectScript.new()
 	add_child(reaction_effect)
@@ -611,6 +612,12 @@ func _on_play_minigame_finished(success: bool) -> void:
 		reaction_effect.play_sad(_get_piyoko_center())
 
 
+func _on_play_minigame_cancelled() -> void:
+	# 中止はプレイ回数へ含めず、育成画面の操作だけを確実に戻す。
+	_set_action_buttons_disabled(false)
+	_update_work_and_shop_display()
+
+
 # ------------------------------------------------------------
 # おてつだい／おしごと・ショップ
 # ------------------------------------------------------------
@@ -629,7 +636,7 @@ func _on_work_button_pressed() -> void:
 		return
 	piyoko.work()
 	_show_shop_message("%sをして+%dC" % [work_button.text, added])
-	_finish_care_action(false)
+	_finish_care_action(true)
 
 
 func _open_shop() -> void:
@@ -666,27 +673,36 @@ func _refresh_shop_items() -> void:
 			continue
 		var row := HBoxContainer.new()
 		row.custom_minimum_size = Vector2(820, 64)
-		row.add_theme_constant_override("separation", 12)
+		row.add_theme_constant_override("separation", 10)
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(56, 56)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var icon_path := str(item.get("icon", ""))
+		if not icon_path.is_empty() and ResourceLoader.exists(icon_path):
+			icon.texture = load(icon_path) as Texture2D
+		row.add_child(icon)
 		var name_label := Label.new()
 		name_label.text = str(item["name"])
-		name_label.custom_minimum_size = Vector2(245, 0)
+		name_label.custom_minimum_size = Vector2(210, 0)
 		name_label.add_theme_font_size_override("font_size", 19)
 		name_label.add_theme_color_override("font_color", Color("492d16"))
 		row.add_child(name_label)
 		var effect := Label.new()
 		effect.text = str(item["effect_text"])
-		effect.custom_minimum_size = Vector2(205, 0)
+		effect.custom_minimum_size = Vector2(180, 0)
 		effect.add_theme_color_override("font_color", Color("58743b"))
 		row.add_child(effect)
 		var info := Label.new()
 		info.text = "%dC　所持:%d" % [int(item["price"]), owned] if shop_mode == "buy" else "所持:%d" % owned
-		info.custom_minimum_size = Vector2(150, 0)
+		info.custom_minimum_size = Vector2(130, 0)
 		info.add_theme_font_size_override("font_size", 17)
 		info.add_theme_color_override("font_color", Color("492d16"))
 		row.add_child(info)
 		var action := Button.new()
 		action.text = "買う" if shop_mode == "buy" else "使う"
-		action.custom_minimum_size = Vector2(135, 50)
+		action.custom_minimum_size = Vector2(120, 50)
 		_apply_action_button_style(action)
 		action.disabled = owned <= 0 if shop_mode == "inventory" else int(economy["coins"]) < int(item["price"])
 		if shop_mode == "buy":
