@@ -4,7 +4,7 @@ extends Control
 ## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ15種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
-const UNDISCOVERED_NAME := "？？？"
+const UNDISCOVERED_NAME := "???"
 const SILHOUETTE_COLOR := Color(0.12, 0.12, 0.12, 1.0)
 const DEFAULT_RETURN_SCENE := "res://scenes/game.tscn"
 const RETURN_SCENE_META := "collection_return_scene"
@@ -212,6 +212,8 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	open_button.text = ""
 	open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	open_button.tooltip_text = "詳細を見る"
+	# タッチドラッグを親のScrollContainerへ渡す。
+	open_button.mouse_filter = Control.MOUSE_FILTER_PASS
 	open_button.pressed.connect(_on_card_pressed.bind(str(form["id"])))
 	card.add_child(open_button)
 
@@ -295,6 +297,19 @@ func _update_scroll_mode() -> void:
 	var viewport_size := collection_area.size
 	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.x > viewport_size.x else ScrollContainer.SCROLL_MODE_DISABLED
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
+
+
+## Androidではボタンに遮られる前の画面入力からスワイプを取得する。
+## カード上から始めた操作でも図鑑全体をドラッグできる。
+func _input(event: InputEvent) -> void:
+	if not OS.has_feature("mobile") or not (event is InputEventScreenDrag):
+		return
+	var drag := event as InputEventScreenDrag
+	if not collection_area.get_global_rect().has_point(drag.position):
+		return
+	collection_area.scroll_horizontal -= int(round(drag.relative.x))
+	collection_area.scroll_vertical -= int(round(drag.relative.y))
+	get_viewport().set_input_as_handled()
 
 
 func _update_back_button_text() -> void:

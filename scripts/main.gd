@@ -4,6 +4,7 @@ const COLLECTION_RETURN_SCENE_META := "collection_return_scene"
 const MEMORIES_RETURN_SCENE_META := "memories_return_scene"
 const TITLE_SCENE := "res://scenes/main.tscn"
 const SETTINGS_PATH := "user://piyoko_settings.cfg"
+const TITLE_DESIGN_SIZE := Vector2(1152.0, 648.0)
 
 var collection_button: Button
 var memories_button: Button
@@ -48,6 +49,21 @@ func _apply_platform_ui() -> void:
 		return
 	$TitleCenter/TitleMenu/QuitButton.hide()
 	fullscreen_toggle.hide()
+	# Androidのステータスバー・ナビゲーション領域を除いたウィンドウ内で
+	# ゲームを最大表示する。
+	get_window().mode = Window.MODE_FULLSCREEN
+	_center_mobile_title_layout()
+	get_viewport().size_changed.connect(_center_mobile_title_layout)
+
+
+## PC版の1152×648レイアウトを崩さず、横長端末でタイトル全体を中央へ配置する。
+func _center_mobile_title_layout() -> void:
+	if not OS.has_feature("mobile"):
+		return
+	var title_center := $TitleCenter as Control
+	title_center.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	title_center.size = TITLE_DESIGN_SIZE
+	title_center.position = (get_viewport_rect().size - TITLE_DESIGN_SIZE) * 0.5
 
 
 func _notification(what: int) -> void:
