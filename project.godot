@@ -21,6 +21,7 @@ config/quit_on_go_back=false
 PiyokoCollectionManager="*uid://cyqux74yf87o3"
 AudioManager="*res://scripts/audio_manager.gd"
 PiyokoCursorManager="*res://scripts/piyoko_cursor_manager.gd"
+AndroidImmersiveManager="*res://scripts/android_immersive_manager.gd"
 
 [display]
 
