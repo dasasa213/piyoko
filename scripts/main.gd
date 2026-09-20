@@ -49,6 +49,9 @@ func _apply_platform_ui() -> void:
 		return
 	$TitleCenter/TitleMenu/QuitButton.hide()
 	fullscreen_toggle.hide()
+	# Androidのステータスバー・ナビゲーション領域を除いたウィンドウ内で
+	# ゲームを最大表示する。
+	get_window().mode = Window.MODE_FULLSCREEN
 	_center_mobile_title_layout()
 	get_viewport().size_changed.connect(_center_mobile_title_layout)
 
