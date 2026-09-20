@@ -213,9 +213,9 @@
 	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_umakowa_happy.png",
 	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_umakowa_sad.png",
 	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_umakowa_eat.png",
-	  "description": "勝負になると誰よりも熱くなる、勇ましいピヨコ。自慢の速さと負けん気で、どんな遊びにも全力で挑む。",
+	  "description": "ウマの怖を知っている猛者ピヨコ。いつも導いてくれる頼れるピヨコ。",
 	  "condition": "やんちゃぴよこ期に馬券を使い、遊びを5回連続で成功させる。",
-	  "hint": "たくさん遊んだ思い出が成長につながりそう。",
+	  "hint": "ショッに勝負するアイテム。。？　たくさんあそびたい。",
 	  "evolution": {
 		"priority": 300,
 		"conditions": [
@@ -340,7 +340,7 @@
 	  "texture": "res://assets/characters/piyoko/forms/11_adult_nap.png",
 	  "description": "静かな時間とお昼寝を愛する、のんびり屋のピヨコ。",
 	  "condition": "はな・らぶの条件を満たさずに成長する。",
-	  "hint": "ふれあいと、きげんを大切にしてみよう。",
+	  "hint": "はなをどこかに落としたみたい。",
 	  "evolution": {
 		"priority": 0,
 		"conditions": [
@@ -440,7 +440,7 @@
 	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_haru_eat.png",
 	  "description": "月のかけらに導かれて成長した、穏やかなピヨコ。夜空を眺めながら、大切な人のそばを優しく照らしている。",
 	  "condition": "へいきんぴよこ期に月のかけらを使い、なかよしを10にする。",
-	  "hint": "いろいろなお世話を偏らず試してみよう。",
+	  "hint": "月をどこかに落としみたい。",
 	  "evolution": {
 		"priority": 200,
 		"conditions": [
