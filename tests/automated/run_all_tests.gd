@@ -13,6 +13,7 @@ func _run_all() -> void:
 	await process_frame
 	_test_definition_catalog()
 	_test_cursor_assets()
+	_test_android_immersive_mode()
 	_test_exported_effect_textures()
 	_test_export_settings()
 	_test_item_catalog()
@@ -51,6 +52,19 @@ func _test_cursor_assets() -> void:
 		if cursor_texture != null:
 			_expect(cursor_texture.get_size() == Vector2(64, 64), "カーソル画像は64px: " + cursor_path)
 	_expect(get_root().has_node("PiyokoCursorManager"), "カーソル管理が自動読込済み")
+
+
+func _test_android_immersive_mode() -> void:
+	_expect(
+		get_root().has_node("AndroidImmersiveManager"),
+		"Android没入型表示の再適用管理が自動読込済み"
+	)
+	var presets := ConfigFile.new()
+	_expect(presets.load("res://export_presets.cfg") == OK, "Android表示設定を読込可能")
+	_expect(
+		bool(presets.get_value("preset.1.options", "screen/immersive_mode", false)),
+		"Androidの戻る・ホームボタンを没入型表示で隠す"
+	)
 
 
 func _test_exported_effect_textures() -> void:
