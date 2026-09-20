@@ -1,0 +1,65 @@
+name: Piyoko Android Build
+
+on:
+  push:
+    branches: [feature/android-support]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug-apk:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: true
+
+      - name: Import project resources
+        run: godot --headless --editor --path . --quit
+
+      - name: Configure Android SDK paths
+        shell: bash
+        run: |
+          SETTINGS_DIR="$HOME/.config/godot"
+          SETTINGS_FILE="$SETTINGS_DIR/editor_settings-4.tres"
+          mkdir -p "$SETTINGS_DIR"
+          if [ ! -f "$SETTINGS_FILE" ]; then
+            printf '[gd_resource format=3]\n\n[resource]\n' > "$SETTINGS_FILE"
+          fi
+          sed -i '/export\/android\/android_sdk_path/d' "$SETTINGS_FILE"
+          sed -i '/export\/android\/java_sdk_path/d' "$SETTINGS_FILE"
+          printf 'export/android/android_sdk_path = "%s"\n' "$ANDROID_HOME" >> "$SETTINGS_FILE"
+          printf 'export/android/java_sdk_path = "%s"\n' "$JAVA_HOME_17_X64" >> "$SETTINGS_FILE"
+
+      - name: Export debug APK
+        run: |
+          mkdir -p build/android
+          godot --headless --path . --export-debug "Android" build/android/Piyoko-debug.apk
+          test -s build/android/Piyoko-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Piyoko-Android-debug
+          path: build/android/Piyoko-debug.apk
+          if-no-files-found: error
+          retention-days: 14
