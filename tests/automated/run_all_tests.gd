@@ -12,6 +12,7 @@ func _run_all() -> void:
 	print("\n=== Piyoko automated full test ===")
 	await process_frame
 	_test_definition_catalog()
+	_test_cursor_assets()
 	_test_item_catalog()
 	_test_food_catalog()
 	_test_child_evolutions()
@@ -34,6 +35,20 @@ func _expect(condition: bool, label: String) -> void:
 	else:
 		failures += 1
 		push_error("FAIL: " + label)
+
+
+func _test_cursor_assets() -> void:
+	var cursor_paths := [
+		"res://assets/ui/cursor_piyoko_normal.png",
+		"res://assets/ui/cursor_piyoko_hover.png",
+	]
+	for cursor_path in cursor_paths:
+		_expect(ResourceLoader.exists(cursor_path), "カーソル画像あり: " + cursor_path)
+		var cursor_texture := load(cursor_path) as Texture2D
+		_expect(cursor_texture != null, "カーソル画像読込成功: " + cursor_path)
+		if cursor_texture != null:
+			_expect(cursor_texture.get_size() == Vector2(64, 64), "カーソル画像は64px: " + cursor_path)
+	_expect(get_root().has_node("PiyokoCursorManager"), "カーソル管理が自動読込済み")
 
 
 func _test_definition_catalog() -> void:
