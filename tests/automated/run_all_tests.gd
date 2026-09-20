@@ -15,6 +15,7 @@ func _run_all() -> void:
 	_test_cursor_assets()
 	_test_android_immersive_mode()
 	_test_exported_effect_textures()
+	_test_work_action_effects()
 	_test_export_settings()
 	_test_item_catalog()
 	_test_food_catalog()
@@ -65,6 +66,17 @@ func _test_android_immersive_mode() -> void:
 		bool(presets.get_value("preset.1.options", "screen/immersive_mode", false)),
 		"Androidの戻る・ホームボタンを没入型表示で隠す"
 	)
+
+
+func _test_work_action_effects() -> void:
+	for effect_path in [
+		"res://assets/effects/work_action.svg",
+		"res://assets/effects/work_coin.svg",
+		"res://assets/effects/help_action.svg",
+		"res://assets/effects/help_sparkle.svg",
+	]:
+		_expect(ResourceLoader.exists(effect_path), "おしごと・おてつだい演出画像あり: " + effect_path)
+		_expect(load(effect_path) is Texture2D, "おしごと・おてつだい演出画像を読込可能: " + effect_path)
 
 
 func _test_exported_effect_textures() -> void:
