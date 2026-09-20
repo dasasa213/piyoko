@@ -4,7 +4,7 @@
 
 `main` ブランチへ反映すると、GitHub Actionsの「Build Piyoko for Windows」が実行されます。
 
-完了後、Actionsの実行結果から `Piyoko-Windows-x64-v1.0.0` をダウンロードします。ダウンロードされるZIPには、次の配布フォルダが含まれます。
+完了後、Actionsの実行結果から `Piyoko-Windows-x64-v1.0.1` をダウンロードします。ダウンロードされるZIPには、次の配布フォルダが含まれます。
 
 ```text
 Piyoko/
