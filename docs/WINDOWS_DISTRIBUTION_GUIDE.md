@@ -14,7 +14,6 @@ Piyoko/
 ├─ LICENSE.txt
 └─ licenses/
    ├─ THIRD_PARTY_NOTICES.md
-   ├─ materials_inventory.md
    └─ audio_sources.md
 ```
 
@@ -58,4 +57,3 @@ Piyoko/
 - [ ] READMEの説明が実際の画面と一致
 - [ ] ライセンス資料を同梱
 - [ ] バージョン番号が全ファイルで一致
-

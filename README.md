@@ -75,13 +75,9 @@ Windows版はGodot 4.7.2のWindows Desktopエクスポートで作成してい�
 
 手動の総合テスト項目は [tests/COMPREHENSIVE_TEST_2026-09-18.md](tests/COMPREHENSIVE_TEST_2026-09-18.md) にあります。
 
-## ライセンスと素材
+## ライセンス
 
 ソースコードのライセンスは [LICENSE](LICENSE) を確認してください。
 
-画像・音源・フォントなどは、ソースコードとは異なる利用条件を含む場合があります。素材ごとの出典と条件は以下に記録しています。
-
-- [第三者素材の表記](licenses/THIRD_PARTY_NOTICES.md)
-- [素材台帳](licenses/materials_inventory.md)
+- [第三者ソフトウェア・音声素材の表記](licenses/THIRD_PARTY_NOTICES.md)
 - [音源出典](licenses/audio_sources.md)
-

@@ -36,7 +36,6 @@ jobs:
           cp VERSION.txt build/package/Piyoko/VERSION.txt
           cp LICENSE build/package/Piyoko/LICENSE.txt
           cp licenses/THIRD_PARTY_NOTICES.md build/package/Piyoko/licenses/
-          cp licenses/materials_inventory.md build/package/Piyoko/licenses/
           cp licenses/audio_sources.md build/package/Piyoko/licenses/
           test -s build/package/Piyoko/Piyoko.exe
           test -s build/package/Piyoko/README.txt
