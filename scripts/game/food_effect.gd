@@ -94,12 +94,10 @@ func play(food_key: String, _display_name: String, viewport_size: Vector2) -> vo
 
 
 func _load_food_texture(path: String) -> Texture2D:
-	# インポートキャッシュに依存せず、PNG本体から直接テクスチャを作る。
-	var image := Image.new()
-	var error := image.load(path)
-	if error != OK:
+	# エクスポート後はPNG本体ではなくPCK内のインポート済みリソースを読む。
+	if path.is_empty() or not ResourceLoader.exists(path):
 		return null
-	return ImageTexture.create_from_image(image)
+	return ResourceLoader.load(path) as Texture2D
 
 
 func _finish(food_key: String) -> void:

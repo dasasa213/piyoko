@@ -13,6 +13,7 @@ func _run_all() -> void:
 	await process_frame
 	_test_definition_catalog()
 	_test_cursor_assets()
+	_test_exported_effect_textures()
 	_test_item_catalog()
 	_test_food_catalog()
 	_test_child_evolutions()
@@ -49,6 +50,21 @@ func _test_cursor_assets() -> void:
 		if cursor_texture != null:
 			_expect(cursor_texture.get_size() == Vector2(64, 64), "カーソル画像は64px: " + cursor_path)
 	_expect(get_root().has_node("PiyokoCursorManager"), "カーソル管理が自動読込済み")
+
+
+func _test_exported_effect_textures() -> void:
+	var food_effect = load("res://scripts/game/food_effect.gd").new()
+	var cake_path := str(PiyokoFoodCatalog.get_food("shortcake").get("image", ""))
+	_expect(food_effect.call("_load_food_texture", cake_path) is Texture2D, "DL版で食べ物画像を読込可能")
+	food_effect.free()
+
+	var pet_effect = load("res://scripts/game/pet_effect.gd").new()
+	_expect(pet_effect.call("_load_hand_texture") is Texture2D, "DL版でなでる手画像を読込可能")
+	pet_effect.free()
+
+	var reaction_effect = load("res://scripts/game/reaction_effect.gd").new()
+	_expect(reaction_effect.call("_load_texture", "res://assets/effects/happy_heart.png") is Texture2D, "DL版でリアクション画像を読込可能")
+	reaction_effect.free()
 
 
 func _test_definition_catalog() -> void:

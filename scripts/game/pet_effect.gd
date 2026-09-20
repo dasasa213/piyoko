@@ -76,12 +76,10 @@ func play(sprite: Control, viewport_size: Vector2) -> void:
 
 
 func _load_hand_texture() -> Texture2D:
-	# Godotのインポートキャッシュに依存せず、PNG本体を直接読み込む。
-	var image := Image.new()
-	var error := image.load(HAND_IMAGE_PATH)
-	if error != OK:
+	# エクスポート後はPCK内のインポート済みリソースを読む。
+	if not ResourceLoader.exists(HAND_IMAGE_PATH):
 		return null
-	return ImageTexture.create_from_image(image)
+	return ResourceLoader.load(HAND_IMAGE_PATH) as Texture2D
 
 
 func _play_sprite_only(sprite: Control) -> void:
