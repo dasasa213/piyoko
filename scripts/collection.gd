@@ -57,6 +57,7 @@ func _ready() -> void:
 	_update_collection_cards()
 	_update_back_button_text()
 	_style_collection_controls()
+	collection_area.gui_input.connect(_on_collection_area_gui_input)
 	back_button.pressed.connect(_on_back_button_pressed)
 	call_deferred("_finish_layout")
 
@@ -212,6 +213,8 @@ func _create_card(form: Dictionary, target_position: Vector2) -> void:
 	open_button.text = ""
 	open_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	open_button.tooltip_text = "詳細を見る"
+	# タッチドラッグを親のScrollContainerへ渡す。
+	open_button.mouse_filter = Control.MOUSE_FILTER_PASS
 	open_button.pressed.connect(_on_card_pressed.bind(str(form["id"])))
 	card.add_child(open_button)
 
@@ -295,6 +298,16 @@ func _update_scroll_mode() -> void:
 	var viewport_size := collection_area.size
 	collection_area.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.x > viewport_size.x else ScrollContainer.SCROLL_MODE_DISABLED
 	collection_area.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if diagram_size.y > viewport_size.y else ScrollContainer.SCROLL_MODE_DISABLED
+
+
+## Androidではカード上からのスワイプでも図鑑を移動できるようにする。
+func _on_collection_area_gui_input(event: InputEvent) -> void:
+	if not OS.has_feature("mobile") or not (event is InputEventScreenDrag):
+		return
+	var drag := event as InputEventScreenDrag
+	collection_area.scroll_horizontal -= int(round(drag.relative.x))
+	collection_area.scroll_vertical -= int(round(drag.relative.y))
+	collection_area.accept_event()
 
 
 func _update_back_button_text() -> void:
