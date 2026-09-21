@@ -17,6 +17,7 @@ func _run_all() -> void:
 	_test_exported_effect_textures()
 	_test_work_action_effects()
 	_test_export_settings()
+	_test_ios_export_settings()
 	_test_item_catalog()
 	_test_food_catalog()
 	_test_child_evolutions()
@@ -117,6 +118,23 @@ func _test_export_settings() -> void:
 			str(presets.get_value("preset.1.options", icon_key, "")) == "res://assets/icons/piyoko_icon.png",
 			"AndroidにPiyokoアイコンを設定: " + icon_key
 		)
+
+
+func _test_ios_export_settings() -> void:
+	var presets := ConfigFile.new()
+	_expect(presets.load("res://export_presets.cfg") == OK, "iOSエクスポート設定を読込可能")
+	_expect(str(presets.get_value("preset.2", "name", "")) == "iOS", "iOSプリセットあり")
+	_expect(str(presets.get_value("preset.2", "platform", "")) == "iOS", "iOSプラットフォームを設定")
+	_expect(bool(presets.get_value("preset.2.options", "architectures/arm64", false)), "iPhone arm64を有効化")
+	_expect(bool(presets.get_value("preset.2.options", "application/export_project_only", false)), "署名前はXcodeプロジェクトとして出力")
+	_expect(
+		str(presets.get_value("preset.2.options", "application/bundle_identifier", "")) == "com.dasasa213.piyoko",
+		"iOS Bundle IDを設定"
+	)
+	_expect(
+		str(presets.get_value("preset.2.options", "icons/app_store_1024x1024", "")) == "res://assets/icons/piyoko_icon.png",
+		"iOSアプリアイコンにPiyokoアイコンを設定"
+	)
 
 
 func _test_definition_catalog() -> void:
