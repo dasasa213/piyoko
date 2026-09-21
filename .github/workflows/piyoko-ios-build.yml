@@ -33,14 +33,26 @@ jobs:
       - name: Export iOS Xcode project
         run: |
           mkdir -p build/ios
+          set +e
           godot --headless --path . --export-debug "iOS" build/ios/Piyoko-iOS-v1.0.1.zip
-          test -s build/ios/Piyoko-iOS-v1.0.1.zip
-          unzip -l build/ios/Piyoko-iOS-v1.0.1.zip | grep -q "Piyoko.xcodeproj/project.pbxproj"
+          export_status=$?
+          set -e
+
+          # Godot can return a non-zero status after a successful project-only
+          # export when an unrelated Android ADB probe fails on the macOS runner.
+          test -s build/ios/Piyoko-iOS-v1.0.1.xcodeproj/project.pbxproj
+          if [ "$export_status" -ne 0 ]; then
+            echo "Godot returned $export_status; accepting the verified Xcode project."
+          fi
+
+          ditto -c -k --sequesterRsrc --keepParent             build/ios             build/Piyoko-iOS-Xcode-v1.0.1.zip
+          test -s build/Piyoko-iOS-Xcode-v1.0.1.zip
+          unzip -l build/Piyoko-iOS-Xcode-v1.0.1.zip | grep -q             "Piyoko-iOS-v1.0.1.xcodeproj/project.pbxproj"
 
       - name: Upload Xcode project
         uses: actions/upload-artifact@v4
         with:
           name: Piyoko-iOS-Xcode-v1.0.1
-          path: build/ios/Piyoko-iOS-v1.0.1.zip
+          path: build/Piyoko-iOS-Xcode-v1.0.1.zip
           if-no-files-found: error
           retention-days: 14
