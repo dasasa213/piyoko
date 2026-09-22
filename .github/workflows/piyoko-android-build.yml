@@ -53,13 +53,13 @@ jobs:
       - name: Export Android APK
         run: |
           mkdir -p build/android
-          godot --headless --path . --export-debug "Android" build/android/Piyoko-v1.0.1.apk
-          test -s build/android/Piyoko-v1.0.1.apk
+          godot --headless --path . --export-debug "Android" build/android/Piyoko-v1.1.0-debug.apk
+          test -s build/android/Piyoko-v1.1.0-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Piyoko-Android-v1.0.1
-          path: build/android/Piyoko-v1.0.1.apk
+          name: Piyoko-Android-v1.1.0-debug
+          path: build/android/Piyoko-v1.1.0-debug.apk
           if-no-files-found: error
           retention-days: 14

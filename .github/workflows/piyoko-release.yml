@@ -1,0 +1,99 @@
+name: Publish Piyoko Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-release:
+    name: Build and publish signed release
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify tag and project version
+        shell: bash
+        run: |
+          VERSION="$(tr -d '\r\n' < VERSION.txt)"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Godot with export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: true
+
+      - name: Configure Android SDK paths
+        shell: bash
+        run: |
+          SETTINGS_DIR="$HOME/.config/godot"
+          SETTINGS_FILE="$SETTINGS_DIR/editor_settings-4.tres"
+          mkdir -p "$SETTINGS_DIR"
+          printf '[gd_resource format=3]\n\n[resource]\n' > "$SETTINGS_FILE"
+          printf 'export/android/android_sdk_path = "%s"\n' "$ANDROID_HOME" >> "$SETTINGS_FILE"
+          printf 'export/android/java_sdk_path = "%s"\n' "$JAVA_HOME_17_X64" >> "$SETTINGS_FILE"
+
+      - name: Import project resources
+        run: godot --headless --editor --path . --quit
+
+      - name: Run automated test
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --script res://tests/automated/run_all_tests.gd 2>&1 | tee godot-test.log
+          grep -E "=== result: [0-9]+ checks / 0 failures ===" godot-test.log
+
+      - name: Restore Android release keystore
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/piyoko-release.keystore"
+          test -s "$RUNNER_TEMP/piyoko-release.keystore"
+
+      - name: Build Windows and signed Android packages
+        shell: bash
+        env:
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ runner.temp }}/piyoko-release.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          VERSION="$(tr -d '\r\n' < VERSION.txt)"
+          mkdir -p build/package/Piyoko/licenses build/release
+          godot --headless --path . --export-release "Windows Desktop" build/package/Piyoko/Piyoko.exe
+          cp README_DISTRIBUTION.txt build/package/Piyoko/README.txt
+          cp VERSION.txt build/package/Piyoko/VERSION.txt
+          cp LICENSE build/package/Piyoko/LICENSE.txt
+          cp licenses/THIRD_PARTY_NOTICES.md build/package/Piyoko/licenses/
+          cp licenses/audio_sources.md build/package/Piyoko/licenses/
+          (cd build/package && zip -r "../release/Piyoko-Windows-x64-v${VERSION}.zip" Piyoko)
+          godot --headless --path . --export-release "Android" "build/release/Piyoko-Android-arm64-v${VERSION}.apk"
+          test -s "build/release/Piyoko-Windows-x64-v${VERSION}.zip"
+          test -s "build/release/Piyoko-Android-arm64-v${VERSION}.apk"
+          (cd build/release && sha256sum *.zip *.apk > SHA256SUMS.txt)
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Piyoko $GITHUB_REF_NAME" \
+            --notes-file RELEASE_NOTES_v1.1.0.md \
+            build/release/Piyoko-Windows-x64-*.zip \
+            build/release/Piyoko-Android-arm64-*.apk \
+            build/release/SHA256SUMS.txt

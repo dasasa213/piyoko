@@ -199,6 +199,8 @@ func _build_care_record(parent: HBoxContainer) -> void:
 		_add_value_row(grid, "さくらの髪飾り", "使用済み")
 	if bool(record.get("pc_parts_used", false)):
 		_add_value_row(grid, "PCぱーつ", "使用済み")
+	if bool(record.get("poker_chip_used", false)):
+		_add_value_row(grid, "ポーカーチップ", "使用済み")
 	var item_counts = record.get("item_use_counts", {})
 	if typeof(item_counts) == TYPE_DICTIONARY:
 		for item_id in item_counts:

@@ -44,13 +44,13 @@ jobs:
 
       - name: Verify distribution package
         run: |
-          test "$(cat build/package/Piyoko/VERSION.txt)" = "1.0.1"
+          test "$(cat build/package/Piyoko/VERSION.txt)" = "1.1.0"
           find build/package/Piyoko -maxdepth 2 -type f -print | sort
 
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
-          name: Piyoko-Windows-x64-v1.0.1
+          name: Piyoko-Windows-x64-v1.1.0
           path: build/package/Piyoko
           if-no-files-found: error
           retention-days: 30
