@@ -122,10 +122,10 @@ func _test_export_settings() -> void:
 func _test_definition_catalog() -> void:
 	_expect(PiyokoDefinitionCatalog.validate(), "ピヨコ定義が妥当")
 	var forms := PiyokoDefinitionCatalog.get_forms()
-	_expect(forms.size() == 21, "図鑑対象が21形態")
+	_expect(forms.size() == 22, "図鑑対象が22形態")
 	_expect(PiyokoDefinitionCatalog.get_stage_forms("chibi").size() == 1, "ちび1形態")
 	_expect(PiyokoDefinitionCatalog.get_stage_forms("child").size() == 5, "子5形態")
-	_expect(PiyokoDefinitionCatalog.get_stage_forms("adult").size() == 15, "大人15形態")
+	_expect(PiyokoDefinitionCatalog.get_stage_forms("adult").size() == 16, "大人16形態")
 
 	var ids := {}
 	var visual_keys := {}
@@ -150,7 +150,7 @@ func _test_definition_catalog() -> void:
 func _test_item_catalog() -> void:
 	_expect(PiyokoItemCatalog.validate(), "ショップ定義が妥当")
 	var ids := PiyokoItemCatalog.get_ordered_ids()
-	_expect(ids.size() == 11, "ショップ商品が11種類")
+	_expect(ids.size() == 12, "ショップ商品が12種類")
 	for item_id in ids:
 		var item := PiyokoItemCatalog.get_item(item_id)
 		_expect(not item.is_empty(), "商品を取得可能: " + item_id)
@@ -159,6 +159,7 @@ func _test_item_catalog() -> void:
 	var memory_detail_script = load("res://scripts/memory_detail.gd")
 	_expect(memory_detail_script.should_show_item_use_count("full_cookie"), "通常アイテムはおもいでに使用回数を表示")
 	_expect(not memory_detail_script.should_show_item_use_count("pc_parts"), "進化アイテムはおもいでの使用回数表示から除外")
+	_expect(not memory_detail_script.should_show_item_use_count("poker_chip"), "ポーカーチップはおもいでの使用回数表示から除外")
 
 
 func _test_food_catalog() -> void:
@@ -248,6 +249,10 @@ func _test_all_adult_evolutions() -> void:
 	_adult_case("work", "shop", {
 		"pc_parts_used": false, "mood": 5, "child_shop_purchase_count": 0
 	}, "全条件未達→おみせぴよこ")
+	_adult_case("work", "atorisu", {
+		"poker_chip_used": true, "adult_play_success_count": 3,
+		"pc_parts_used": true, "mood": 8, "child_shop_purchase_count": 3
+	}, "ポーカーチップ＋遊び成功3回を最優先→あとりすぴよこ")
 	PiyokoEconomyManager.save_data({"coins": 100, "inventory": {}, "unlocks": {}})
 	_adult_case("work", "dasa", {
 		"pc_parts_used": true, "mood": 8, "child_shop_purchase_count": 3
@@ -303,6 +308,7 @@ func _test_save_round_trip() -> void:
 	original.child_shop_purchase_count = 3
 	original.horse_ticket_used = true
 	original.pc_parts_used = true
+	original.poker_chip_used = true
 	original.play_streak_achieved = true
 	original.item_use_counts = {"horse_ticket": 1}
 	_expect(PiyokoSaveManager.save(original), "育成データ保存")
@@ -313,7 +319,7 @@ func _test_save_round_trip() -> void:
 	_expect(restored.child_type == "play", "子系統を復元")
 	_expect(restored.hunger == 7 and restored.friendship == 9 and restored.mood == 8, "全ステータスを復元")
 	_expect(restored.earned_coins == 120 and restored.child_shop_purchase_count == 3, "仕事・購入履歴を復元")
-	_expect(restored.horse_ticket_used and restored.pc_parts_used and restored.play_streak_achieved, "特殊進化条件を復元")
+	_expect(restored.horse_ticket_used and restored.pc_parts_used and restored.poker_chip_used and restored.play_streak_achieved, "特殊進化条件を復元")
 	_expect(int(restored.item_use_counts.get("horse_ticket", 0)) == 1, "アイテム使用数を復元")
 
 
@@ -351,7 +357,7 @@ func _test_collection() -> void:
 	collection_manager.delete_collection()
 	for form in PiyokoDefinitionCatalog.get_forms():
 		collection_manager.discover(str(form.get("id", "")))
-	_expect(collection_manager.discovered.size() == 21, "全21形態を図鑑登録")
+	_expect(collection_manager.discovered.size() == 22, "全22形態を図鑑登録")
 	for form in PiyokoDefinitionCatalog.get_forms():
 		var form_id := str(form.get("id", ""))
 		_expect(collection_manager.is_discovered(form_id), "図鑑発見済み: " + form_id)

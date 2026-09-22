@@ -1,7 +1,7 @@
 extends Control
 
 ## ピヨコ図鑑画面。
-## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ15種を、
+## ちびぴよこ1種 → 子ぴよこ5種 → 大人ぴよこ16種を、
 ## 1枚のキャンバス上へ系統図として配置する。
 
 const UNDISCOVERED_NAME := "???"
@@ -19,7 +19,7 @@ const CARD_NAME_POSITION := Vector2(5.0, 96.0)
 const CARD_NAME_SIZE := Vector2(155.0, 29.0)
 const CARD_NAME_FONT_SIZE := 14
 
-# 全21形態を矢印ごと崩さず確認できる横長キャンバス。
+# 全22形態を矢印ごと崩さず確認できる横長キャンバス。
 const CHIBI_Y := 0.0
 const CHILD_Y := 200.0
 const ADULT_Y := 405.0

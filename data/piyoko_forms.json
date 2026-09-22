@@ -313,6 +313,36 @@
 	  }
 	},
 	{
+	  "id": "adult_atorisu",
+	  "type": "atorisu",
+	  "name": "あとりすぴよこ",
+	  "stage": "adult",
+	  "lineage": "work",
+	  "order": 3,
+	  "previous_id": "child_work",
+	  "texture": "res://assets/characters/piyoko/generated/v3/adult_atorisu_normal.png",
+	  "reaction_happy": "res://assets/characters/piyoko/generated/v3/adult_atorisu_happy.png",
+	  "reaction_sad": "res://assets/characters/piyoko/generated/v3/adult_atorisu_sad.png",
+	  "reaction_eat": "res://assets/characters/piyoko/generated/v3/adult_atorisu_eat.png",
+	  "description": "静かにみんなを見守る、ポーカーが得意なリス姿のピヨコ。",
+	  "condition": "おてつだいぴよこ期にポーカーチップを使い、遊びを3回成功させる。",
+	  "hint": "静かに見守りながら、勝負の腕を磨いてみよう。",
+	  "evolution": {
+		"priority": 500,
+		"conditions": [
+		  {
+			"type": "field_true",
+			"field": "poker_chip_used"
+		  },
+		  {
+			"type": "field_min",
+			"field": "adult_play_success_count",
+			"value": 3
+		  }
+		]
+	  }
+	},
+	{
 	  "id": "adult_love",
 	  "type": "love",
 	  "name": "らぶぴよこ",

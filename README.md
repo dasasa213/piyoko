@@ -7,10 +7,11 @@
 ## 動作環境
 
 - Windows 11 x64
+- Android arm64
 - キーボードとマウス、またはタッチ操作
 - インターネット接続不要
 
-Windows版はGodot 4.7.2のWindows Desktopエクスポートで作成しています。
+Windows版・Android版はGodot 4.7.2で作成しています。
 
 ## Windows版の起動
 
@@ -64,6 +65,14 @@ Windows版はGodot 4.7.2のWindows Desktopエクスポートで作成してい�
 - `data/foods.json`：食べ物
 
 定義の追加方法は [data/README_ja.md](data/README_ja.md) を確認してください。
+
+## 配布
+
+- [Android固定署名の設定](docs/ANDROID_SIGNING_GUIDE.md)
+- [itch.io掲載内容](docs/ITCH_IO_PAGE.md)
+- [Windows配布手順](docs/WINDOWS_DISTRIBUTION_GUIDE.md)
+
+`v1.1.0` タグをpushすると、固定署名済みAndroid APK、Windows ZIP、チェックサムをGitHub Releaseへ自動登録します。
 
 ## テスト
 

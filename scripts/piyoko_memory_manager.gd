@@ -55,6 +55,7 @@ static func add_completed_piyoko(piyoko: Piyoko) -> bool:
 		"rainbow_item_used": piyoko.rainbow_item_used,
 		"flower_item_used": piyoko.flower_item_used,
 		"pc_parts_used": piyoko.pc_parts_used,
+		"poker_chip_used": piyoko.poker_chip_used,
 		"lineage": ["chibi", "child_" + piyoko.child_type, "adult_" + piyoko.adult_type],
 		"favorite": false
 	})

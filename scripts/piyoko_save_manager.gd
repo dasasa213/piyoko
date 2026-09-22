@@ -62,6 +62,7 @@ static func _create_save_data(piyoko: Piyoko) -> Dictionary:
 		"rainbow_item_used": piyoko.rainbow_item_used,
 		"flower_item_used": piyoko.flower_item_used,
 		"pc_parts_used": piyoko.pc_parts_used,
+		"poker_chip_used": piyoko.poker_chip_used,
 		"adult_food_count": piyoko.adult_food_count,
 		"adult_shortcake_count": piyoko.adult_shortcake_count,
 		"adult_onigiri_count": piyoko.adult_onigiri_count,
@@ -163,6 +164,7 @@ static func _apply_save_data(piyoko: Piyoko, data: Dictionary) -> void:
 	piyoko.rainbow_item_used = bool(data.get("rainbow_item_used", false))
 	piyoko.flower_item_used = bool(data.get("flower_item_used", false))
 	piyoko.pc_parts_used = bool(data.get("pc_parts_used", false))
+	piyoko.poker_chip_used = bool(data.get("poker_chip_used", false))
 
 	# バージョン1のセーブには子ぴよこ期専用履歴がないため、0から安全に再開する。
 	piyoko.adult_food_count = int(data.get("adult_food_count", piyoko.adult_food_count))

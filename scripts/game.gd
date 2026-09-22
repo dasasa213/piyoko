@@ -822,6 +822,7 @@ func _update_work_and_shop_display() -> void:
 	if piyoko.rainbow_item_used: used_markers.append("虹")
 	if piyoko.flower_item_used: used_markers.append("花")
 	if piyoko.pc_parts_used: used_markers.append("PC")
+	if piyoko.poker_chip_used: used_markers.append("ポーカー")
 	special_marker_label.text = "使用済み：%s" % "・".join(used_markers) if not used_markers.is_empty() else ""
 	work_button.disabled = (
 		is_growing
